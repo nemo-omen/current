@@ -63,7 +63,7 @@ app.post(
 async function resolveUrl(input: string): Promise<unknown> {
   const rssService = new RssService(new Parser());
   let updated: string;
-  if (input.startsWith('http://') || input.startsWith('http://')) {
+  if (input.startsWith('http://') || input.startsWith('https://')) {
     updated = input;
   } else {
     updated = 'https://' + input;
