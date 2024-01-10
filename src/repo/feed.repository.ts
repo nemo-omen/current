@@ -11,7 +11,7 @@ export class SQLiteFeedRepository {
   getFeeds() {
     const query = this._db.query(`SELECT * FROM feeds;`);
     const res = query.all();
-    console.log({ res });
+    // console.log({ res });
     // for (const feedRes of res) {
     //   const f = new Feed(feedRes);
     // }

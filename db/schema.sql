@@ -11,7 +11,7 @@ CREATE TABLE feeds (
         description TEXT,
         feedUrl VARCHAR(255),
         link VARCHAR(255)
-    );
+    , image JSON);
 CREATE TABLE items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     feedId INTEGER NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE items (
     description TEXT,
     link VARCHAR(255),
     pubDate DATETIME,
-    content TEXT,
+    content TEXT, author TEXT, contentEncoded TEXT, contentSnippet TEXT, enclosure JSON,
 
     FOREIGN KEY (feedId)
         REFERENCES feeds(id)
@@ -29,4 +29,6 @@ CREATE TABLE items (
 INSERT INTO "schema_migrations" (version) VALUES
   ('20240106141030'),
   ('20240109033646'),
-  ('20240109034240');
+  ('20240109034240'),
+  ('20240110131659'),
+  ('20240110133129');

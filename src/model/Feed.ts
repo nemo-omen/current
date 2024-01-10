@@ -1,26 +1,51 @@
+import { number } from "zod";
 import { FeedItem } from "./FeedItem";
-
-interface FeedProps {
-  feedUrl?: string;
-  title?: string;
-  description?: string;
-  link?: string;
-  items?: FeedItem[];
-}
 
 export class Feed {
   feedUrl?: string;
   title?: string;
   description?: string;
   link?: string;
+  image?: {
+    url: string,
+    link?: string,
+    title?: string,
+    width?: number,
+    height?: number,
+  };
   items?: FeedItem[];
 
-  constructor (props: FeedProps) {
-    this.feedUrl = props.feedUrl;
-    this.title = props.title;
-    this.description = props.description;
-    this.link = props.link;
-    this.items = props.items || [];
+  constructor (
+    title?: string,
+    feedUrl?: string,
+    description?: string,
+    link?: string,
+    image?: {
+      url: string,
+      link?: string,
+      title?: string,
+      width?: string,
+      height?: string,
+    },
+    items?: FeedItem[],
+  ) {
+    this.feedUrl = feedUrl;
+    this.title = title;
+    this.description = description;
+    this.link = link;
+    this.items = items || [];
+    if (image) {
+
+      this.image = {
+        url: image.url,
+        link: image.link,
+        title: image.title || '',
+        width: parseInt(image.width) || null,
+        height: parseInt(image.height) || null,
+      };
+    } else {
+      this.image = null;
+    }
   }
 
   addItem(item: FeedItem) {
