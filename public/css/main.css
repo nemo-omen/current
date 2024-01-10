@@ -391,3 +391,9 @@ button:hover,
   font-size: 1rem;
   font-weight: 600;
 }
+
+.feed-search {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}

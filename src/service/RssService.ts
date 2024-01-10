@@ -48,7 +48,8 @@ export class RssService {
         title: parsedItem.title,
         link: parsedItem.link,
         pubDate: parsedItem.pubDate,
-        content: parsedItem.content
+        content: parsedItem.content,
+        contentSnippet: parsedItem.contentSnippet!.substring(0, 196) + '...',
       });
       feed.addItem(item);
     }

@@ -9,8 +9,10 @@ export const FeedResultPage = (c: Context) => {
     <>
       <MainSidebar />
       <main>
-        <FeedSearch />
-        <FeedResultList />
+        <section class="feed-search">
+          <FeedSearch />
+          <FeedResultList />
+        </section>
       </main>
     </>,
     {

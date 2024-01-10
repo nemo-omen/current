@@ -9,7 +9,9 @@ export const AddFeedPage = (c: Context) => {
     <>
       <MainSidebar />
       <main>
-        <FeedSearch />
+        <section class="feed-search">
+          <FeedSearch />
+        </section>
       </main>
     </>,
     {

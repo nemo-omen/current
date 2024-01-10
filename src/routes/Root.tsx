@@ -1,6 +1,7 @@
 import { Context } from 'hono'
+import { Header } from '../lib/components/Header';
 export const Root = (c: Context) => c.render(
-    <h1>Non-Authed Page</h1>,
+    <Header />,
     {
       title: ''
     }
