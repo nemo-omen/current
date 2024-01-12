@@ -403,10 +403,9 @@ button:hover,
 .search-results {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   background-color: var(--background-1);
   width: min(50rem, 90vw);
-  padding: 1rem;
 
   & h2 {
     line-height: 1.2;
@@ -419,17 +418,26 @@ button:hover,
 
 .results-header {
   display: flex;
-  align-items: center;
+  align-items: flex-top;
+  justify-content: space-between;
   gap: 1rem;
+  padding: 1rem 1rem 0 1rem;
+}
+
+.results-header-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .feed-image {
-  width: 3rem;
+  width: 2rem;
   height: auto;
 }
 
 .results-list {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+  padding: 0 1rem;
 }

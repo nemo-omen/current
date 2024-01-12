@@ -9,12 +9,13 @@ export const FeedResultList: FC = () => {
   return (
     <section class="search-results">
       <div class="results-header">
-        <div class="header-info">
+        <div class="results-header-info">
           {(feed.image ? FeedImg(feed.image) : null) }
           <h2>{feed.title}</h2>
         </div>
         <form action="/dashboard/new/subscribe" method="POST">
           <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedUrl} />
+          <button type="submit">Subscribe</button>
         </form>
       </div>
       <div class="results-list">
