@@ -1,5 +1,8 @@
 import { Database } from 'bun:sqlite';
 import { Feed } from '../model/Feed';
+import { Result } from '../lib/interfaces/Result';
+import { FeedItem } from '../model/FeedItem';
+
 export class SQLiteFeedRepository {
   private _db: Database;
   feeds: Feed[];
@@ -16,5 +19,15 @@ export class SQLiteFeedRepository {
     //   const f = new Feed(feedRes);
     // }
     return this.feeds;
+  }
+
+  saveFeed(feed: Feed): Result {
+
+    return { ok: true, data: feed };
+  }
+
+  saveItem(item: FeedItem): Result {
+
+    return { ok: true, data: item };
   }
 }

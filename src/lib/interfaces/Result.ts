@@ -1,0 +1,1 @@
+export type Result = { data: any; ok: true; } | { error: string; ok: false; };

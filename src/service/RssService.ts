@@ -3,10 +3,11 @@ import { Feed } from '../model/Feed';
 import type { Output } from 'rss-parser';
 import type { Item } from 'rss-parser';
 import { FeedItem } from '../model/FeedItem';
+import { Result } from '../lib/interfaces/Result';
 import { extract, extractFromXml } from '@extractus/feed-extractor';
 import { parse } from '@nooptoday/feed-rs';
 
-type Result = { data: any; ok: true; } | { error: string; ok: false; };
+
 type RssItem = Item & {
   author?: string;
   creator?: string;

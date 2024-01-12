@@ -60,6 +60,11 @@ app.post(
   }
 );
 
+app.post('/subscribe', (c: Context) => {
+  const feedRepo = new SQLiteFeedRepository(db);
+
+});
+
 async function resolveUrl(input: string): Promise<unknown> {
   const rssService = new RssService(new Parser());
   let updated: string;
