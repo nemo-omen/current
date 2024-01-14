@@ -46,7 +46,7 @@ export class SQLiteFeedRepository {
     return this.feeds;
   }
 
-  getAllItems(page = 1, limit = 50): Result {
+  getAllItems(page = 1, limit = 100): Result {
     // const query = this._db.query(`
     //   SELECT * FROM items
     //   ORDER BY pubDate DESC
@@ -54,7 +54,8 @@ export class SQLiteFeedRepository {
     //   `);
     const query = this._db.query(`
     SELECT * FROM items
-      ORDER BY pubDate DESC;
+      ORDER BY pubDate DESC
+      LIMIT $limit OFFSET $offset;
     `);
     let queryResult;
     try {

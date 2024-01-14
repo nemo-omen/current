@@ -394,6 +394,20 @@ button:hover,
   font-weight: 600;
 }
 
+.icon-link-button {
+  background: transparent;
+  color: currentColor;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-link-button:hover {
+  background: transparent;
+  color: var(--accent-alt);
+}
+
 .feed-search {
   display: flex;
   flex-direction: column;
@@ -453,7 +467,7 @@ button:hover,
 .item-card {
   display: flex;
   gap: 1rem;
-  width: min(70rem, 90vw);
+  width: min(65rem, 90vw);
 }
 
 .item-card-thumbnail {
@@ -471,6 +485,12 @@ button:hover,
 
 .item-card-footer {
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-card-footer-row {
+  display: flex;
   justify-content: space-between;
 }
 
@@ -485,4 +505,26 @@ button:hover,
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.item-card-footer-actions {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.item-card-menu {
+  list-style-type: none;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.item-card-menu li {
+
+  & a,
+  button {
+    font-size: 1.5rem;
+  }
 }

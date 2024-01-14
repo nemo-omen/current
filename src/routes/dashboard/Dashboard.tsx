@@ -1,6 +1,7 @@
 import { Context } from 'hono'
 import { FC } from 'hono/jsx';
 import { MainSidebar } from '../../lib/components/MainSidebar';
+import { Icon } from '../../lib/components/Icon';
 import { useRequestContext } from 'hono/jsx-renderer';
 export const Dashboard = (c: Context) => {
   const dashboardItems = c.get('dashboardItems');
@@ -49,10 +50,42 @@ const ItemCard: FC = (props) => {
           
         </div>
         <div class="item-card-footer">
-          <div class="item-card-footer-title-container">
-            <h3 class="item-card-footer-title">{item.feedTitle}</h3>
+          <div class="item-card-footer-meta item-card-footer-row">
+            <div class="item-card-footer-title-container">
+              <h3 class="item-card-footer-title">{item.feedTitle}</h3>
+            </div>
+            <time>{new Date(item.pubDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'})}</time>
           </div>
-          <time>{new Date(item.pubDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'})}</time>
+          <div class="item-card-footer-actions item-card-footer-row">
+            <ul class="item-card-menu">
+              <li>
+                <a class="icon-link" href={`/items/tags/${item.id}`}>
+                  <Icon name="tag" />
+                </a>
+              </li>
+              <li>
+                <form action="/items/read-later/" method="post">
+                  <input type="hidden" name="readLaterId" />
+                  <button class="icon-link-button" type="submit">
+                    <Icon name="stopwatch" />
+                  </button>
+                </form>
+              </li>
+              <li>
+                <form action="/items/bookmark" method="post">
+                  <input type="hidden" name="bookmarkId" />
+                  <button class="icon-link-button" type="submit">
+                    <Icon name="bookmark" />
+                  </button>
+                </form>
+              </li>
+              <li>
+                <a class="icon-link" href={`/items/collect/${item.id}`}>
+                  <Icon name="folder_add" />
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
     </article>
