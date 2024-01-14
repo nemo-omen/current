@@ -1,7 +1,7 @@
-import { number } from "zod";
-import { FeedItem } from "./FeedItem";
+import { StringerItem } from "./StringerItem";
 
-export class Feed {
+export class StringerFeed {
+  id?: number;
   feedUrl?: string;
   title?: string;
   description?: string;
@@ -13,9 +13,10 @@ export class Feed {
     width?: number,
     height?: number,
   };
-  items?: FeedItem[];
+  items?: StringerItem[];
 
   constructor (
+    id?: number,
     title?: string,
     feedUrl?: string,
     description?: string,
@@ -27,8 +28,9 @@ export class Feed {
       width?: string,
       height?: string,
     },
-    items?: FeedItem[],
+    items?: StringerItem[],
   ) {
+    this.id = id;
     this.feedUrl = feedUrl;
     this.title = title;
     this.description = description;
@@ -48,7 +50,7 @@ export class Feed {
     }
   }
 
-  addItem(item: FeedItem) {
+  addItem(item: StringerItem) {
     if (this.items === null || this.items === undefined) {
       this.items = [];
     }

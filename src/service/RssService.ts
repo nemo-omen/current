@@ -1,18 +1,20 @@
 import Parser from 'rss-parser';
-import { Feed } from '../model/Feed';
 import type { Output } from 'rss-parser';
 import type { Item } from 'rss-parser';
-import { FeedItem } from '../model/FeedItem';
 import { Result } from '../lib/interfaces/Result';
+import { StringerFeed } from '../model/StringerFeed';
+import { StringerItem } from '../model/StringerItem';
+import type { StringerItemProps } from '../model/StringerItem';
+import { RssItem } from '../lib/interfaces/RssItem';
 import { extract, extractFromXml } from '@extractus/feed-extractor';
 import { parse } from '@nooptoday/feed-rs';
 
 
-type RssItem = Item & {
-  author?: string;
-  creator?: string;
-  "content:encoded"?: string;
-};
+// type RssItem = Item & {
+//   author?: string;
+//   creator?: string;
+//   "content:encoded"?: string;
+// };
 
 export class RssService {
   parser: Parser;
@@ -70,6 +72,7 @@ export class RssService {
     }
 
     let parsed: Output<RssItem>;
+
     try {
       parsed = await this.parser.parseString(xml);
     } catch (err) {
@@ -84,7 +87,8 @@ export class RssService {
       height: parsed.image.height
     } : null);
 
-    const feed = new Feed(
+    const feed = new StringerFeed(
+      undefined,
       parsed.title,
       parsed.feedUrl,
       parsed.description,
@@ -92,19 +96,23 @@ export class RssService {
       parsedImage,
       []);
 
-    console.log(feed);
-
     for (const parsedItem of parsed.items) {
-      const item: FeedItem = new FeedItem(
-        parsedItem.title,
-        parsedItem.author,
-        parsedItem.link,
-        parsedItem.pubDate,
-        parsedItem.content,
-        parsedItem["content:encoded"],
-        parsedItem.contentSnippet!.substring(0, 196) + '...',
-        parsedItem.enclosure,
-      );
+      const itemProps: StringerItemProps = {
+        id: undefined,
+        title: parsedItem.title,
+        author: parsedItem.author,
+        link: parsedItem.link,
+        pubDate: parsedItem.pubDate,
+        content: parsedItem.content,
+        contentEncoded: parsedItem["content:encoded"],
+        contentSnippet: parsedItem.contentSnippet!.substring(0, 196) + '...',
+        enclosure: parsedItem.enclosure,
+        feedId: undefined,
+        feedImage: feed.image,
+        feedTitle: feed.title
+      };
+
+      const item: StringerItem = new StringerItem(itemProps);
       feed.addItem(item);
     }
 

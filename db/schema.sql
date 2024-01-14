@@ -25,10 +25,14 @@ CREATE TABLE items (
         REFERENCES feeds(id)
         ON DELETE CASCADE
 );
+CREATE UNIQUE INDEX unique_link ON items(link);
+CREATE UNIQUE INDEX unique_feedUrl ON feeds(feedUrl);
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20240106141030'),
   ('20240109033646'),
   ('20240109034240'),
   ('20240110131659'),
-  ('20240110133129');
+  ('20240110133129'),
+  ('20240113231019'),
+  ('20240113232153');

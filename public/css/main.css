@@ -441,3 +441,48 @@ button:hover,
   gap: 1.5rem;
   padding: 0 1rem;
 }
+
+/* MAIN DASHBOARD LIST */
+
+.dashboard-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.item-card {
+  display: flex;
+  gap: 1rem;
+  width: min(70rem, 90vw);
+}
+
+.item-card-thumbnail {
+  width: 300px;
+  height: auto;
+  aspect-ratio: 16/9;
+  border-radius: 1rem;
+}
+
+.item-card-content {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: 100%;
+}
+
+.item-card-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.item-card-footer-title-container {
+  max-width: 45ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.item-card-footer-title {
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

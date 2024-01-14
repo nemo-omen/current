@@ -1,7 +1,7 @@
 import { Fragment, FC } from "hono/jsx";
 import { html, raw } from 'hono/html';
 import { useRequestContext } from "hono/jsx-renderer";
-import { FeedItem } from "../../model/FeedItem";
+import { StringerItem } from "../../model/StringerItem";
 export const FeedResultList: FC = () => {
   const c = useRequestContext();
   const feed = c.get('feed');
@@ -13,7 +13,7 @@ export const FeedResultList: FC = () => {
           {(feed.image ? FeedImg(feed.image) : null) }
           <h2>{feed.title}</h2>
         </div>
-        <form action="/dashboard/new/subscribe" method="POST">
+        <form action="/dashboard/subscribe" method="POST">
           <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedUrl} />
           <button type="submit">Subscribe</button>
         </form>
@@ -32,7 +32,7 @@ const FeedImg = (props: {url: string, link?: string, title?: string, width?: num
   );
 }
 
-const FeedItemCard = (props: FeedItem) => {
+const FeedItemCard = (props: StringerItem) => {
   const dateString = new Date(props.pubDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
   return(
     <article class="feed-item">

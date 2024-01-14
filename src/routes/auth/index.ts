@@ -3,7 +3,7 @@ import { validator } from 'hono/validator';
 import { z } from 'zod';
 import { Login } from './view/Login';
 import { Signup } from './view/Signup';
-import { insertUser, authenticateUser, userExists } from './user.service';
+import { insertUser, authenticateUser, userExists } from './user.repository';
 
 const app = new Hono();
 
