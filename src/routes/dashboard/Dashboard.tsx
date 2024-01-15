@@ -41,13 +41,15 @@ const ItemCard: FC = (props) => {
 
   return(
     <article class="item-card">
-      {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : null}
+      {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
       <section class="item-card-content">
         <div class="item-card-header">
           <h2>{item.title}</h2>
         </div>
         <div class="item-card-text">
-          
+          <p>
+            {item.contentSnippet.substring(0, 256)}
+          </p>
         </div>
         <div class="item-card-footer">
           <div class="item-card-footer-meta item-card-footer-row">

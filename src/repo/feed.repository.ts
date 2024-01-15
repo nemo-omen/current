@@ -69,7 +69,12 @@ export class SQLiteFeedRepository {
     for (const rssItem of queryResult) {
       const feedQuery = this._db.query(`SELECT title, image FROM feeds WHERE id=$id`);
       const feedInfo = feedQuery.get({ $id: rssItem.feedId });
-      const itemProps = { ...rssItem, enclosure: JSON.parse(rssItem.enclosure), feedTitle: feedInfo.title, feedImage: JSON.parse(feedInfo.image) };
+      const itemProps: StringerItemProps = {
+        ...rssItem,
+        enclosure: JSON.parse(rssItem.enclosure),
+        feedTitle: feedInfo.title,
+        feedImage: JSON.parse(feedInfo.image)
+      };
       const item = new StringerItem(itemProps);
       items.push(item);
     }

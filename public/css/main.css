@@ -87,18 +87,18 @@
   --complement-h: 36;
   --complement-s: 100%;
   --complement-l: 67%;
-  --complement--1: hsl(var(--complement-h), var(--complement-s), --l--1);
-  --complement-0: hsl(var(--complement-h), var(--complement-s), --l-0);
-  --complement-1: hsl(var(--complement-h), var(--complement-s), --l-1);
-  --complement-2: hsl(var(--complement-h), var(--complement-s), --l-2);
-  --complement-3: hsl(var(--complement-h), var(--complement-s), --l-3);
-  --complement-4: hsl(var(--complement-h), var(--complement-s), --l-4);
-  --complement-5: hsl(var(--complement-h), var(--complement-s), --l-5);
-  --complement-6: hsl(var(--complement-h), var(--complement-s), --l-6);
-  --complement-7: hsl(var(--complement-h), var(--complement-s), --l-7);
-  --complement-8: hsl(var(--complement-h), var(--complement-s), --l-8);
-  --complement-9: hsl(var(--complement-h), var(--complement-s), --l-9);
-  --complement-10: hsl(var(--complement-h), var(--complement-s), --l-10);
+  --complement--1: hsl(var(--complement-h), var(--complement-s), var(--l--1));
+  --complement-0: hsl(var(--complement-h), var(--complement-s), var(--l-0));
+  --complement-1: hsl(var(--complement-h), var(--complement-s), var(--l-1));
+  --complement-2: hsl(var(--complement-h), var(--complement-s), var(--l-2));
+  --complement-3: hsl(var(--complement-h), var(--complement-s), var(--l-3));
+  --complement-4: hsl(var(--complement-h), var(--complement-s), var(--l-4));
+  --complement-5: hsl(var(--complement-h), var(--complement-s), var(--l-5));
+  --complement-6: hsl(var(--complement-h), var(--complement-s), var(--l-6));
+  --complement-7: hsl(var(--complement-h), var(--complement-s), var(--l-7));
+  --complement-8: hsl(var(--complement-h), var(--complement-s), var(--l-8));
+  --complement-9: hsl(var(--complement-h), var(--complement-s), var(--l-9));
+  --complement-10: hsl(var(--complement-h), var(--complement-s), var(--l-10));
 
   --background--1: var(--dark--1);
   --background: var(--dark-0);
@@ -470,11 +470,47 @@ button:hover,
   width: min(65rem, 90vw);
 }
 
-.item-card-thumbnail {
+.item-card-thumbnail,
+.thumbnail-placeholder {
   width: 300px;
-  height: auto;
   aspect-ratio: 16/9;
   border-radius: 1rem;
+}
+
+.item-card-thumbnail {
+  opacity: 0.9;
+  transition: all var(--transition);
+}
+
+.item-card-thumbnail:hover {
+  transform: scale3d(1.025, 1.025, 1);
+  opacity: 1.0;
+}
+
+.thumbnail-placeholder {
+  min-width: 300px;
+  background-color: var(--background-1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  color: var(--complement-3);
+  transition: all var(--transition);
+
+  & .icon {
+    transition: all var(--transition);
+    transform-origin: center center;
+  }
+}
+
+.thumbnail-placeholder:hover {
+  transform: scale3d(1.025, 1.025, 1);
+  background-color: var(--background-2);
+  color: var(--complement-6);
+
+  & .icon {
+    transform: scale3d(1.2, 1.2, 1);
+  }
 }
 
 .item-card-content {
