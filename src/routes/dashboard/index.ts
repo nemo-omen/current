@@ -80,11 +80,21 @@ app.post(
       const formdata = (await c.req.formData());
       data = { feedurl: String(formdata.get('feedurl')) };
     }
-    const feedResult = await resolveUrl(data.feedurl);
+    const feedUrlResult = await resolveUrl(data.feedurl);
+    if (!feedUrlResult.ok) {
+      session.flash('error', feedUrlResult.error);
+      return feedUrlResult;
+    }
+    const rssService = new RssService(new Parser());
+    const feedResult = await rssService.getFeedByUrl(feedUrlResult.data);
 
     if (!feedResult.ok) {
       session.flash('error', 'Could not find a feed at that address.');
     } else {
+      if (feedResult.data.feedUrl !== feedUrlResult.data) {
+        feedResult.data.feedUrl = feedUrlResult.data;
+      }
+
       c.set('feed', feedResult.data);
     }
     // set context value to repopulate form
@@ -132,8 +142,7 @@ app.post(
     return c.redirect('/dashboard');
   });
 
-async function resolveUrl(input: string): Promise<unknown> {
-  const rssService = new RssService(new Parser());
+async function resolveUrl(input: string): Promise<Result> {
   let updated: string;
 
   if (input.startsWith('http://') || input.startsWith('https://')) {
@@ -145,26 +154,12 @@ async function resolveUrl(input: string): Promise<unknown> {
   // try to find a 'link rel="alternate || self || via" && type="rss+xml"
   const rssUrlResult = await findDocumentRssLink(updated);
 
-  if (rssUrlResult.ok) {
-    updated = rssUrlResult.data;
-    const result = await rssService.getFeedByUrl(updated);
-    console.log({ result });
-    return result;
-  } else {
-    if (!updated.endsWith('rss') || !updated.endsWith('xml') || !updated.endsWith('feed')) {
-      const rssResult = await rssService.getFeedByUrl(updated + '.rss');
-      if (rssResult.ok) return rssResult;
-      const xmlResult = await rssService.getFeedByUrl('.xml');
-      if (xmlResult.ok) return xmlResult;
-      const feedPathResult = await rssService.getFeedByUrl(updated + '/feed');
-      if (feedPathResult.ok) return feedPathResult;
-      const rssPathResult = await rssService.getFeedByUrl('/rss');
-      if (rssPathResult.ok) return rssPathResult;
-    }
-
-    const result = await rssService.getFeedByUrl(updated);
-    return result;
+  if (!rssUrlResult.ok) {
+    return { ok: false, error: "Could not find RSS feed at that address." };
   }
+  updated = rssUrlResult.data;
+
+  return { ok: true, data: updated };
 }
 
 async function findDocumentRssLink(url: string): Promise<Result> {

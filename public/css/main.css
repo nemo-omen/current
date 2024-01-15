@@ -130,6 +130,7 @@
   --hover: var(--accent-alt-9);
 
   --transition: 0.2s ease-in-out;
+  --long-transition: 0.5s ease-in-out;
 }
 
 *,
@@ -498,7 +499,7 @@ button:hover,
   transition: all var(--transition);
 
   & .icon {
-    transition: all var(--transition);
+    transition: all var(--long-transition);
     transform-origin: center center;
   }
 }
@@ -506,10 +507,10 @@ button:hover,
 .thumbnail-placeholder:hover {
   transform: scale3d(1.025, 1.025, 1);
   background-color: var(--background-2);
-  color: var(--complement-6);
+  color: var(--complement-9);
 
   & .icon {
-    transform: scale3d(1.2, 1.2, 1);
+    transform: scale3d(1.1, 1.1, 1);
   }
 }
 
