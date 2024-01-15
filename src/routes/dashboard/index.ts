@@ -134,11 +134,14 @@ app.post(
 async function resolveUrl(input: string): Promise<unknown> {
   const rssService = new RssService(new Parser());
   let updated: string;
+
   if (input.startsWith('http://') || input.startsWith('https://')) {
     updated = input;
   } else {
     updated = 'https://' + input;
   }
+
+  // try to find a 'link rel="alternate || self || via" && type="rss+xml"
 
 
   if (!updated.endsWith('rss') || !updated.endsWith('xml') || !updated.endsWith('feed')) {
@@ -151,8 +154,26 @@ async function resolveUrl(input: string): Promise<unknown> {
     const rssPathResult = await rssService.getFeedByUrl('/rss');
     if (rssPathResult.ok) return rssPathResult;
   }
+
   const result = await rssService.getFeedByUrl(updated);
   return result;
+}
+
+async function findDocumentRssLink(url: string): Result {
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+
+  let data;
+  try {
+    data = await response.text();
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+
 }
 
 export default app;
