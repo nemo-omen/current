@@ -71,6 +71,7 @@ app.post(
     return result.data;
   }),
   async (c: Context) => {
+    const session = c.get('session');
     // Returns valid data only
     let data: { feedurl: string; } = c.req.valid('form');
     if (!data) {
@@ -80,7 +81,9 @@ app.post(
     }
     const feedResult = await resolveUrl(data.feedurl);
 
-    if (feedResult.ok) {
+    if (!feedResult.ok) {
+      session.flash('error', 'Could not find a feed at that address.');
+    } else {
       c.set('feed', feedResult.data);
     }
     // set context value to repopulate form
@@ -136,6 +139,7 @@ async function resolveUrl(input: string): Promise<unknown> {
   } else {
     updated = 'https://' + input;
   }
+
 
   if (!updated.endsWith('rss') || !updated.endsWith('xml') || !updated.endsWith('feed')) {
     const rssResult = await rssService.getFeedByUrl(updated + '.rss');

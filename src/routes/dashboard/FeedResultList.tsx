@@ -5,7 +5,7 @@ import { StringerItem } from "../../model/StringerItem";
 export const FeedResultList: FC = () => {
   const c = useRequestContext();
   const feed = c.get('feed');
-  // console.log({feed});
+  let image = feed.image ? feed.image : null;
   return (
     <section class="search-results">
       <div class="results-header">
