@@ -1,13 +1,14 @@
+import Parser from 'rss-parser';
+import { Window } from 'happy-dom';
+import { z } from 'zod';
+import { Context, Hono } from 'hono';
+import { validator } from 'hono/validator';
 import { Dashboard } from './Dashboard';
 import { AddFeedPage } from './AddFeedPage';
 import { FeedResultPage } from './FeedResultPage';
-import { Context, Hono } from 'hono';
 import { SQLiteFeedRepository } from '../../repo/feed.repository';
 import { db } from '../../lib/infra/sqlite';
-import { z } from 'zod';
-import { validator } from 'hono/validator';
 import { RssService } from '../../service/RssService';
-import Parser from 'rss-parser';
 import { Result } from '../../lib/interfaces/Result';
 
 const app = new Hono();
@@ -117,7 +118,7 @@ app.post(
 
     if (!rssFeedResult.ok) {
       session.flash('error', `These was an error subscribing to the feed at ${data.subscriptionUrl}`);
-      return c.redirect('/dashboard/new');
+      return FeedResultPage(c);
     }
 
     let persistResult;
@@ -142,24 +143,31 @@ async function resolveUrl(input: string): Promise<unknown> {
   }
 
   // try to find a 'link rel="alternate || self || via" && type="rss+xml"
+  const rssUrlResult = await findDocumentRssLink(updated);
 
+  if (rssUrlResult.ok) {
+    updated = rssUrlResult.data;
+    const result = await rssService.getFeedByUrl(updated);
+    console.log({ result });
+    return result;
+  } else {
+    if (!updated.endsWith('rss') || !updated.endsWith('xml') || !updated.endsWith('feed')) {
+      const rssResult = await rssService.getFeedByUrl(updated + '.rss');
+      if (rssResult.ok) return rssResult;
+      const xmlResult = await rssService.getFeedByUrl('.xml');
+      if (xmlResult.ok) return xmlResult;
+      const feedPathResult = await rssService.getFeedByUrl(updated + '/feed');
+      if (feedPathResult.ok) return feedPathResult;
+      const rssPathResult = await rssService.getFeedByUrl('/rss');
+      if (rssPathResult.ok) return rssPathResult;
+    }
 
-  if (!updated.endsWith('rss') || !updated.endsWith('xml') || !updated.endsWith('feed')) {
-    const rssResult = await rssService.getFeedByUrl(updated + '.rss');
-    if (rssResult.ok) return rssResult;
-    const xmlResult = await rssService.getFeedByUrl('.xml');
-    if (xmlResult.ok) return xmlResult;
-    const feedPathResult = await rssService.getFeedByUrl(updated + '/feed');
-    if (feedPathResult.ok) return feedPathResult;
-    const rssPathResult = await rssService.getFeedByUrl('/rss');
-    if (rssPathResult.ok) return rssPathResult;
+    const result = await rssService.getFeedByUrl(updated);
+    return result;
   }
-
-  const result = await rssService.getFeedByUrl(updated);
-  return result;
 }
 
-async function findDocumentRssLink(url: string): Result {
+async function findDocumentRssLink(url: string): Promise<Result> {
   let response;
   try {
     response = await fetch(url);
@@ -174,6 +182,31 @@ async function findDocumentRssLink(url: string): Result {
     return { ok: false, error: String(err) };
   }
 
+  const window = new Window({
+    innerHeight: 768,
+    innerWidth: 1024,
+    url: url
+  });
+
+  const document = window.document;
+  document.write(data);
+
+  const rssLink = document.querySelector('[type="application/rss+xml"]');
+  if (rssLink) {
+    let finalUrl: string;
+    let rssHref = rssLink.getAttribute('href');
+    if (!rssHref.startsWith(url)) {
+      if (url.endsWith('/')) {
+        finalUrl = url.substring(0, url.length - 1) + rssHref;
+      } else {
+        finalUrl = url + rssHref;
+      }
+    } else {
+      finalUrl = rssHref;
+    }
+    return { ok: true, data: finalUrl };
+  }
+  return { ok: false, error: 'Could not find RSS url.' };
 }
 
 export default app;
