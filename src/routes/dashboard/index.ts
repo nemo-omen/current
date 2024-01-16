@@ -1,7 +1,3 @@
-import Parser from 'rss-parser';
-import { Window } from 'happy-dom';
-import jsdom from 'jsdom';
-import * as htmlparser2 from 'htmlparser2';
 import { z } from 'zod';
 import { Context, Hono } from 'hono';
 import { validator } from 'hono/validator';
@@ -14,7 +10,6 @@ import { RssService } from '../../service/RssService';
 import { Result } from '../../lib/interfaces/Result';
 
 const app = new Hono();
-const { JSDOM } = jsdom;
 
 const searchFormSchema = z.object({
   feedurl: z.string().url()
@@ -76,6 +71,7 @@ app.post(
   }),
   async (c: Context) => {
     const session = c.get('session');
+    const rssService = new RssService();
     // Returns valid data only
     let data: { feedurl: string; } = c.req.valid('form');
     if (!data) {
@@ -83,21 +79,36 @@ app.post(
       const formdata = (await c.req.formData());
       data = { feedurl: String(formdata.get('feedurl')) };
     }
-    const feedUrlResult = await resolveUrl(data.feedurl);
-    if (!feedUrlResult.ok) {
-      session.flash('error', feedUrlResult.error);
-      return FeedResultPage(c);
+
+    let { feedurl } = data;
+    // TODO: Search db for stored feeds before hitting the service
+    //       and making an expensive network call.
+
+    if (!rssService.isValidURL(feedurl)) {
+      const builtUrlResult = rssService.buildUrl(feedurl);
+      if (!builtUrlResult.ok) {
+        session.flash('error', `Cannot find a feed for ${feedurl}. Try ${feedurl}.com?`);
+        return FeedResultPage(c);
+      }
+      feedurl = builtUrlResult.data;
     }
-    const rssService = new RssService(new Parser());
-    const feedResult = await rssService.getFeedByUrl(feedUrlResult.data);
+
+    const rssUrlResult = await rssService.findDocumentRssLink(feedurl);
+    let rssUrl;
+    if (!rssUrlResult.ok) {
+      return { ok: false, error: "Could not find RSS feed at that address." };
+    }
+
+    rssUrl = rssUrlResult.data;
+
+    const feedResult = await rssService.getFeedByUrl(rssUrl);
 
     if (!feedResult.ok) {
       session.flash('error', 'Could not find a feed at that address.');
     } else {
-      if (feedResult.data.feedUrl !== feedUrlResult.data) {
-        feedResult.data.feedUrl = feedUrlResult.data;
+      if (feedResult.data.feedUrl !== rssUrl) {
+        feedResult.data.feedUrl = rssUrl;
       }
-
       c.set('feed', feedResult.data);
     }
     // set context value to repopulate form
@@ -125,7 +136,7 @@ app.post(
   async (c: Context) => {
     let data: { subscriptionUrl: string; } = c.req.valid('form');
     const session = c.get('session');
-    const feedService = new RssService(new Parser());
+    const feedService = new RssService();
     const feedRepo = new SQLiteFeedRepository(db);
     const rssFeedResult = await feedService.getFeedByUrl(data.subscriptionUrl);
 
@@ -145,91 +156,17 @@ app.post(
     return c.redirect('/dashboard');
   });
 
+// TODO: Move to RssService
 async function resolveUrl(input: string): Promise<Result> {
-  let updated: string;
-
-  if (input.startsWith('http://') || input.startsWith('https://')) {
-    updated = input;
-  } else {
-    updated = 'https://' + input;
-  }
-
   // try to find a 'link rel="alternate || self || via" && type="rss+xml"
-  const rssUrlResult = await findDocumentRssLink(updated);
-
+  const rssUrlResult = await findDocumentRssLink(input);
+  let rssUrl;
   if (!rssUrlResult.ok) {
     return { ok: false, error: "Could not find RSS feed at that address." };
   }
-  updated = rssUrlResult.data;
+  rssUrl = rssUrlResult.data;
 
-  return { ok: true, data: updated };
-}
-
-async function findDocumentRssLink(url: string): Promise<Result> {
-  let response;
-  try {
-    response = await fetch(url);
-  } catch (err) {
-    return { ok: false, error: String(err) };
-  }
-
-  let data;
-  try {
-    data = await response.text();
-  } catch (err) {
-    return { ok: false, error: String(err) };
-  }
-
-  // const window = new Window({
-  //   innerHeight: 768,
-  //   innerWidth: 1024,
-  //   url: url
-  // });
-
-  // const document = window.document;
-  // document.write(data);
-  // const dom = new JSDOM(data);
-  // const document = dom.window.document;
-
-  // const rssLink = document.querySelector('[type="application/rss+xml"]');
-  let rssLink: string;
-
-  const parser = new htmlparser2.Parser({
-    onopentag(name, attribs, isImplied) {
-      // For now, only return first
-      // rss link.
-      // TODO: Handle multiple RSS links
-      if (!rssLink) {
-        if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/rss+xml') {
-          rssLink = attribs.href;
-        }
-        if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/atom+xml') {
-          rssLink = attribs.href;
-        }
-      }
-    }
-  });
-
-  parser.write(data);
-  console.log({ rssLink });
-
-  let finalUrl: string;
-
-  if (rssLink != undefined) {
-    // let rssHref = rssLink.getAttribute('href');
-    if (!rssLink.startsWith(url)) {
-      if (url.endsWith('/')) {
-        finalUrl = url.substring(0, url.length - 1) + rssLink;
-      } else {
-        finalUrl = url + rssLink;
-      }
-    } else {
-      finalUrl = rssLink;
-    }
-    return { ok: true, data: finalUrl };
-  }
-
-  return { ok: false, error: 'Could not find RSS url.' };
+  return { ok: true, data: rssUrl };
 }
 
 export default app;

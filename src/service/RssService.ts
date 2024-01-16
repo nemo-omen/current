@@ -8,6 +8,7 @@ import type { StringerItemProps } from '../model/StringerItem';
 import { RssItem } from '../lib/interfaces/RssItem';
 import { extract, extractFromXml } from '@extractus/feed-extractor';
 import { parse } from '@nooptoday/feed-rs';
+import * as htmlparser2 from 'htmlparser2';
 
 // type RssItem = Item & {
 //   author?: string;
@@ -17,7 +18,8 @@ import { parse } from '@nooptoday/feed-rs';
 
 export class RssService {
   parser: Parser;
-  constructor (parser: Parser) {
+
+  constructor () {
     this.parser = new Parser();
   }
 
@@ -124,5 +126,77 @@ export class RssService {
     }
 
     return { ok: true, data: feed };
+  }
+
+  isValidURL(str: string): boolean {
+    try {
+      new URL(str);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  buildUrl(str: string): Result {
+    let built: string = '';
+    if (!str.startsWith('http://') && !str.startsWith('https://')) {
+      built = `https://${str}`;
+    }
+    if (!this.isValidURL(built)) {
+      return { ok: false, error: `Could not build a valid url from ${str}` };
+    }
+    return { ok: true, data: built };
+  }
+
+  async findDocumentRssLink(url: string): Promise<Result> {
+    let response;
+    try {
+      response = await fetch(url);
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    let data;
+    try {
+      data = await response.text();
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    let rssLink: string;
+
+    const parser = new htmlparser2.Parser({
+      onopentag(name, attribs, isImplied) {
+        // For now, only return first
+        // rss link.
+        // TODO: Handle multiple RSS links
+        if (!rssLink) {
+          if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/rss+xml') {
+            rssLink = attribs.href;
+          }
+          if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/atom+xml') {
+            rssLink = attribs.href;
+          }
+        }
+      }
+    });
+
+    parser.write(data);
+    let finalUrl: string;
+
+    if (rssLink != undefined) {
+      if (!rssLink.startsWith(url)) {
+        if (url.endsWith('/')) {
+          finalUrl = url.substring(0, url.length - 1) + rssLink;
+        } else {
+          finalUrl = url + rssLink;
+        }
+      } else {
+        finalUrl = rssLink;
+      }
+      return { ok: true, data: finalUrl };
+    }
+
+    return { ok: false, error: 'Could not find RSS url.' };
   }
 }
