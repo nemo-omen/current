@@ -156,17 +156,4 @@ app.post(
     return c.redirect('/dashboard');
   });
 
-// TODO: Move to RssService
-async function resolveUrl(input: string): Promise<Result> {
-  // try to find a 'link rel="alternate || self || via" && type="rss+xml"
-  const rssUrlResult = await findDocumentRssLink(input);
-  let rssUrl;
-  if (!rssUrlResult.ok) {
-    return { ok: false, error: "Could not find RSS feed at that address." };
-  }
-  rssUrl = rssUrlResult.data;
-
-  return { ok: true, data: rssUrl };
-}
-
 export default app;
