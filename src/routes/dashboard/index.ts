@@ -73,25 +73,33 @@ app.post(
     const session = c.get('session');
     const rssService = new RssService();
     // Returns valid data only
-    let data: { feedurl: string; } = c.req.valid('form');
-    if (!data) {
-      // If no valid data, get formData directly
-      const formdata = (await c.req.formData());
-      data = { feedurl: String(formdata.get('feedurl')) };
+    interface ValidatedSearch {
+      data: {
+        feedurl: string;
+      };
     }
+    let data: ValidatedSearch | null = c.req.valid('form');
+    let feedurl: string;
 
-    let { feedurl } = data;
-    // TODO: Search db for stored feeds before hitting the service
-    //       and making an expensive network call.
-
-    if (!rssService.isValidURL(feedurl)) {
+    if (!data) {
+      // If no valid data in form, get formData directly
+      const formdata = (await c.req.formData());
+      feedurl = String(formdata.get('feedurl'));
+      // we don't have a valid url, so attempt
+      // to build one
       const builtUrlResult = rssService.buildUrl(feedurl);
       if (!builtUrlResult.ok) {
+        // return results with flash error if can't build url
         session.flash('error', `Cannot find a feed for ${feedurl}. Try ${feedurl}.com?`);
         return FeedResultPage(c);
       }
       feedurl = builtUrlResult.data;
+    } else {
+      feedurl = data.feedurl;
     }
+
+    // TODO: Search db for stored feeds before hitting the service
+    //       and making an expensive network call.
 
     const rssUrlResult = await rssService.findDocumentRssLink(feedurl);
     let rssUrl;
@@ -113,7 +121,7 @@ app.post(
     }
     // set context value to repopulate form
     // input on new page load
-    c.set('searchUrl', data.feedurl);
+    c.set('searchUrl', feedurl);
     return FeedResultPage(c);
   }
 );
@@ -145,9 +153,9 @@ app.post(
       return FeedResultPage(c);
     }
 
-    let persistResult;
+
     try {
-      persistResult = await feedRepo.saveFeed(rssFeedResult.data);
+      await feedRepo.saveFeed(rssFeedResult.data);
     } catch (err) {
       session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
       return c.redirect('/dashboard/new');
