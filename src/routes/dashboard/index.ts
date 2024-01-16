@@ -57,16 +57,7 @@ app.get('/new', (c: Context) => {
 app.post(
   '/new',
   validator('form', (value, c) => {
-    const session = c.get('session');
-    const result = searchFormSchema.safeParse(value);
-    if (!result.success) {
-      const issues = result.error.issues;
-      const issuePaths = issues.map((issue) => issue.path[0]);
-      const issueMessages = issues.map((issue) => issue.message);
-      for (let i = 0; i < issuePaths.length; i++) {
-        session.flash(`${issuePaths[i]}Error`, issueMessages[i]);
-      }
-    }
+    const result: z.SafeParseReturnType<any, any> = parseInput(c, searchFormSchema, value);
     return result.data;
   }),
   async (c: Context) => {
@@ -85,6 +76,9 @@ app.post(
       // If no valid data in form, get formData directly
       const formdata = (await c.req.formData());
       feedurl = String(formdata.get('feedurl'));
+      // TODO: Call FeedRepository to SELECT title ILIKE
+      //       or feedUrl ILIKE
+
       // we don't have a valid url, so attempt
       // to build one
       const builtUrlResult = rssService.buildUrl(feedurl);
@@ -98,8 +92,7 @@ app.post(
       feedurl = data.feedurl;
     }
 
-    // TODO: Search db for stored feeds before hitting the service
-    //       and making an expensive network call.
+    // TODO: Call FeedRepository to SELECT feedUrl=feedurl
 
     const rssUrlResult = await rssService.findDocumentRssLink(feedurl);
     let rssUrl;
@@ -129,16 +122,7 @@ app.post(
 app.post(
   '/subscribe',
   validator('form', (value, c) => {
-    const session = c.get('session');
-    const result = subscribeFormSchema.safeParse(value);
-    if (!result.success) {
-      const issues = result.error.issues;
-      const issuePaths = issues.map((issue) => issue.path[0]);
-      const issueMessages = issues.map((issue) => issue.message);
-      for (let i = 0; i < issuePaths.length; i++) {
-        session.flash(`${issuePaths[i]}Error`, issueMessages[i]);
-      }
-    }
+    const result: z.SafeParseReturnType<any, any> = parseInput(c, subscribeFormSchema, value);
     return result.data;
   }),
   async (c: Context) => {
@@ -153,7 +137,6 @@ app.post(
       return FeedResultPage(c);
     }
 
-
     try {
       await feedRepo.saveFeed(rssFeedResult.data);
     } catch (err) {
@@ -163,5 +146,20 @@ app.post(
 
     return c.redirect('/dashboard');
   });
+
+function parseInput(c: Context, schema: z.Schema, value: any): z.SafeParseReturnType<any, any> {
+  const session = c.get('session');
+  const result = schema.safeParse(value);
+
+  if (!result.success) {
+    const issues = result.error.issues;
+    const issuePaths = issues.map((issue) => issue.path[0]);
+    const issueMessages = issues.map((issue) => issue.message);
+    for (let i = 0; i < issuePaths.length; i++) {
+      session.flash(`${issuePaths[i]}Error`, issueMessages[i]);
+    }
+  }
+  return result;
+}
 
 export default app;
