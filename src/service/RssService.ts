@@ -1,6 +1,6 @@
 import Parser from 'rss-parser';
 import type { Output } from 'rss-parser';
-import type { Item } from 'rss-parser';
+import { Item } from 'rss-parser';
 import { Result } from '../lib/interfaces/Result';
 import { StringerFeed } from '../model/StringerFeed';
 import { StringerItem } from '../model/StringerItem';
@@ -8,7 +8,6 @@ import type { StringerItemProps } from '../model/StringerItem';
 import { RssItem } from '../lib/interfaces/RssItem';
 import { extract, extractFromXml } from '@extractus/feed-extractor';
 import { parse } from '@nooptoday/feed-rs';
-
 
 // type RssItem = Item & {
 //   author?: string;
@@ -97,6 +96,14 @@ export class RssService {
       []);
 
     for (const parsedItem of parsed.items) {
+      let summary;
+      console.log(parsedItem);
+
+      if (parsedItem.contentSnippet) {
+        summary = parsedItem.contentSnippet.substring(0, 256);
+      } else {
+        summary = parsedItem.content.substring(0, 256);
+      }
       const itemProps: StringerItemProps = {
         id: undefined,
         title: parsedItem.title,
@@ -105,7 +112,7 @@ export class RssService {
         pubDate: parsedItem.pubDate,
         content: parsedItem.content,
         contentEncoded: parsedItem["content:encoded"],
-        contentSnippet: parsedItem.contentSnippet!.substring(0, 196) + '...',
+        contentSnippet: summary,
         enclosure: parsedItem.enclosure,
         feedId: undefined,
         feedImage: feed.image,

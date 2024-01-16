@@ -1,5 +1,7 @@
 import Parser from 'rss-parser';
 import { Window } from 'happy-dom';
+import jsdom from 'jsdom';
+import * as htmlparser2 from 'htmlparser2';
 import { z } from 'zod';
 import { Context, Hono } from 'hono';
 import { validator } from 'hono/validator';
@@ -12,6 +14,7 @@ import { RssService } from '../../service/RssService';
 import { Result } from '../../lib/interfaces/Result';
 
 const app = new Hono();
+const { JSDOM } = jsdom;
 
 const searchFormSchema = z.object({
   feedurl: z.string().url()
@@ -83,7 +86,7 @@ app.post(
     const feedUrlResult = await resolveUrl(data.feedurl);
     if (!feedUrlResult.ok) {
       session.flash('error', feedUrlResult.error);
-      return feedUrlResult;
+      return FeedResultPage(c);
     }
     const rssService = new RssService(new Parser());
     const feedResult = await rssService.getFeedByUrl(feedUrlResult.data);
@@ -177,30 +180,55 @@ async function findDocumentRssLink(url: string): Promise<Result> {
     return { ok: false, error: String(err) };
   }
 
-  const window = new Window({
-    innerHeight: 768,
-    innerWidth: 1024,
-    url: url
+  // const window = new Window({
+  //   innerHeight: 768,
+  //   innerWidth: 1024,
+  //   url: url
+  // });
+
+  // const document = window.document;
+  // document.write(data);
+  // const dom = new JSDOM(data);
+  // const document = dom.window.document;
+
+  // const rssLink = document.querySelector('[type="application/rss+xml"]');
+  let rssLink: string;
+
+  const parser = new htmlparser2.Parser({
+    onopentag(name, attribs, isImplied) {
+      // For now, only return first
+      // rss link.
+      // TODO: Handle multiple RSS links
+      if (!rssLink) {
+        if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/rss+xml') {
+          rssLink = attribs.href;
+        }
+        if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/atom+xml') {
+          rssLink = attribs.href;
+        }
+      }
+    }
   });
 
-  const document = window.document;
-  document.write(data);
+  parser.write(data);
+  console.log({ rssLink });
 
-  const rssLink = document.querySelector('[type="application/rss+xml"]');
-  if (rssLink) {
-    let finalUrl: string;
-    let rssHref = rssLink.getAttribute('href');
-    if (!rssHref.startsWith(url)) {
+  let finalUrl: string;
+
+  if (rssLink != undefined) {
+    // let rssHref = rssLink.getAttribute('href');
+    if (!rssLink.startsWith(url)) {
       if (url.endsWith('/')) {
-        finalUrl = url.substring(0, url.length - 1) + rssHref;
+        finalUrl = url.substring(0, url.length - 1) + rssLink;
       } else {
-        finalUrl = url + rssHref;
+        finalUrl = url + rssLink;
       }
     } else {
-      finalUrl = rssHref;
+      finalUrl = rssLink;
     }
     return { ok: true, data: finalUrl };
   }
+
   return { ok: false, error: 'Could not find RSS url.' };
 }
 

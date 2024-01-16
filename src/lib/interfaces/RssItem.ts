@@ -1,4 +1,5 @@
 import type { Enclosure } from "rss-parser";
+import { Item } from 'rss-parser';
 
 export interface RssItem {
   title?: string;

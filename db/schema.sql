@@ -9,24 +9,32 @@ CREATE TABLE feeds (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title VARCHAR(255),
         description TEXT,
-        feedUrl VARCHAR(255),
-        link VARCHAR(255)
-    , image JSON);
+        feedUrl VARCHAR(255) UNIQUE NOT NULL,
+        link VARCHAR(255),
+        image JSON
+    );
 CREATE TABLE items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    feedId INTEGER NOT NULL,
-    title VARCHAR(255),
-    description TEXT,
-    link VARCHAR(255),
-    pubDate DATETIME,
-    content TEXT, author TEXT, contentEncoded TEXT, contentSnippet TEXT, enclosure JSON,
-
-    FOREIGN KEY (feedId)
-        REFERENCES feeds(id)
-        ON DELETE CASCADE
-);
-CREATE UNIQUE INDEX unique_link ON items(link);
-CREATE UNIQUE INDEX unique_feedUrl ON feeds(feedUrl);
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        feedId INTEGER NOT NULL,
+        title VARCHAR(255),
+        author VARCHAR(255),
+        description TEXT,
+        link VARCHAR(255) UNIQUE NOT NULL,
+        pubDate DATETIME,
+        content TEXT,
+        contentEncoded TEXT,
+        contentSnippet TEXT,
+        enclosure JSON,
+        FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
+    );
+CREATE TABLE subscriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        feedId INTEGER NOT NULL,
+        subscribedDate DATE,
+        FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
+    );
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20240106141030'),
@@ -35,4 +43,5 @@ INSERT INTO "schema_migrations" (version) VALUES
   ('20240110131659'),
   ('20240110133129'),
   ('20240113231019'),
-  ('20240113232153');
+  ('20240113232153'),
+  ('20240116125932');
