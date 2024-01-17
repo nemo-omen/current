@@ -21,10 +21,10 @@ const BaseHeader: FC = ({children}) => {
     <header>
       <div class="header-inner">
         <a href="/" id="main-link">
+          Stringer
           <span>
             <Icon name="bolt" />
           </span>
-          Stringer
         </a>
 
         <nav aria-label="main">

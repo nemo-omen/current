@@ -4,11 +4,13 @@ import { FeedSearch } from './FeedSearch';
 import { FeedResultList } from './FeedResultList';
 import { useRequestContext } from 'hono/jsx-renderer';
 import { FC } from 'hono/jsx';
+import { Header } from '../../lib/components/Header';
 
 export const FeedResultPage = (c: Context) => {
   const feed = c.get('feed');
   return c.render(
     <>
+      <Header />
       <MainSidebar />
       <main>
         <section class="feed-search">

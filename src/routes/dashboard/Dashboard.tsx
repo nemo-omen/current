@@ -3,11 +3,13 @@ import { FC } from 'hono/jsx';
 import { MainSidebar } from '../../lib/components/MainSidebar';
 import { Icon } from '../../lib/components/Icon';
 import { useRequestContext } from 'hono/jsx-renderer';
+import { Header } from '../../lib/components/Header';
 export const Dashboard = (c: Context) => {
   const dashboardItems = c.get('dashboardItems');
   const itemCount = c.get('itemCount');
   return c.render(
     <>
+      <Header />
       <MainSidebar />
       <ItemList items={dashboardItems} />
     </>,

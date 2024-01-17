@@ -1,7 +1,7 @@
 import { Context } from "hono";
 
 export const Signup = (c: Context) => c.render(
-  <main>
+  <main style="grid-row: span 3;">
     <div class="auth-form">
       <h2>Sign Up</h2>
       <form action="/auth/signup" method="POST">

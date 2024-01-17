@@ -7,7 +7,7 @@ export const Login = (c: Context) => {
   const emailError = session.get('emailError') || '';
   return (
     c.render(
-      <main>
+      <main style="grid-row: span 3;">
         <div class="auth-form">
           <h2>Log In</h2>
           <form action="/auth/login" method="POST">
