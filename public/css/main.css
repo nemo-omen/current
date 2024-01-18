@@ -518,6 +518,7 @@ button:hover,
   transition: all var(--transition);
 }
 
+.item-card:hover .item-card-thumbnail,
 .item-card-thumbnail:hover {
   transform: scale3d(1.025, 1.025, 1);
   opacity: 1.0;
@@ -539,6 +540,7 @@ button:hover,
   }
 }
 
+.item-card:hover .thumbnail-placeholder,
 .thumbnail-placeholder:hover {
   transform: scale3d(1.025, 1.025, 1);
   background-color: var(--background-2);
@@ -550,12 +552,17 @@ button:hover,
 }
 
 .item-card-content {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+
+  & .item-card-text {
+    flex-grow: 1;
+  }
 }
 
 .item-card-footer {
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

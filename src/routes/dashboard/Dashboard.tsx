@@ -45,17 +45,14 @@ const ItemCard: FC = (props) => {
 
   return(
     <li class="item-card">
+      <a href={`/dashboard/item/${item.id}`}>
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
       <section class="item-card-content">
-        <div class="item-card-header">
-          <h2>{item.title}</h2>
-        </div>
-        <div class="item-card-text">
-          <p>
-            {item.contentSnippet.substring(0, 256)}
-          </p>
-        </div>
+        <h2 class="item-card-header">{item.title}</h2>
+        <p class="item-card-text">
+          {item.contentSnippet.substring(0, 256)}
+        </p>
         <div class="item-card-footer">
           <div class="item-card-footer-meta item-card-footer-row">
             <div class="item-card-footer-title-container">
@@ -64,6 +61,7 @@ const ItemCard: FC = (props) => {
             <time>{new Date(item.pubDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'})}</time>
           </div>
           <div class="item-card-footer-actions item-card-footer-row">
+            {/* TODO: Make this a nav? */}
             <ul class="item-card-menu">
               <li>
                 <a class="icon-link" href={`/items/tags/${item.id}`}>
@@ -95,6 +93,7 @@ const ItemCard: FC = (props) => {
           </div>
         </div>
       </section>
+      </a>
     </li>
   );
 };
