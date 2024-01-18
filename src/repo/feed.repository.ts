@@ -46,6 +46,12 @@ export class SQLiteFeedRepository {
     return this.feeds;
   }
 
+  getFeedInfo(): Result {
+    const query = this._db.query(`SELECT id, title, feedUrl FROM feeds;`);
+    const res = query.all();
+    return { ok: true, data: res };
+  }
+
   getAllItems(page = 1, limit = 100): Result {
     // const query = this._db.query(`
     //   SELECT * FROM items
@@ -167,4 +173,36 @@ export class SQLiteFeedRepository {
 
     return { ok: true, data: insertResult };
   };
+
+  insertItem(rssItem: RssItem, feedId: number): Result {
+    const insertItemQuery = this._db.query(`
+      INSERT INTO items (feedId, title, author, pubDate, description, link, content, contentEncoded, contentSnippet, enclosure)
+        VALUES ($feedId, $title, $author, $pubDate, $description, $link, $content, $contentEncoded, $contentSnippet, $enclosure)
+        ON CONFLICT DO NOTHING
+        RETURNING id;
+    `);
+
+    let itemResult = undefined;
+    try {
+      itemResult = insertItemQuery.get({
+        $feedId: feedId,
+        $title: rssItem.title,
+        $author: rssItem.author,
+        $pubDate: rssItem.pubDate,
+        $description: rssItem.description,
+        $link: rssItem.link,
+        $content: rssItem.content,
+        $contentEncoded: rssItem["content:encoded"],
+        $contentSnippet: rssItem.contentSnippet,
+        $enclosure: JSON.stringify(rssItem.enclosure)
+      });
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+    if (itemResult) {
+      return { ok: true, data: itemResult.id };
+    } else {
+      return { ok: true, data: null };
+    }
+  }
 }

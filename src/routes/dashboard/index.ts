@@ -21,6 +21,7 @@ const subscribeFormSchema = z.object({
 
 app.get('/', async (c: Context) => {
   const feedRepo = new SQLiteFeedRepository(db);
+  const rssService = new RssService();
   const session = c.get('session');
   // TODO: Page should be a URL param
   let page = session.get('page');
@@ -29,6 +30,31 @@ app.get('/', async (c: Context) => {
 
   if (!page) {
     page = 1;
+  }
+
+  const feedInfoResult: Result = feedRepo.getFeedInfo();
+
+  if (!feedInfoResult.ok) {
+    session.flash('error', 'Could not get feeds from database.');
+    return Dashboard(c);
+  }
+
+  for (const feedInfo of feedInfoResult.data) {
+    const { id, title, feedUrl } = feedInfo;
+    const rssFeedResult = await rssService.getFeedByUrl(feedUrl);
+    console.log({ rssFeedResult });
+    if (!rssFeedResult.ok) {
+      // ignore error?
+      // session.flash('error', `There was an error fetching feed updates from ${title}.`);
+    } else {
+      const rssFeed = rssFeedResult.data;
+      for (const rssItem of rssFeed.items) {
+        const itemInsertResult = feedRepo.insertItem(rssItem, id);
+        if (!itemInsertResult.ok) {
+          console.log(`Failed to insert item: ${rssItem.title}`);
+        }
+      }
+    }
   }
 
   const storedItemsResult: Result = feedRepo.getAllItems(page);
