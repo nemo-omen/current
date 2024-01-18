@@ -43,6 +43,7 @@ const ItemCard: FC = (props) => {
 
   return(
     <article class="item-card">
+      {/* TODO: Replace bolt icon with site favicon, if possible */}
       {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
       <section class="item-card-content">
         <div class="item-card-header">

@@ -23,6 +23,7 @@ app.get('/', async (c: Context) => {
   const feedRepo = new SQLiteFeedRepository(db);
   const rssService = new RssService();
   const session = c.get('session');
+  // TODO: Paginate results if not HTMX request
   // TODO: Page should be a URL param
   let page = session.get('page');
   // TODO: Limit should also be a URL param
@@ -31,6 +32,14 @@ app.get('/', async (c: Context) => {
   if (!page) {
     page = 1;
   }
+
+  //TODO: When we integrate HTMX, the pattern should be:
+  // 1. Get stored feeds from DB
+  // 2. Render them
+  // 3. Fetch updated feeds
+  // 4. Store new items
+  // 5. Render new items
+  // 6. Set an update interval and run steps 3-5
 
   const feedInfoResult: Result = feedRepo.getFeedInfo();
 
@@ -42,7 +51,6 @@ app.get('/', async (c: Context) => {
   for (const feedInfo of feedInfoResult.data) {
     const { id, title, feedUrl } = feedInfo;
     const rssFeedResult = await rssService.getFeedByUrl(feedUrl);
-    console.log({ rssFeedResult });
     if (!rssFeedResult.ok) {
       // ignore error?
       // session.flash('error', `There was an error fetching feed updates from ${title}.`);

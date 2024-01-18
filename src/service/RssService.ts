@@ -99,7 +99,6 @@ export class RssService {
 
     for (const parsedItem of parsed.items) {
       let summary;
-      console.log(parsedItem);
 
       if (parsedItem.contentSnippet) {
         summary = parsedItem.contentSnippet.substring(0, 256);
