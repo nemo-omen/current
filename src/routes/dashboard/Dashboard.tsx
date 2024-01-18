@@ -24,8 +24,10 @@ const ItemList: FC = (props) => {
   const {items} = props;
   return (
     <main>
-      <section class="dashboard-items-list">
-        {items.map((item) => (<ItemCard item={item} />))}
+      <section>
+        <ul class="card-list dashboard-items-list">
+          {items.map((item) => (<ItemCard item={item} />))}
+        </ul>
       </section>
     </main>
   );
@@ -42,6 +44,8 @@ const ItemCard: FC = (props) => {
   }
 
   return(
+    <li>
+
     <article class="item-card">
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
@@ -94,5 +98,6 @@ const ItemCard: FC = (props) => {
         </div>
       </section>
     </article>
+    </li>
   );
 };
