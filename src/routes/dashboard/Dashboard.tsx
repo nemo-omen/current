@@ -44,9 +44,7 @@ const ItemCard: FC = (props) => {
   }
 
   return(
-    <li>
-
-    <article class="item-card">
+    <li class="item-card">
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
       <section class="item-card-content">
@@ -97,7 +95,6 @@ const ItemCard: FC = (props) => {
           </div>
         </div>
       </section>
-    </article>
     </li>
   );
 };
