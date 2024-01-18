@@ -8,9 +8,10 @@ import { secureHeaders } from 'hono/secure-headers';
 import { HtmlEscapedString } from 'hono/utils/html';
 import { Session, sessionMiddleware, CookieStore } from 'hono-sessions';
 import { BunSqliteStore } from 'hono-sessions/bun-sqlite-store';
-import dashboard from './routes/dashboard';
 import auth from './routes/auth';
+import dashboard from './routes/dashboard';
 import root from './routes';
+import stories from './routes/stories';
 import { Base } from './lib/layout/Base';
 
 const app = new Hono<{ Variables: { session: Session, session_key_rotation: boolean; }; }>(
@@ -63,4 +64,6 @@ app.use('/dashboard/*', async (c: Context, next: Next) => {
 app.route('/', root);
 app.route('/auth', auth);
 app.route('/dashboard', dashboard);
+app.route('/stories', stories);
+
 export default app;

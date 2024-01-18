@@ -52,6 +52,18 @@ export class SQLiteFeedRepository {
     return { ok: true, data: res };
   }
 
+  getItemById(id: number): Result {
+    const query = this._db.query(`SELECT * FROM items WHERE id=$id`);
+    const queryResult = query.get({ $id: id });
+
+    console.log({ queryResult });
+
+    if (queryResult) {
+      return { ok: true, data: queryResult };
+    }
+    return { ok: false, error: "No item with that id" };
+  }
+
   getAllItems(page = 1, limit = 100): Result {
     // const query = this._db.query(`
     //   SELECT * FROM items

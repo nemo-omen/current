@@ -4,7 +4,7 @@ import { validator } from 'hono/validator';
 import { Dashboard } from './Dashboard';
 import { AddFeedPage } from './AddFeedPage';
 import { FeedResultPage } from './FeedResultPage';
-import { SQLiteFeedRepository } from '../../repo/feed.repository';
+import { SQLiteFeedRepository } from '../../repo/FeedRepository';
 import { db } from '../../lib/infra/sqlite';
 import { RssService } from '../../service/RssService';
 import { Result } from '../../lib/interfaces/Result';

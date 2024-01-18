@@ -607,3 +607,7 @@ button:hover,
     font-size: 1.5rem;
   }
 }
+
+.story-article {
+  width: min(80ch, 90vw);
+}

@@ -45,7 +45,7 @@ const ItemCard: FC = (props) => {
 
   return(
     <li class="item-card">
-      <a href={`/dashboard/item/${item.id}`}>
+      <a href={`/stories/${item.id}`}>
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
       <section class="item-card-content">
