@@ -1,39 +1,7 @@
-import { Context } from 'hono'
-import { FC } from 'hono/jsx';
-import { MainSidebar } from '../../lib/components/MainSidebar';
-import { Icon } from '../../lib/components/Icon';
-import { useRequestContext } from 'hono/jsx-renderer';
-import { Header } from '../../lib/components/Header';
-export const Dashboard = (c: Context) => {
-  const dashboardItems = c.get('dashboardItems');
-  const itemCount = c.get('itemCount');
-  return c.render(
-    <>
-      <Header />
-      <MainSidebar />
-      <ItemList items={dashboardItems} />
-    </>,
-    {
-      title: 'Dashboard'
-    }
-  )
-};
+import { FC } from "hono/jsx";
+import { Icon } from "./Icon";
 
-
-const ItemList: FC = (props) => {
-  const {items} = props;
-  return (
-    <main>
-      <section>
-        <ul class="card-list dashboard-items-list">
-          {items.map((item) => (<ItemCard item={item} />))}
-        </ul>
-      </section>
-    </main>
-  );
-};
-
-const ItemCard: FC = (props) => {
+export const ItemCard: FC = (props) => {
   const { item } = props;
   const { enclosure } = item;
   let image;
@@ -45,7 +13,7 @@ const ItemCard: FC = (props) => {
 
   return(
     <li class="item-card">
-      <a href={`/stories/${item.id}`}>
+      <a href={`/app/posts/${item.id}`}>
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {image ? <img src={image} alt={item.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
       <section class="item-card-content">

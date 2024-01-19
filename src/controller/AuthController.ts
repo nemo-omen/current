@@ -1,9 +1,9 @@
 import { Context, Hono } from 'hono';
 import { validator } from 'hono/validator';
 import { z } from 'zod';
-import { Login } from './view/Login';
-import { Signup } from './view/Signup';
-import { insertUser, authenticateUser, userExists } from './user.repository';
+import { Login } from '../view/pages/auth/Login';
+import { Signup } from '../view/pages/auth/Signup';
+import { insertUser, authenticateUser, userExists } from '../repo/UserRepository';
 
 const app = new Hono();
 
@@ -72,7 +72,7 @@ app.post(
       return c.redirect('/auth/login');
     }
     session.set('user', { id: id, email: email });
-    return c.redirect('/dashboard');
+    return c.redirect('/app');
   }
 );
 

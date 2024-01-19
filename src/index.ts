@@ -1,5 +1,5 @@
 import Database from 'bun:sqlite';
-import { Hono } from 'hono';
+import { Context, Hono, Next } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { csrf } from 'hono/csrf';
 import { jsxRenderer } from 'hono/jsx-renderer';
@@ -9,10 +9,12 @@ import { HtmlEscapedString } from 'hono/utils/html';
 import { Session, sessionMiddleware, CookieStore } from 'hono-sessions';
 import { BunSqliteStore } from 'hono-sessions/bun-sqlite-store';
 import auth from './routes/auth';
-import dashboard from './routes/dashboard';
 import root from './routes';
 import stories from './routes/stories';
-import { Base } from './lib/layout/Base';
+import { Base } from './view/layout/Base';
+import BaseController from './controller/BaseController';
+import AppController from './controller/AppController';
+import AuthController from './controller/AuthController';
 
 const app = new Hono<{ Variables: { session: Session, session_key_rotation: boolean; }; }>(
 );
@@ -51,19 +53,8 @@ app.use(
   ),
 );
 
-app.use('/dashboard/*', async (c: Context, next: Next) => {
-  const session = c.get('session');
-  const sessionUser = session.get('user');
-
-  if (!sessionUser) {
-    return c.redirect('/auth/login');
-  }
-  await next();
-});
-
-app.route('/', root);
-app.route('/auth', auth);
-app.route('/dashboard', dashboard);
-app.route('/stories', stories);
+app.route('/', BaseController);
+app.route('/auth', AuthController);
+app.route('/app', AppController);
 
 export default app;

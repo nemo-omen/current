@@ -19,25 +19,25 @@ export const MainSidebar: FC = () => {
 
       <ul>
         <li>
-          <MenuLink href="/dashboard" current={current} iconName="list" text="All Posts" />
+          <MenuLink href="/app" current={current} iconName="list" text="All Posts" />
         </li>
         <li>
-          <MenuLink href="/dashboard/collections/unread" current={current} iconName="inbox" text="Unread" />
+          <MenuLink href="/app/collections/unread" current={current} iconName="inbox" text="Unread" />
         </li>
         <li>
-          <MenuLink href="/dashboard/collections/reading-list" current={current} iconName="stopwatch" text="Reading List" />
+          <MenuLink href="/app/collections/reading-list" current={current} iconName="stopwatch" text="Reading List" />
         </li>
         <li>
-          <MenuLink href="/dashboard/collections/saved" current={current} iconName="bookmark" text="Saved" />
+          <MenuLink href="/app/collections/saved" current={current} iconName="bookmark" text="Saved" />
         </li>
         <li>
-          <MenuLink href="/dashboard/collections/tagged" current={current} iconName="tag" text="Tagged" />
+          <MenuLink href="/app/collections/tagged" current={current} iconName="tag" text="Tagged" />
         </li>
         <li>
-          <MenuLink href="/dashboard/notes" current={current} iconName="note" text="Notes" />
+          <MenuLink href="/app/notes" current={current} iconName="note" text="Notes" />
         </li>
         <li>
-          <MenuLink href="/dashboard/new" current={current} iconName="add" text="Add Feed" />
+          <MenuLink href="/app/feeds/new" current={current} iconName="add" text="Add Feed" />
         </li>
       </ul>
       </nav>

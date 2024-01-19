@@ -1,4 +1,4 @@
-import { Header } from '../components/Header';
+import { Header } from '../../view/components/Header';
 
 export const Base = ({children, title}) => {
   if(title != '') {
@@ -13,7 +13,7 @@ export const Base = ({children, title}) => {
       <title>Stringer{title}</title>
     </head>
     <body>
-      {/* <Header /> */}
+      <Header />
         {children}
     </body>
     </html>
