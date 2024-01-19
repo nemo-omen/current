@@ -28,3 +28,24 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
 ## Possible Names
 - Stringer
 - Brief
+
+
+## Routes
+/stories
+ |--/all
+ |--/unread
+ |--/bookmarks
+ |--/:slug
+/collections
+ |--/reading-list
+ |--/saved
+ |--/tagged
+ |--/:slug
+/notes
+ |--/:slug
+/auth
+ |--/login
+ |--/logout
+/account
+ |--/:username-slug
+     |/profile
