@@ -1,9 +1,8 @@
 import { Context } from "hono";
-import { Header } from "../../lib/components/Header";
-import { MainSidebar } from "../../lib/components/MainSidebar";
 import { html } from "hono/html";
+import { Page } from "../../layout/Page";
 
-export const Story = (c: Context) => {
+export const Post = (c: Context) => {
   const item = c.get('item');
   let imageSrc = undefined;
   if(item.enclosure) {
@@ -13,10 +12,7 @@ export const Story = (c: Context) => {
   }
 
   return c.render(
-    <>
-    <Header />
-    <MainSidebar />
-    <main>
+    <Page>
     <article class="story-article">
       {imageSrc ? <img src={imageSrc} alt={item.title} /> : null}
       <h1>{item.title}</h1>
@@ -24,8 +20,7 @@ export const Story = (c: Context) => {
       {item.author ? <p>{item.author}</p> : null}
       {html(item.content)}
     </article>
-    </main>
-    </>,
-    {title: 'More dookie'}
+    </Page>,
+    {title: item.title}
   );
 }

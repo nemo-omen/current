@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import { db } from '../../lib/infra/sqlite';
+import { db } from '../lib/infra/sqlite';
 
 interface UserCreateDTO {
   email: string;

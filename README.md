@@ -31,7 +31,9 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
 
 
 ## Routes
-/stories
+/feeds
+ |--/add
+/posts
  |--/all
  |--/unread
  |--/bookmarks

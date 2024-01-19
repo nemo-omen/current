@@ -1,8 +1,8 @@
-import { Fragment, FC } from "hono/jsx";
-import { html, raw } from 'hono/html';
+import { FC } from "hono/jsx";
 import { useRequestContext } from "hono/jsx-renderer";
-import { StringerItem } from "../../model/StringerItem";
-export const FeedResultList: FC = () => {
+import { StringerItem } from "../../../../model/StringerItem";
+
+export const List: FC = () => {
   const c = useRequestContext();
   const feed = c.get('feed');
   let image = feed.image ? feed.image : null;
@@ -13,7 +13,7 @@ export const FeedResultList: FC = () => {
           {(feed.image ? FeedImg(feed.image) : null) }
           <h2>{feed.title}</h2>
         </div>
-        <form action="/dashboard/subscribe" method="POST">
+        <form action="/app/feeds/subscribe" method="POST">
           <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedUrl} />
           <button type="submit">Subscribe</button>
         </form>
