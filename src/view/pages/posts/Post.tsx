@@ -3,6 +3,7 @@ import { html, raw } from "hono/html";
 import { Page } from "../../layout/Page";
 import { useRequestContext } from "hono/jsx-renderer";
 import { Fragment } from "hono/jsx/jsx-runtime";
+import * as htmlparser2 from 'htmlparser2';
 
 export const Post = (c: Context) => {
   const item = c.get('item');
@@ -24,7 +25,7 @@ export const Post = (c: Context) => {
         </a>
       <time>{new Date(item.pubDate).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
       {item.author ? <p>{item.author}</p> : null}
-      <ItemContent content={item.content} />
+      <ItemContent content={item.content} link={item.link}/>
       <a href={item.link}>Read More</a>
     </article>
     </Page>,
@@ -32,8 +33,10 @@ export const Post = (c: Context) => {
   );
 }
 
-const ItemContent = (props) => html`
-  <div class="content">
-    ${raw(props.content)}
-  </div>
-`;
+const ItemContent = (props) => {
+  return(html`
+    <div class="content">
+      ${raw(props.content)}
+    </div>
+  `)
+};
