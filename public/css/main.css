@@ -131,6 +131,9 @@
 
   --transition: 0.2s ease-in-out;
   --long-transition: 0.5s ease-in-out;
+
+  --content-width: min(65rem, 90vw);
+  --reading-width: min(70ch, 90vw);
 }
 
 *,
@@ -159,6 +162,7 @@ body {
     "sidebar-main main sidebar-secondary"
     "footer footer footer";
   gap: 2rem;
+  overflow: hidden;
 }
 
 header {
@@ -192,11 +196,24 @@ h4 {
 main {
   grid-area: main;
   /* padding: 2rem; */
+  overflow: auto;
+  /* background: tomato; */
+}
+
+main>* {
+  width: var(--content-width);
+  /* width: var(--reading-width); */
+  margin: 0 auto;
 }
 
 .sidebar {
   padding: 0 0 0 2rem;
   width: min(16rem, 90vw);
+}
+
+.sidebar-secondary {
+  padding: 0 2rem 0 0;
+  grid-area: sidebar-secondary;
 }
 
 #sidebar-main {
@@ -496,14 +513,14 @@ button:hover,
   flex-direction: column;
   gap: 2rem;
   list-style-type: none;
-  margin: 0;
+  /* width: min(65rem, 90vw); */
+  margin: 0 auto;
   padding: 0;
 }
 
 .item-card {
   display: flex;
   gap: 1rem;
-  width: min(65rem, 90vw);
 }
 
 .item-card-thumbnail,
@@ -616,19 +633,177 @@ button:hover,
 }
 
 .post {
+  /* width: min(70ch, 90vw); */
+  width: var(--reading-width);
+  margin: 0 auto;
+  border: 1px solid var(--background-3);
+  padding: 1rem;
+  margin-bottom: 2rem;
+
   & h1 {
     font-size: 2rem;
+    line-height: 1.4;
   }
 
-  & pre {
-    overflow: hidden;
-    overflow-x: auto;
-    background-color: var(--background--1);
+  & h2,
+  h3,
+  h4 {
+    margin-top: 1.5em;
+  }
+
+  & p,
+  a {
+    font-size: 1.2rem;
+  }
+
+  & a:not(a:has(h1)) {
+    text-decoration: underline;
+  }
+
+  & img {
     width: 100%;
-    padding: 1rem;
+    height: auto;
   }
 }
 
+/* 
 .story-article {
-  width: min(80ch, 90vw);
+  width: var(--content-width);
+} */
+
+/*!
+Theme: Tokyo-night-Dark
+origin: https://github.com/enkia/tokyo-night-vscode-theme
+Description: Original highlight.js style
+Author: (c) Henri Vandersleyen <hvandersleyen@gmail.com>
+License: see project LICENSE
+Touched: 2022
+*/
+
+/*  Comment */
+.hljs-meta,
+.hljs-comment {
+  color: #565f89;
+}
+
+/* Red */
+/*INFO: This keyword, HTML elements, Regex group symbol, CSS units, Terminal Red */
+.hljs-tag,
+.hljs-doctag,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-template-tag,
+.hljs-selector-pseudo,
+.hljs-selector-attr,
+.hljs-variable.language_,
+.hljs-deletion {
+  color: #f7768e;
+}
+
+/*Orange */
+/*INFO: Number and Boolean constants, Language support constants */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-number,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-link {
+  color: #ff9e64;
+}
+
+
+/*  Yellow */
+/* INFO:  	Function parameters, Regex character sets, Terminal Yellow */
+.hljs-built_in,
+.hljs-attribute {
+  color: #e0af68;
+}
+
+/* cyan */
+/* INFO: Language support functions, CSS HTML elements */
+.hljs-selector-tag {
+  color: #2ac3de;
+}
+
+/* light blue */
+/* INFO: Object properties, Regex quantifiers and flags, Markdown headings, Terminal Cyan, Markdown code, Import/export keywords */
+.hljs-keyword,
+.hljs-title.function_,
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-subst,
+.hljs-property {
+  color: #7dcfff;
+}
+
+/*Green*/
+/* INFO: Object literal keys, Markdown links, Terminal Green */
+.hljs-selector-tag {
+  color: #73daca;
+}
+
+
+/*Green(er) */
+/* INFO: Strings, CSS class names */
+.hljs-quote,
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+  color: #9ece6a;
+}
+
+/* Blue */
+/* INFO:  	Function names, CSS property names, Terminal Blue */
+.hljs-code,
+.hljs-formula,
+.hljs-section {
+  color: #7aa2f7;
+}
+
+
+
+/* Magenta */
+/*INFO: Control Keywords, Storage Types, Regex symbols and operators, HTML Attributes, Terminal Magenta */
+.hljs-name,
+.hljs-keyword,
+.hljs-operator,
+.hljs-keyword,
+.hljs-char.escape_,
+.hljs-attr {
+  color: #bb9af7;
+}
+
+/* white*/
+/* INFO: Variables, Class names, Terminal White */
+.hljs-punctuation {
+  color: #c0caf5
+}
+
+.hljs {
+  background: var(--background--1);
+  color: #9aa5ce;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+pre {
+  overflow: hidden;
+  overflow-x: auto;
+  background-color: var(--background--1) !important;
+  width: 100%;
+  padding: 1rem;
+}
+
+code {
+  background-color: var(--background--1);
 }

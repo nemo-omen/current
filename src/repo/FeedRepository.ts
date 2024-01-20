@@ -2,9 +2,15 @@ import { Database } from 'bun:sqlite';
 import { Result } from '../lib/interfaces/Result';
 import { RssFeed } from '../lib/interfaces/RssFeed';
 import { RssItem } from '../lib/interfaces/RssItem';
-import { StringerFeed } from '../model/StringerFeed';
+import { StringerFeed, StringerFeedPersistDTO } from '../model/StringerFeed';
 import { StringerItem } from '../model/StringerItem';
 import type { StringerItemProps } from '../model/StringerItem';
+
+export type FeedInfo = {
+  id: number,
+  title: string,
+  feedUrl: string;
+};
 
 export class SQLiteFeedRepository {
   private _db: Database;
@@ -18,17 +24,9 @@ export class SQLiteFeedRepository {
     const feedQuery = this._db.query(`
       SELECT * FROM feeds;
     `);
-    const res = feedQuery.all();
+    const res: StringerFeedPersistDTO[] = feedQuery.all() as StringerFeedPersistDTO[];
     for (const f of res) {
-      const feed = new StringerFeed(
-        f.id,
-        f.title,
-        f.feedUrl,
-        f.description,
-        f.link,
-        f.image,
-        []
-      );
+      const feed = StringerFeed.fromPersistance(f);
       const itemQuery = this._db.query(`SELECT * FROM items WHERE feedId=$feedId ORDER BY pubDate DESC;`);
       const itemsRes: RssItem[] | undefined = itemQuery.all({ $feedId: feed.id }) as RssItem[];
 
@@ -46,17 +44,17 @@ export class SQLiteFeedRepository {
     return this.feeds;
   }
 
-  getFeedInfo(): Result {
+  getFeedInfo(): Result<FeedInfo[]> {
     const query = this._db.query(`SELECT id, title, feedUrl FROM feeds;`);
-    const res = query.all();
+    const res: FeedInfo[] = query.all() as FeedInfo[];
     return { ok: true, data: res };
   }
 
-  getItemById(id: number): Result {
+  getItemById(id: number): Result<StringerItem> {
     const query = this._db.query(`SELECT * FROM items WHERE id=$id`);
     const queryResult = query.get({ $id: id });
 
-    console.log({ queryResult });
+    // console.log({ queryResult });
 
     if (queryResult) {
       return { ok: true, data: queryResult };
@@ -64,7 +62,7 @@ export class SQLiteFeedRepository {
     return { ok: false, error: "No item with that id" };
   }
 
-  getAllItems(page = 1, limit = 100): Result {
+  getAllItems(page = 1, limit = 100): Result<StringerItem[]> {
     // const query = this._db.query(`
     //   SELECT * FROM items
     //   ORDER BY pubDate DESC
@@ -104,7 +102,7 @@ export class SQLiteFeedRepository {
     return { ok: true, data: sorted };
   }
 
-  getTotalItemCount(): Result {
+  getTotalItemCount(): Result<number> {
     const query = this._db.query(`SELECT COUNT(*) FROM items;`);
     let countResult;
     try {
@@ -118,7 +116,7 @@ export class SQLiteFeedRepository {
     return { ok: true, data: countResult["COUNT(*)"] };
   }
 
-  async saveFeed(rssFeed: RssFeed): Promise<Result> {
+  async saveFeed(rssFeed: RssFeed): Promise<Result<number[]>> {
     const insertFeedQuery = this._db.prepare(`
       INSERT INTO feeds ( title, feedUrl, description, link, image)
         VALUES ( $title, $feedUrl, $description, $link, $image )
@@ -186,7 +184,7 @@ export class SQLiteFeedRepository {
     return { ok: true, data: insertResult };
   };
 
-  insertItem(rssItem: RssItem, feedId: number): Result {
+  insertItem(rssItem: RssItem, feedId: number): Result<number | null> {
     const insertItemQuery = this._db.query(`
       INSERT INTO items (feedId, title, author, pubDate, description, link, content, contentEncoded, contentSnippet, enclosure)
         VALUES ($feedId, $title, $author, $pubDate, $description, $link, $content, $contentEncoded, $contentSnippet, $enclosure)

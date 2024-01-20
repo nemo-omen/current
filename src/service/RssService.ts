@@ -1,13 +1,10 @@
 import Parser from 'rss-parser';
 import type { Output } from 'rss-parser';
-import { Item } from 'rss-parser';
 import { Result } from '../lib/interfaces/Result';
 import { StringerFeed } from '../model/StringerFeed';
 import { StringerItem } from '../model/StringerItem';
 import type { StringerItemProps } from '../model/StringerItem';
 import { RssItem } from '../lib/interfaces/RssItem';
-import { extract, extractFromXml } from '@extractus/feed-extractor';
-import { parse } from '@nooptoday/feed-rs';
 import * as htmlparser2 from 'htmlparser2';
 
 // type RssItem = Item & {
@@ -23,35 +20,35 @@ export class RssService {
     this.parser = new Parser();
   }
 
-  async getRsFeed(url: string): Promise<Result> {
-    let response;
-    try {
-      response = await fetch(url);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
+  // async getRsFeed(url: string): Promise<Result> {
+  //   let response;
+  //   try {
+  //     response = await fetch(url);
+  //   } catch (err) {
+  //     return { ok: false, error: String(err) };
+  //   }
 
-    let data;
-    try {
-      data = await response.text();
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
+  //   let data;
+  //   try {
+  //     data = await response.text();
+  //   } catch (err) {
+  //     return { ok: false, error: String(err) };
+  //   }
 
-    let feed;
-    try {
-      const urlObj = new URL(url);
-      const host = urlObj.host;
-      const proto = urlObj.protocol;
-      feed = parse(data, proto + host);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
+  //   let feed;
+  //   try {
+  //     const urlObj = new URL(url);
+  //     const host = urlObj.host;
+  //     const proto = urlObj.protocol;
+  //     feed = parse(data, proto + host);
+  //   } catch (err) {
+  //     return { ok: false, error: String(err) };
+  //   }
 
-    return { ok: true, data: feed };
-  }
+  //   return { ok: true, data: feed };
+  // }
 
-  async getFeedByUrl(url: string): Promise<Result> {
+  async getFeedByUrl(url: string): Promise<Result<StringerFeed>> {
     let response: Response;
 
     // leave this here in case you decide to
@@ -136,7 +133,7 @@ export class RssService {
     }
   }
 
-  buildUrl(str: string): Result {
+  buildUrl(str: string): Result<string> {
     let built: string = '';
     if (!str.startsWith('http://') && !str.startsWith('https://')) {
       built = `https://${str}`;
@@ -147,7 +144,7 @@ export class RssService {
     return { ok: true, data: built };
   }
 
-  async findDocumentRssLink(url: string): Promise<Result> {
+  async findDocumentRssLink(url: string): Promise<Result<string>> {
     let response;
     try {
       response = await fetch(url);

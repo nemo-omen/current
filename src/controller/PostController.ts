@@ -1,10 +1,11 @@
 import { Context, Hono } from "hono";
-import { All } from "../view/pages/posts/All";
+import { List } from "../view/pages/posts/List";
 import { Result } from "../lib/interfaces/Result";
-import { SQLiteFeedRepository } from "../repo/FeedRepository";
+import { FeedInfo, SQLiteFeedRepository } from "../repo/FeedRepository";
 import { RssService } from "../service/RssService";
 import { db } from "../lib/infra/sqlite";
 import { Post } from "../view/pages/posts/Post";
+import { StringerItem } from "../model/StringerItem";
 
 const app = new Hono();
 
@@ -30,11 +31,11 @@ app.get('/all', async (c: Context) => {
   // 5. Render new items
   // 6. Set an update interval and run steps 3-5
 
-  const feedInfoResult: Result = feedRepo.getFeedInfo();
+  const feedInfoResult: Result<FeedInfo[]> = feedRepo.getFeedInfo();
 
   if (!feedInfoResult.ok) {
     session.flash('error', 'Could not get feeds from database.');
-    return All(c);
+    return List(c);
   }
 
   for (const feedInfo of feedInfoResult.data) {
@@ -67,26 +68,29 @@ app.get('/all', async (c: Context) => {
     session.flash('error', 'Could not get count of items.');
   }
 
-  c.set('dashboardItems', storedItemsResult.data);
+  c.set('posts', storedItemsResult.data);
+  c.set('pageTitle', 'All Posts');
   c.set('itemCount', itemCountResult.data);
   session.set('page', page);
-  return All(c);
+  return List(c);
 });
 
 app.get('/:id', async (c: Context) => {
   const session = c.get('session');
   const id = parseInt(c.req.param('id'));
   const itemRepo = new SQLiteFeedRepository(db);
-  const itemResult = itemRepo.getItemById(id);
+  const itemResult: Result<StringerItem> = itemRepo.getItemById(id);
   if (!itemResult.ok) {
     session.flash('Could not find item');
-  }
-  const item = itemResult.data;
-  if (item.enclosure) {
-    item.enclosure = JSON.parse(item.enclosure);
-  }
+  } else {
+    const item = itemResult.data;
 
-  c.set('item', itemResult.data);
+    if (item.enclosure) {
+      item.enclosure = JSON.parse(item.enclosure);
+    }
+
+    c.set('item', itemResult.data);
+  }
 
   return Post(c);
 });
