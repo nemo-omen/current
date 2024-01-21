@@ -7,7 +7,8 @@ import { ResultPage } from "../view/pages/feeds/Result";
 import { SQLiteFeedRepository } from "../repo/FeedRepository";
 import { db } from "../lib/infra/sqlite";
 import type { RssSource } from 'rss-url-finder';
-import { Result } from "../lib/interfaces/Result";
+import { Result } from "../lib/types/Result";
+import { COMMON_FEED_EXTENSIONS } from "../lib/constants/COMMON_FEED_EXTENSIONS";
 
 const app = new Hono();
 
@@ -61,30 +62,42 @@ app.post(
       feedurl = data.feedurl;
     }
 
-
     // TODO: Call FeedRepository to SELECT feedUrl=feedurl
+    let rssUrl: string | undefined = undefined;
 
-    if (!feedurl.endsWith('feed') && !feedurl.endsWith('feed/') && !feedurl.endsWith('xml') && !feedurl.endsWith('rss')) {
+    for (const ext of COMMON_FEED_EXTENSIONS) {
+      if (feedurl.endsWith(ext)) {
+        rssUrl = feedurl;
+      }
+    }
+
+    if (!rssUrl) {
       const rssUrlResult: Result<RssSource> = await rssService.findDocumentRssLink(feedurl);
       if (!rssUrlResult.ok) {
         session.flash('error', 'Could not find RSS feed at that address.');
         return ResultPage(c);
       }
 
-      feedurl = rssUrlResult.data.url;
+      rssUrl = rssUrlResult.data.url;
     }
 
-    const feedResult = await rssService.getFeedByUrl(feedurl);
+    if (rssUrl) {
+      const feedResult = await rssService.getFeedByUrl(rssUrl);
 
-    if (!feedResult.ok) {
-      session.flash('error', 'Could not find a feed at that address.');
+      if (!feedResult.ok) {
+        session.flash('error', 'Could not find a feed at that address.');
+      } else {
+        c.set('feed', feedResult.data);
+      }
+      // set context value to repopulate form
+      // input on new page load
+      c.set('searchUrl', rssUrl);
+      return ResultPage(c);
     } else {
-      c.set('feed', feedResult.data);
+      session.flash('error', 'Could not find valid feed at that address.');
+      c.set('searchUrl', feedurl);
+      return ResultPage(c);
     }
-    // set context value to repopulate form
-    // input on new page load
-    c.set('searchUrl', feedurl);
-    return ResultPage(c);
   }
 );
 

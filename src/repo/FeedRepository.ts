@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite';
-import { Result } from '../lib/interfaces/Result';
-import { RssFeed } from '../lib/interfaces/RssFeed';
-import { RssItem } from '../lib/interfaces/RssItem';
+import { Result } from '../lib/types/Result';
+import { RssFeed } from '../lib/types/RssFeed';
+import { RssItem } from '../lib/types/RssItem';
 import { StringerFeed, StringerFeedPersistDTO } from '../model/StringerFeed';
 import { StringerItem } from '../model/StringerItem';
 import type { StringerItemProps } from '../model/StringerItem';

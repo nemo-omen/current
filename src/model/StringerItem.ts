@@ -1,5 +1,5 @@
 import type { Enclosure } from "rss-parser";
-import type { FeedImage } from "../lib/interfaces/FeedImage";
+import type { FeedImage } from "../lib/types/FeedImage";
 
 export type StringerItemProps = {
   id?: number,

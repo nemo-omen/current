@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 import { List } from "../view/pages/posts/List";
-import { Result } from "../lib/interfaces/Result";
+import { Result } from "../lib/types/Result";
 import { FeedInfo, SQLiteFeedRepository } from "../repo/FeedRepository";
 import { RssService } from "../service/RssService";
 import { db } from "../lib/infra/sqlite";

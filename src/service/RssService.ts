@@ -1,21 +1,11 @@
 import Parser from 'rss-parser';
-import type { Output } from 'rss-parser';
-import { Result } from '../lib/interfaces/Result';
-import { StringerFeed } from '../model/StringerFeed';
-import { StringerItem } from '../model/StringerItem';
+import { Result } from '../lib/types/Result';
 import type { StringerItemProps } from '../model/StringerItem';
-import { RssItem } from '../lib/interfaces/RssItem';
-import * as htmlparser2 from 'htmlparser2';
-import * as CssSelect from 'css-select';
 import { parse, Feed, Entry } from '@nooptoday/feed-rs';
 import { JSDOM } from 'jsdom';
-import { getRssUrlsFromUrl } from 'rss-url-finder';
-import type { RssSource } from 'rss-url-finder';
-// type RssItem = Item & {
-//   author?: string;
-//   creator?: string;
-//   "content:encoded"?: string;
-// };
+import { Window } from 'happy-dom';
+import type { RssSource } from '../lib/types/RssSource';
+import { getFeedSources } from '../lib/util/getFeedSources';
 
 export class RssService {
   parser: Parser;
@@ -40,6 +30,7 @@ export class RssService {
     }
 
     let feed: Feed;
+
     try {
       const urlObj = new URL(url);
       const host = urlObj.host;
@@ -51,8 +42,14 @@ export class RssService {
 
     for (const entry of feed.entries) {
       if (entry.content?.contentType === 'text/html') {
-        const { document } = new JSDOM(entry.content.body).window;
-        const p = document.querySelector('p');
+        // const { window } = new JSDOM(entry.content.body, {runScripts: });
+        // const document = window.document;
+
+        const fragment = JSDOM.fragment(entry.content.body);
+
+        // const p = document.querySelector('p');
+        const p = fragment.querySelector('p');
+
         if (p) {
           if (p.innerHTML) {
             entry.summary = {
@@ -92,13 +89,19 @@ export class RssService {
   }
 
   async findDocumentRssLink(url: string): Promise<Result<string>> {
-    let rssUrlResult: RssSource[];
+    let rssUrlResult: Result<RssSource[]>;
     try {
-      rssUrlResult = await getRssUrlsFromUrl(url);
+      rssUrlResult = await getFeedSources(url);
+      // rssUrlResult = await getRssUrlsFromUrl(url);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
+    if (rssUrlResult.ok) {
+      if (rssUrlResult.data.length < 1) {
+        return { ok: false, error: 'No RSS url at that location.' };
+      }
+    }
     // TODO: Handle multiple feeds at same url
-    return { ok: true, data: rssUrlResult[0] };
+    return { ok: true, data: rssUrlResult.data[0] };
   }
 }
