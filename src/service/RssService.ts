@@ -9,7 +9,8 @@ import * as htmlparser2 from 'htmlparser2';
 import * as CssSelect from 'css-select';
 import { parse, Feed, Entry } from '@nooptoday/feed-rs';
 import { JSDOM } from 'jsdom';
-
+import { getRssUrlsFromUrl } from 'rss-url-finder';
+import type { RssSource } from 'rss-url-finder';
 // type RssItem = Item & {
 //   author?: string;
 //   creator?: string;
@@ -91,62 +92,13 @@ export class RssService {
   }
 
   async findDocumentRssLink(url: string): Promise<Result<string>> {
-    let response;
+    let rssUrlResult: RssSource[];
     try {
-      response = await fetch(url);
+      rssUrlResult = await getRssUrlsFromUrl(url);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
-
-    let data;
-    try {
-      data = await response.text();
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    let rssLink: string;
-
-    // TODO: COnsider switching to taoqf/node-html-parser
-    // for query support, and to keep all html parsing
-    // to a single library
-    const parser = new htmlparser2.Parser({
-      onopentag(name, attribs, isImplied) {
-        // For now, only return first
-        // rss link.
-        // TODO: Handle multiple RSS links
-        if (!rssLink) {
-          if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/rss+xml') {
-            rssLink = attribs.href;
-          }
-          if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/atom+xml') {
-            rssLink = attribs.href;
-          }
-        }
-      }
-    });
-
-    parser.write(data);
-    let finalUrl: string;
-
-    if (rssLink != undefined) {
-      // TODO: You need something better here.
-      if (rssLink.startsWith('https')) {
-        return { ok: true, data: rssLink };
-      }
-
-      if (!rssLink.startsWith(url)) {
-        if (url.endsWith('/')) {
-          finalUrl = url.substring(0, url.length - 1) + rssLink;
-        } else {
-          finalUrl = url + rssLink;
-        }
-      } else {
-        finalUrl = rssLink;
-      }
-      return { ok: true, data: finalUrl };
-    }
-
-    return { ok: false, error: 'Could not find RSS url.' };
+    // TODO: Handle multiple feeds at same url
+    return { ok: true, data: rssUrlResult[0] };
   }
 }
