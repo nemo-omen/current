@@ -1,8 +1,8 @@
 import { Result } from "../types/Result";
 import { RssSource } from "../types/RssSource";
-import { Window } from "happy-dom";
 import { FEEDTYPES } from "../constants/FEEDTYPES";
 import { COMMON_FEED_EXTENSIONS } from "../constants/COMMON_FEED_EXTENSIONS";
+import { parse } from 'node-html-parser';
 
 export async function getFeedSources(url: string): Promise<Result<RssSource[]>> {
   let rssSources: RssSource[] = [];
@@ -126,11 +126,11 @@ export function makeAbsolute(rssSource: RssSource, rootUrl: string): RssSource |
 }
 
 export function findLinksInHtmlBody(htmlBody: string): RssSource[] {
-  const window = new Window();
-  const document = window.document;
-  document.body.innerHTML = htmlBody;
+  const document = parse(htmlBody);
+
   const rssLinks: RssSource[] = [];
   const allDocumentLinks = document.querySelectorAll('link');
+
 
   for (const link of allDocumentLinks) {
     const type = link.getAttribute('type');
@@ -142,7 +142,6 @@ export function findLinksInHtmlBody(htmlBody: string): RssSource[] {
       });
     }
   }
-
   return rssLinks;
 }
 

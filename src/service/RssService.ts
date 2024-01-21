@@ -1,11 +1,9 @@
 import Parser from 'rss-parser';
 import { Result } from '../lib/types/Result';
-import type { StringerItemProps } from '../model/StringerItem';
 import { parse, Feed, Entry } from '@nooptoday/feed-rs';
-import { JSDOM } from 'jsdom';
-import { Window } from 'happy-dom';
 import type { RssSource } from '../lib/types/RssSource';
 import { getFeedSources } from '../lib/util/getFeedSources';
+import { parse as parseHtml } from 'node-html-parser';
 
 export class RssService {
   parser: Parser;
@@ -45,10 +43,18 @@ export class RssService {
         // const { window } = new JSDOM(entry.content.body, {runScripts: });
         // const document = window.document;
 
-        const fragment = JSDOM.fragment(entry.content.body);
+        // const fragment = JSDOM.fragment(entry.content.body, {
+        //   processExternalResources: false,
+        // });
 
         // const p = document.querySelector('p');
-        const p = fragment.querySelector('p');
+        // const p = fragment.querySelector('p');
+        const root = parseHtml(entry.content.body!, {
+          script: false,
+          style: false,
+        });
+
+        const p = root.querySelector('p');
 
         if (p) {
           if (p.innerHTML) {
@@ -88,7 +94,7 @@ export class RssService {
     return { ok: true, data: built };
   }
 
-  async findDocumentRssLink(url: string): Promise<Result<string>> {
+  async findDocumentRssLink(url: string): Promise<Result<RssSource>> {
     let rssUrlResult: Result<RssSource[]>;
     try {
       rssUrlResult = await getFeedSources(url);
@@ -99,9 +105,11 @@ export class RssService {
     if (rssUrlResult.ok) {
       if (rssUrlResult.data.length < 1) {
         return { ok: false, error: 'No RSS url at that location.' };
+      } else {
+        // TODO: Handle multiple feeds at same url
+        return { ok: true, data: rssUrlResult.data[0] };
       }
     }
-    // TODO: Handle multiple feeds at same url
-    return { ok: true, data: rssUrlResult.data[0] };
+    return { ok: false, error: 'No RSS url at that location' };
   }
 }
