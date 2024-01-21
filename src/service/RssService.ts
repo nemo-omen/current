@@ -107,6 +107,9 @@ export class RssService {
 
     let rssLink: string;
 
+    // TODO: COnsider switching to taoqf/node-html-parser
+    // for query support, and to keep all html parsing
+    // to a single library
     const parser = new htmlparser2.Parser({
       onopentag(name, attribs, isImplied) {
         // For now, only return first
