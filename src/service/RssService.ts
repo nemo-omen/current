@@ -6,7 +6,10 @@ import { StringerItem } from '../model/StringerItem';
 import type { StringerItemProps } from '../model/StringerItem';
 import { RssItem } from '../lib/interfaces/RssItem';
 import * as htmlparser2 from 'htmlparser2';
+import * as CssSelect from 'css-select';
 import { parse, Feed, Entry } from '@nooptoday/feed-rs';
+import { JSDOM } from 'jsdom';
+
 // type RssItem = Item & {
 //   author?: string;
 //   creator?: string;
@@ -20,8 +23,8 @@ export class RssService {
     this.parser = new Parser();
   }
 
-  async getRsFeed(url: string): Promise<Result<Feed>> {
-    let response;
+  async getFeedByUrl(url: string): Promise<Result<Feed>> {
+    let response: Response;
     try {
       response = await fetch(url);
     } catch (err) {
@@ -35,7 +38,7 @@ export class RssService {
       return { ok: false, error: String(err) };
     }
 
-    let feed;
+    let feed: Feed;
     try {
       const urlObj = new URL(url);
       const host = urlObj.host;
@@ -45,86 +48,25 @@ export class RssService {
       return { ok: false, error: String(err) };
     }
 
-    return { ok: true, data: feed };
-  }
-
-  async getFeedByUrl(url: string): Promise<Result<StringerFeed>> {
-    let response: Response;
-
-    // feed-rs is the better alternative. It's faster and
-    // has consistent normalization between feed types.
-    const rsResult: Result<Feed> = await this.getRsFeed(url);
-    if (!rsResult.ok) {
-      return rsResult;
-    }
-
-    // console.log(rsResult.data.entries[0]);
-
-    try {
-      response = await fetch(url);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    let xml: string;
-    try {
-      xml = await response.text();
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    let parsed: Output<RssItem>;
-
-    try {
-      parsed = await this.parser.parseString(xml);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    const parsedImage = (parsed.image ? {
-      url: parsed.image.url,
-      link: parsed.image.link,
-      title: parsed.image.title,
-      width: parsed.image.width,
-      height: parsed.image.height
-    } : null);
-
-    const feed = new StringerFeed(
-      undefined,
-      parsed.title,
-      parsed.feedUrl,
-      parsed.description,
-      parsed.link,
-      parsedImage,
-      []);
-
-    for (const parsedItem of parsed.items) {
-      let summary;
-
-      if (parsedItem.contentSnippet) {
-        summary = parsedItem.contentSnippet.substring(0, 256);
-      } else {
-        summary = parsedItem.content.substring(0, 256);
+    for (const entry of feed.entries) {
+      if (entry.content?.contentType === 'text/html') {
+        const { document } = new JSDOM(entry.content.body).window;
+        const p = document.querySelector('p');
+        if (p) {
+          if (p.innerHTML) {
+            entry.summary = {
+              contentType: 'text/html',
+              content: `<p>${p.innerHTML}</p>`
+            };
+          }
+        }
       }
-      const itemProps: StringerItemProps = {
-        id: undefined,
-        title: parsedItem.title,
-        author: parsedItem.author,
-        link: parsedItem.link,
-        pubDate: parsedItem.pubDate,
-        content: parsedItem.content,
-        contentEncoded: parsedItem["content:encoded"],
-        contentSnippet: summary,
-        enclosure: parsedItem.enclosure,
-        feedId: undefined,
-        feedImage: feed.image,
-        feedTitle: feed.title
-      };
-
-      const item: StringerItem = new StringerItem(itemProps);
-      feed.addItem(item);
     }
 
+    // We can just send back the Feed directly
+    // from feed-rs. I don't think I need to
+    // worry about transforming that into
+    // a StringerFeed until the user has subscribed.
     return { ok: true, data: feed };
   }
 
@@ -185,6 +127,11 @@ export class RssService {
     let finalUrl: string;
 
     if (rssLink != undefined) {
+      // TODO: You need something better here.
+      if (rssLink.startsWith('https')) {
+        return { ok: true, data: rssLink };
+      }
+
       if (!rssLink.startsWith(url)) {
         if (url.endsWith('/')) {
           finalUrl = url.substring(0, url.length - 1) + rssLink;

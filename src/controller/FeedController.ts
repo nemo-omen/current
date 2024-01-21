@@ -59,24 +59,25 @@ app.post(
       feedurl = data.feedurl;
     }
 
+
     // TODO: Call FeedRepository to SELECT feedUrl=feedurl
 
-    const rssUrlResult = await rssService.findDocumentRssLink(feedurl);
-    let rssUrl;
-    if (!rssUrlResult.ok) {
-      return { ok: false, error: "Could not find RSS feed at that address." };
+    if (!feedurl.endsWith('feed') && !feedurl.endsWith('feed/') && !feedurl.endsWith('xml') && !feedurl.endsWith('rss')) {
+      const rssUrlResult = await rssService.findDocumentRssLink(feedurl);
+
+      if (!rssUrlResult.ok) {
+        session.flash('error', 'Could not find RSS feed at that address.');
+        return ResultPage(c);
+      }
+
+      feedurl = rssUrlResult.data;
     }
 
-    rssUrl = rssUrlResult.data;
-
-    const feedResult = await rssService.getFeedByUrl(rssUrl);
+    const feedResult = await rssService.getFeedByUrl(feedurl);
 
     if (!feedResult.ok) {
       session.flash('error', 'Could not find a feed at that address.');
     } else {
-      if (feedResult.data.feedUrl !== rssUrl) {
-        feedResult.data.feedUrl = rssUrl;
-      }
       c.set('feed', feedResult.data);
     }
     // set context value to repopulate form

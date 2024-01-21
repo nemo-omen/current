@@ -1,17 +1,21 @@
 import { FC } from "hono/jsx";
 import { useRequestContext } from "hono/jsx-renderer";
 import { StringerItem } from "../../../../model/StringerItem";
+import { Feed, Entry, Image, Text } from '@nooptoday/feed-rs';
+import { html } from "hono/html";
+import { HtmlEscapedString } from "hono/utils/html";
 
 export const List: FC = () => {
   const c = useRequestContext();
-  const feed = c.get('feed');
-  let image = feed.image ? feed.image : null;
+  const feed: Feed = c.get('feed');
+  const entry = feed.entries[0];
+  // let image = feed.image ? feed.image : null;
   return (
     <section class="search-results">
       <div class="results-header">
         <div class="results-header-info">
-          {(feed.image ? FeedImg(feed.image) : null) }
-          <h2>{feed.title}</h2>
+          {(feed.logo ? FeedImg(feed.logo) : null) }
+          <h2>{feed.title?.content}</h2>
         </div>
         <form action="/app/feeds/subscribe" method="POST">
           <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedUrl} />
@@ -19,28 +23,30 @@ export const List: FC = () => {
         </form>
       </div>
       <div class="results-list">
-        {feed.items.map((item) => FeedItemCard(item))}
+      {/* <pre><code>{JSON.stringify(entry, null, 4)}</code></pre> */}
+        {feed.entries.map((entry) => FeedItemCard(entry))}
       </div>
     </section>
   )
 }
 
-const FeedImg = (props: {url: string, link?: string, title?: string, width?: number, height?: number}) => {
-  const { url, link, title, width, height } = props;
+const FeedImg = (logo: Image) => {
+  const { uri, title, link, width, height, description } = logo;
   return (
-    <img src={url} alt={title} width={width} height={height} class="feed-image" />
+    <img src={uri} alt={title ? title : description ? description : ''} width={width} height={height} class="feed-image" />
   );
 }
 
-const FeedItemCard = (props: StringerItem) => {
-  const dateString = new Date(props.pubDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
+const FeedItemCard = async (entry: Entry) => {
+  const dateString = new Date(entry.updated!).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
+  
   return(
     <article class="feed-item">
-      <h3>{props.title}</h3>
+      <h3>{entry.title?.content}</h3>
       <time>{dateString}</time>
       <section>
        <p>
-        {props.contentSnippet}
+        {entry.summary ? html(entry.summary.content) : ''}
        </p>
       </section>
     </article>);
