@@ -1,5 +1,5 @@
 import { Context, Hono, Next } from "hono";
-import PostController from './PostController';
+import PostController from './EntryController';
 import FeedController from './FeedController';
 
 const app = new Hono();

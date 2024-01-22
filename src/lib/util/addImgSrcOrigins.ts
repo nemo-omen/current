@@ -11,19 +11,21 @@ export async function addImgSrcOrigins(link: string, content: string) {
   }
   const origin = hostURL.origin;
 
-  const doc = await rehype().data('settings', { fragment: true }).use(() => (hast: Root) => {
-    visit(
-      hast,
-      (node) => {
-        if (node.tagName === 'img') {
-          const imgSrc = node.properties.src;
-          if (!imgSrc.startsWith(origin)) {
-            node.properties.src = origin + imgSrc;
+  const doc = await rehype()
+    .data('settings', { fragment: true })
+    .use(() => (hast: Root) => {
+      visit(
+        hast,
+        (node) => {
+          if (node.tagName === 'img') {
+            const imgSrc = node.properties.src;
+            if (!imgSrc.startsWith(origin)) {
+              node.properties.src = origin + imgSrc;
+            }
           }
         }
-      }
-    );
-  }).process(content);
+      );
+    }).process(content);
 
   return (String(doc));
 }

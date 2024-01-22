@@ -31,28 +31,14 @@ export class RssService {
 
     try {
       const urlObj = new URL(url);
-      const host = urlObj.host;
-      const proto = urlObj.protocol;
-      feed = parse(data, proto + host);
+      feed = parse(data, urlObj.origin);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
     for (const entry of feed.entries) {
       if (entry.content?.contentType === 'text/html') {
-        // const { window } = new JSDOM(entry.content.body, {runScripts: });
-        // const document = window.document;
-
-        // const fragment = JSDOM.fragment(entry.content.body, {
-        //   processExternalResources: false,
-        // });
-
-        // const p = document.querySelector('p');
-        // const p = fragment.querySelector('p');
-        const root = parseHtml(entry.content.body!, {
-          script: false,
-          style: false,
-        });
+        const root = parseHtml(entry.content.body!);
 
         const p = root.querySelector('p');
 
@@ -66,6 +52,9 @@ export class RssService {
         }
       }
     }
+
+    const { categories, ...rest } = feed;
+    console.log({ categories });
 
     // We can just send back the Feed directly
     // from feed-rs. I don't think I need to

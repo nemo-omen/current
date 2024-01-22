@@ -1,14 +1,14 @@
 import { Context, Hono } from "hono";
-import { New } from "../view/pages/feeds/New";
 import { validator } from 'hono/validator';
 import { z } from "zod";
-import { RssService } from "../service/RssService";
-import { ResultPage } from "../view/pages/feeds/Result";
-import { SQLiteFeedRepository } from "../repo/FeedRepository";
-import { db } from "../lib/infra/sqlite";
-import type { RssSource } from 'rss-url-finder';
-import { Result } from "../lib/types/Result";
 import { COMMON_FEED_EXTENSIONS } from "../lib/constants/COMMON_FEED_EXTENSIONS";
+import { Result } from "../lib/types/Result";
+import { db } from "../lib/infra/sqlite";
+import { RssService } from "../service/RssService";
+import { SQLiteFeedRepository } from "../repo/FeedRepository";
+import { ResultPage } from "../view/pages/feeds/Result";
+import { New } from "../view/pages/feeds/New";
+import { RssSource } from "../lib/types/RssSource";
 
 const app = new Hono();
 
@@ -21,10 +21,12 @@ const subscribeFormSchema = z.object({
 });
 
 app.get('/new', (c: Context) => {
+  // TODO: Change to /search
   return New(c);
 });
 
 app.post(
+  // TODO: Change to /search
   '/new',
   validator('form', (value, c) => {
     const result: z.SafeParseReturnType<any, any> = parseInput(c, searchFormSchema, value);

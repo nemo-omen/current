@@ -3,8 +3,8 @@ import { Result } from '../lib/types/Result';
 import { RssFeed } from '../lib/types/RssFeed';
 import { RssItem } from '../lib/types/RssItem';
 import { StringerFeed, StringerFeedPersistDTO } from '../model/StringerFeed';
-import { StringerItem } from '../model/StringerItem';
-import type { StringerItemProps } from '../model/StringerItem';
+import { StringerEntry } from '../model/StringerEntry';
+import type { StringerItemProps } from '../model/StringerEntry';
 
 export type FeedInfo = {
   id: number,
@@ -32,15 +32,11 @@ export class SQLiteFeedRepository {
 
       if (itemsRes) {
         for (const item of itemsRes) {
-          feed.items.push(new StringerItem({ ...item, feedTitle: feed.title, feedImage: feed.image }));
+          feed.items.push(new StringerEntry({ ...item, feedTitle: feed.title, feedImage: feed.image }));
         }
       }
       this.feeds.push(feed);
     }
-    // for (const feedRes of res) {
-    //   const f = new Feed(feedRes);
-    // }
-    // console.log(this.feeds);
     return this.feeds;
   }
 
@@ -50,7 +46,7 @@ export class SQLiteFeedRepository {
     return { ok: true, data: res };
   }
 
-  getItemById(id: number): Result<StringerItem> {
+  getItemById(id: number): Result<StringerEntry> {
     const query = this._db.query(`SELECT * FROM items WHERE id=$id`);
     const queryResult = query.get({ $id: id });
 
@@ -62,7 +58,7 @@ export class SQLiteFeedRepository {
     return { ok: false, error: "No item with that id" };
   }
 
-  getAllItems(page = 1, limit = 100): Result<StringerItem[]> {
+  getAllItems(page = 1, limit = 100): Result<StringerEntry[]> {
     // const query = this._db.query(`
     //   SELECT * FROM items
     //   ORDER BY pubDate DESC
@@ -91,7 +87,7 @@ export class SQLiteFeedRepository {
         feedTitle: feedInfo.title,
         feedImage: JSON.parse(feedInfo.image)
       };
-      const item = new StringerItem(itemProps);
+      const item = new StringerEntry(itemProps);
       items.push(item);
     }
 

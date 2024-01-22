@@ -1,6 +1,6 @@
 import { FC } from "hono/jsx";
 import { useRequestContext } from "hono/jsx-renderer";
-import { StringerItem } from "../../../../model/StringerItem";
+import { StringerEntry } from "../../../../model/StringerEntry";
 import { Feed, Entry, Image, Text } from '@nooptoday/feed-rs';
 import { html } from "hono/html";
 import { HtmlEscapedString } from "hono/utils/html";

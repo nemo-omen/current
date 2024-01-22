@@ -2,12 +2,15 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS
     feeds (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id VARCHAR(255) PRIMARY KEY,
+        feedType VARCHAR(255),
         title VARCHAR(255),
+        updated DATE,
         description TEXT,
-        feedUrl VARCHAR(255) UNIQUE NOT NULL,
-        link VARCHAR(255),
-        image JSON
+        feedLink VARCHAR(255) UNIQUE NOT NULL,
+        siteLink VARCHAR(255),
+        icon JSON,
+        logo JSON
     );
 
 -- migrate:down

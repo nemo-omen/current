@@ -1,100 +1,50 @@
-import { StringerItem } from "./StringerItem";
+import { Entry, Feed, FeedType, Image } from "@nooptoday/feed-rs";
+import { StringerEntry } from "./StringerEntry";
 
-export class StringerFeed {
-  id?: number;
-  feedUrl?: string;
-  title?: string;
-  description?: string;
-  link?: string;
-  image?: {
-    url: string,
-    link?: string,
-    title?: string,
-    width?: number,
-    height?: number,
-  } | null;
-  items?: StringerItem[];
-
-  constructor (
-    id?: number,
-    title?: string,
-    feedUrl?: string,
-    description?: string,
-    link?: string,
-    image?: {
-      url: string,
-      link?: string,
-      title?: string,
-      width?: number,
-      height?: number,
-    },
-    items?: StringerItem[],
-  ) {
-    this.id = id;
-    this.feedUrl = feedUrl;
-    this.title = title;
-    this.description = description;
-    this.link = link;
-    this.items = items || [];
-    if (image) {
-      this.image = {
-        url: image.url,
-        link: image.link,
-        title: image.title || '',
-        width: image.width,
-        height: image.height,
-      };
-    } else {
-      this.image = null;
-    }
-  }
-
-  addItem(item: StringerItem) {
-    if (this.items === null || this.items === undefined) {
-      this.items = [];
-    }
-    this.items.push(item);
-    this.sortItemsByDate();
-  }
-
-  sortItemsByDate() {
-    this.items?.sort((a, b) => (new Date(b.pubDate).valueOf()) - (new Date(a.pubDate).valueOf()));
-  }
-
-  static fromPersistance(f: StringerFeedPersistDTO) {
-    const parsedImg = f.image ? JSON.parse(f.image) : null;
-    const props = { ...f, image: parsedImg };
-    return new StringerFeed(
-      props.id,
-      props.title,
-      props.feedUrl,
-      props.description,
-      props.link,
-      props.image
-    );
-  }
+export interface FeedProps {
+  id: string,
+  feedType: FeedType,
+  title: string,
+  updated?: Date,
+  description?: string,
+  feedLink?: string,
+  siteLink?: string,
+  categories?: string[],
+  icon?: Image,
+  logo?: string,
+  entries?: StringerEntry[];
 }
 
-export type StringerFeedPersistDTO = {
-  id?: number,
-  feedUrl?: string,
-  title?: string,
-  description?: string,
-  link?: string,
-  image?: string,
-};
+export class StringerFeed {
+  private props: FeedProps;
 
-export type StringerFeedPresentDTO = {
-  id?: number,
-  feedUrl?: string,
-  title?: string,
-  description?: string,
-  link?: string,
-  image?: {
-    url: string,
-    link?: string,
-    title?: string,
-    width?: number,
-    height?: number,
-  },
-};
+  constructor (props: FeedProps) {
+    this.props = props;
+  }
+
+  id(): string {
+    return this.props.id;
+  }
+
+  addEntry(e: Entry): void {
+
+  }
+
+  toPersistence() {
+    return {
+      ...this.props,
+      icon: JSON.stringify(this.props.icon),
+      logo: JSON.stringify(this.props.logo),
+    };
+  }
+
+  static fromPersistence(p: any): StringerFeed {
+    const props = {
+      ...p,
+      icon: JSON.parse(p.icon),
+      logo: JSON.parse(p.logo)
+    };
+    return new StringerFeed(props);
+  }
+
+}
