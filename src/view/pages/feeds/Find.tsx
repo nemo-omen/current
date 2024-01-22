@@ -2,7 +2,7 @@ import { Context } from 'hono'
 import { Search } from './partials/Search';
 import { Page } from '../../layout/Page';
 
-export const New = (c: Context) => {
+export const Find = (c: Context) => {
 
   return c.render(
     <>
@@ -13,7 +13,7 @@ export const New = (c: Context) => {
       </Page>
     </>,
     {
-      title: 'Add Feed'
+      title: 'Find Feeds'
     }
   )
 };

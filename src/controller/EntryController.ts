@@ -9,6 +9,7 @@ import { Post } from "../view/pages/posts/Post";
 import { StringerEntry } from "../model/StringerEntry";
 import { Subscription } from "../lib/types/Subscription";
 import { None } from "../view/pages/posts/None";
+import { Find } from "../view/pages/feeds/Find";
 
 const app = new Hono();
 
@@ -34,10 +35,11 @@ app.get('/all', async (c: Context) => {
   }
 
   const subscriptions: Subscription[] = subscriptionsResult.data;
+  c.set('subscriptions', subscriptions);
 
   if (subscriptions.length < 1) {
-    c.set('pageTitle', 'No Subscriptions');
-    return None(c);
+    c.set('pageTitle', 'Find Feeds');
+    return Find(c);
   }
 
   c.set('posts', storedItemsResult.data);

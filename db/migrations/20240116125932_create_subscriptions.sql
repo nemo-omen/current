@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER NOT NULL,
         feedId VARCHAR(255) NOT NULL,
-        subscribedDate DATE,
+        subscribedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
     );

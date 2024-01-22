@@ -7,7 +7,7 @@ import { db } from "../lib/infra/sqlite";
 import { RssService } from "../service/RssService";
 import { SQLiteFeedRepository } from "../repo/FeedRepository";
 import { ResultPage } from "../view/pages/feeds/Result";
-import { New } from "../view/pages/feeds/New";
+import { Find } from "../view/pages/feeds/Find";
 import { RssSource } from "../lib/types/RssSource";
 
 const app = new Hono();
@@ -20,14 +20,14 @@ const subscribeFormSchema = z.object({
   subscriptionUrl: z.string().url()
 });
 
-app.get('/new', (c: Context) => {
+app.get('/find', (c: Context) => {
   // TODO: Change to /search
-  return New(c);
+  return Find(c);
 });
 
 app.post(
   // TODO: Change to /search
-  '/new',
+  '/find',
   validator('form', (value, c) => {
     const result: z.SafeParseReturnType<any, any> = parseInput(c, searchFormSchema, value);
     return result.data;

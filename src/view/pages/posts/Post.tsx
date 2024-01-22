@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { html, raw } from "hono/html";
-import { Page } from "../../layout/Page";
+import { SidebarPage } from "../../layout/SidebarPage";
 import { addImgSrcOrigins } from "../../../lib/util/addImgSrcOrigins";
 import { highlight } from "../../../lib/util/highlight";
 import { css, cx, keyframes, Style } from 'hono/css'
@@ -15,7 +15,7 @@ export const Post = (c: Context) => {
   }
 
   return c.render(
-    <Page>
+    <SidebarPage>
     {/* <TomorrowNightBright /> */}
     <article class="story-article flow post">
       {imageSrc ? <img src={imageSrc} alt={item.title} /> : null}
@@ -29,7 +29,7 @@ export const Post = (c: Context) => {
       <ItemContent content={item.content} link={item.link}/>
       <a href={item.link}>View Original</a>
     </article>
-    </Page>,
+    </SidebarPage>,
     {title: item.title}
   );
 }

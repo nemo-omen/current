@@ -1,6 +1,7 @@
 import { Context, Hono, Next } from "hono";
 import PostController from './EntryController';
 import FeedController from './FeedController';
+import CollectionController from "./CollectionController";
 
 const app = new Hono();
 
@@ -20,5 +21,6 @@ app.get('/', async (c: Context) => {
 
 app.route('/posts', PostController);
 app.route('/feeds', FeedController);
+app.route('/collections', CollectionController);
 
 export default app;

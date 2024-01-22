@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { Page } from '../../layout/Page';
+import { SidebarPage } from '../../layout/SidebarPage';
 import { ItemList } from '../../components/ItemList';
 
 export const List = (c: Context) => {
@@ -7,9 +7,9 @@ export const List = (c: Context) => {
   const pageTitle = c.get('pageTitle');
   // const itemCount = c.get('itemCount');
   return c.render(
-    <Page>
+    <SidebarPage>
       <ItemList items={posts} />
-    </Page>,
+    </SidebarPage>,
     {title: 'All Posts'}
   )
 };
