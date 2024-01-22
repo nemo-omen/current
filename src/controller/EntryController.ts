@@ -1,5 +1,5 @@
 import { Context, Hono } from "hono";
-import { List } from "../view/pages/posts/List";
+import { PostList } from "../view/pages/posts/PostList";
 import { Result } from "../lib/types/Result";
 import { FeedInfo, SQLiteFeedRepository } from "../repo/FeedRepository";
 import { SubscriptionRepository } from "../repo/SubscriptionRepository";
@@ -31,7 +31,7 @@ app.get('/all', async (c: Context) => {
 
   if (!subscriptionsResult.ok) {
     session.flash('error', 'There was a problem getting your subscriptions.');
-    return List(c);
+    return PostList(c);
   }
 
   const subscriptions: Subscription[] = subscriptionsResult.data;
@@ -45,7 +45,7 @@ app.get('/all', async (c: Context) => {
   c.set('posts', storedItemsResult.data);
   c.set('pageTitle', 'All Posts');
   session.set('page', page);
-  return List(c);
+  return PostList(c);
 });
 
 app.get('/:id', async (c: Context) => {

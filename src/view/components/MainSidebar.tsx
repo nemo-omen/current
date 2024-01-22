@@ -31,13 +31,10 @@ export const MainSidebar: FC = () => {
           <MenuLink href="/app/collections/saved" current={current} iconName="bookmark" text="Saved" />
         </li>
         <li>
-          <MenuLink href="/app/collections/tagged" current={current} iconName="tag" text="Tagged" />
-        </li>
-        <li>
           <MenuLink href="/app/notes" current={current} iconName="note" text="Notes" />
         </li>
         <li>
-          <MenuLink href="/app/feeds/new" current={current} iconName="add" text="Add Feed" />
+          <MenuLink href="/app/feeds/find" current={current} iconName="add" text="Add Feed" />
         </li>
       </ul>
       </nav>
