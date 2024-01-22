@@ -39,7 +39,7 @@ app.get('/all', async (c: Context) => {
 
   if (subscriptions.length < 1) {
     c.set('pageTitle', 'Find Feeds');
-    return Find(c);
+    return c.redirect('/app/feeds/find');
   }
 
   c.set('posts', storedItemsResult.data);
