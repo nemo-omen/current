@@ -65,7 +65,6 @@ app.get('/all', async (c: Context) => {
     if (!entriesResult.ok) {
       session.flash('error', 'There was a problem getting your feeds.');
       return c.redirect('/app/feeds/find');
-      // return PostList(c);
     }
 
     posts.push(...entriesResult.data);

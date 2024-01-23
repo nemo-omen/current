@@ -37,17 +37,19 @@ export class RssService {
     }
 
     for (const entry of feed.entries) {
-      if (entry.content?.contentType === 'text/html') {
-        const root = parseHtml(entry.content.body!);
+      if (!entry.summary) {
+        if (entry.content?.contentType === 'text/html') {
+          const root = parseHtml(entry.content.body!);
 
-        const p = root.querySelector('p');
+          const p = root.querySelector('p');
 
-        if (p) {
-          if (p.innerHTML) {
-            entry.summary = {
-              contentType: 'text/html',
-              content: `<p>${p.innerHTML}</p>`
-            };
+          if (p) {
+            if (p.innerHTML) {
+              entry.summary = {
+                contentType: 'text/html',
+                content: `${p.innerText}`
+              };
+            }
           }
         }
       }

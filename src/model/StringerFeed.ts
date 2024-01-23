@@ -114,7 +114,7 @@ export class StringerFeed {
       categories: feed.categories.map((c) => c.term),
       icon: feed.icon,
       logo: feed.logo,
-      entries: feed.entries.map((e) => StringerEntry.fromRemote(e, feed.id))
+      entries: feed.entries.map((e) => StringerEntry.fromRemote(e, id))
     };
     return new StringerFeed(props);
   }
