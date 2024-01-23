@@ -19,6 +19,7 @@ export const EntryCard: FC = (props) => {
       <section class="item-card-content">
         <h2 class="item-card-header">{entry.title}</h2>
         <p class="item-card-text">
+          {/* Strip html tags from summary */}
           {html(entry.summary)}
         </p>
         <div class="item-card-footer">

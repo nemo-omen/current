@@ -5,8 +5,7 @@ import { EntryList } from '../../components/EntryList';
 export const PostList = (c: Context) => {
   const posts = c.get('posts');
   const pageTitle = c.get('pageTitle');
-  // const itemCount = c.get('itemCount');
-  console.log({posts});
+  
   return c.render(
     <SidebarPage>
       <EntryList entries={posts} />

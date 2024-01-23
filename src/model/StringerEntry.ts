@@ -2,6 +2,7 @@ import { Content, Entry } from "@nooptoday/feed-rs";
 
 export type StringerEntryProps = {
   id: string,
+  rssId?: string,
   feedId?: string,
   title?: string,
   updated?: Date,
@@ -84,8 +85,13 @@ export class StringerEntry {
     entry: Entry,
     feedId: string
   ): StringerEntry {
+    const hasher = new Bun.CryptoHasher("md5");
+    const idHash = hasher.update(entry.id);
+    const id = idHash.digest("base64");
+
     const props = {
-      id: entry.id,
+      id: id,
+      rssId: entry.id,
       feedId: feedId,
       title: entry.title?.content,
       updated: entry.updated,
@@ -104,6 +110,7 @@ export class StringerEntry {
 
 export interface PersistanceEntryDTO {
   id: string,
+  rssId?: string,
   feedId?: string,
   title?: string,
   updated?: string,
@@ -117,6 +124,7 @@ export interface PersistanceEntryDTO {
 
 export interface StringerEntryDTO {
   id: string,
+  rssId?: string,
   feedId?: string,
   title?: string,
   updated?: Date,

@@ -13,6 +13,7 @@ export type FeedInfo = {
 const insertFeedQuery = `
   INSERT INTO feeds (
           id,
+          rssId,
           feedType,
           title,
           updated,
@@ -25,6 +26,7 @@ const insertFeedQuery = `
         )
         VALUES (
           $id,
+          $rssId,
           $feedType,
           $title,
           $updated,
@@ -41,6 +43,7 @@ const insertFeedQuery = `
 const feedQueryValues = (feedDTO: PersistanceFeedDTO) => {
   return {
     $id: feedDTO.id,
+    $rssId: feedDTO.rssId || null,
     $feedType: feedDTO.feedType || null,
     $title: feedDTO.title || null,
     $updated: feedDTO.updated || null,
@@ -56,6 +59,7 @@ const feedQueryValues = (feedDTO: PersistanceFeedDTO) => {
 const insertEntryQuery = `
           INSERT INTO entries (
           id,
+          rssId,
           feedId,
           title,
           updated,
@@ -68,6 +72,7 @@ const insertEntryQuery = `
         )
         VALUES (
           $id,
+          $rssId,
           $feedId,
           $title,
           $updated,
@@ -85,6 +90,7 @@ const insertEntryQuery = `
 const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
   return {
     $id: entryDTO.id,
+    $rssId: entryDTO.rssId || null,
     $feedId: entryDTO.feedId || null,
     $title: entryDTO.title || null,
     $updated: entryDTO.updated || null,

@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS
     feeds (
         id VARCHAR(255) PRIMARY KEY,
+        rssId VARCHAR(255),
         feedType VARCHAR(255),
         title VARCHAR(255),
         updated DATE,

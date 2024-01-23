@@ -3,6 +3,7 @@ import { PersistanceEntryDTO, StringerEntry, StringerEntryDTO } from "./Stringer
 
 export interface FeedProps {
   id: string,
+  rssId?: string,
   feedType: FeedType,
   title: string,
   updated?: Date,
@@ -24,6 +25,10 @@ export class StringerFeed {
 
   get id(): string {
     return this.props.id;
+  }
+
+  get rssId(): string | undefined {
+    return this.props.rssId;
   }
 
   get title(): string {
@@ -84,6 +89,8 @@ export class StringerFeed {
   static fromPersistance(p: any): StringerFeed {
     const props = {
       ...p,
+      updated: new Date(p.updated),
+      categories: JSON.parse(p.categories),
       icon: JSON.parse(p.icon),
       logo: JSON.parse(p.logo)
     };
@@ -91,8 +98,13 @@ export class StringerFeed {
   }
 
   static fromRemote(feed: Feed, siteLink: string, feedLink: string): StringerFeed {
+    const hasher = new Bun.CryptoHasher("md5");
+    const idHash = hasher.update(feed.id);
+    const id = idHash.digest("base64");
+
     const props = {
-      id: feed.id,
+      id: id,
+      rssId: feed.id,
       feedType: feed.feedType,
       title: feed.title?.content || '',
       updated: feed.updated,
@@ -110,6 +122,7 @@ export class StringerFeed {
 
 export interface PersistanceFeedDTO {
   id: string,
+  rssId?: string,
   feedType: string,
   title: string,
   updated?: string,
@@ -124,6 +137,7 @@ export interface PersistanceFeedDTO {
 
 export interface StringerFeedDTO {
   id: string,
+  rssId?: string,
   feedType: string,
   title: string,
   updated?: Date,
