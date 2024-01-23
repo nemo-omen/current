@@ -8,8 +8,7 @@ import { HtmlEscapedString } from "hono/utils/html";
 export const List: FC = () => {
   const c = useRequestContext();
   const feed: Feed = c.get('feed');
-  const entry = feed.entries[0];
-  // let image = feed.image ? feed.image : null;
+  
   return (
     <section class="search-results">
       <div class="results-header">
@@ -18,7 +17,7 @@ export const List: FC = () => {
           <h2>{feed.title?.content}</h2>
         </div>
         <form action="/app/feeds/subscribe" method="POST">
-          <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedUrl} />
+          <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedLink} />
           <button type="submit">Subscribe</button>
         </form>
       </div>
@@ -37,16 +36,21 @@ const FeedImg = (logo: Image) => {
   );
 }
 
-const FeedItemCard = async (entry: Entry) => {
-  const dateString = new Date(entry.updated!).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
-  
+const FeedItemCard = async (entry: StringerEntry) => {
+  let dateString = '';
+  if(entry.updated) {
+    dateString = new Date(entry.updated!).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
+  } else if(entry.published) {
+    dateString = new Date(entry.published).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
+  }
+
   return(
     <article class="feed-item">
-      <h3>{entry.title?.content}</h3>
+      <h3>{entry.title}</h3>
       <time>{dateString}</time>
       <section>
        <p>
-        {entry.summary ? html(entry.summary.content) : ''}
+        {entry.summary ? html(entry.summary) : ''}
        </p>
       </section>
     </article>);

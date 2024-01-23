@@ -17,4 +17,21 @@ export class SubscriptionRepository {
     }
     return { ok: true, data: subResult };
   }
+
+  saveSubscription(feedId: string, userId: number) {
+    const query = this._db.query(`
+      INSERT INTO subscriptions (
+        feedId,
+        userId)
+      VALUES ($feedId, $userId)
+      RETURNING id
+    `);
+    let data: unknown;
+    try {
+      data = query.get({ $feedId: feedId, $userId: userId });
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+    return { ok: true, data: data };
+  }
 }

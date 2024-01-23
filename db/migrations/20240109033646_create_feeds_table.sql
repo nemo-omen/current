@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS
         description TEXT,
         feedLink VARCHAR(255) UNIQUE NOT NULL,
         siteLink VARCHAR(255),
+        categories JSON,
         icon JSON,
         logo JSON
     );

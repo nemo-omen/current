@@ -8,12 +8,12 @@ CREATE TABLE IF NOT EXISTS
         updated DATETIME,
         published DATETIME,
         authors JSON,
-        description TEXT,
         content JSON,
         links JSON,
+        summary TEXT,
         categories JSON,
         FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
     );
 
 -- migrate:down
-DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS entries;

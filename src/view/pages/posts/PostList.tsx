@@ -1,16 +1,17 @@
 import { Context } from 'hono'
 import { SidebarPage } from '../../layout/SidebarPage';
-import { ItemList } from '../../components/ItemList';
+import { EntryList } from '../../components/EntryList';
 
 export const PostList = (c: Context) => {
   const posts = c.get('posts');
   const pageTitle = c.get('pageTitle');
   // const itemCount = c.get('itemCount');
+  console.log({posts});
   return c.render(
     <SidebarPage>
-      <ItemList items={posts} />
+      <EntryList entries={posts} />
     </SidebarPage>,
-    {title: 'All Posts'}
+    {title: pageTitle}
   )
 };
 

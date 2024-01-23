@@ -1,5 +1,5 @@
 import { Entry, Feed, FeedType, Image } from "@nooptoday/feed-rs";
-import { StringerEntry } from "./StringerEntry";
+import { PersistanceEntryDTO, StringerEntry, StringerEntryDTO } from "./StringerEntry";
 
 export interface FeedProps {
   id: string,
@@ -11,7 +11,7 @@ export interface FeedProps {
   siteLink?: string,
   categories?: string[],
   icon?: Image,
-  logo?: string,
+  logo?: Image,
   entries?: StringerEntry[];
 }
 
@@ -22,23 +22,66 @@ export class StringerFeed {
     this.props = props;
   }
 
-  id(): string {
+  get id(): string {
     return this.props.id;
+  }
+
+  get title(): string {
+    return this.props.title;
+  }
+
+  get entries(): StringerEntry[] {
+    return this.props.entries || [];
+  }
+
+  get icon(): Image | undefined {
+    return this.props.icon;
+  }
+
+  get logo(): Image | undefined {
+    return this.props.logo;
+  }
+
+  get feedLink(): string | undefined {
+    return this.props.feedLink;
+  }
+
+  get siteLink(): string | undefined {
+    return this.props.siteLink;
+  }
+
+  get description(): string | undefined {
+    return this.props.description;
+  }
+
+  get updated(): Date | undefined {
+    return this.props.updated;
+  }
+
+  get categories(): string[] {
+    return this.props.categories || [];
+  }
+
+  get feedType(): FeedType {
+    return this.props.feedType;
   }
 
   addEntry(e: Entry): void {
 
   }
 
-  toPersistence() {
+  toPersistance(): PersistanceFeedDTO {
     return {
       ...this.props,
+      updated: this.props.updated?.toISOString(),
+      categories: JSON.stringify(this.props.categories),
       icon: JSON.stringify(this.props.icon),
       logo: JSON.stringify(this.props.logo),
+      entries: this.props.entries?.map((e) => e.toPersistance())
     };
   }
 
-  static fromPersistence(p: any): StringerFeed {
+  static fromPersistance(p: any): StringerFeed {
     const props = {
       ...p,
       icon: JSON.parse(p.icon),
@@ -47,4 +90,48 @@ export class StringerFeed {
     return new StringerFeed(props);
   }
 
+  static fromRemote(feed: Feed, siteLink: string, feedLink: string): StringerFeed {
+    const props = {
+      id: feed.id,
+      feedType: feed.feedType,
+      title: feed.title?.content || '',
+      updated: feed.updated,
+      description: feed.description?.content || '',
+      feedLink: feedLink,
+      siteLink: siteLink,
+      categories: feed.categories.map((c) => c.term),
+      icon: feed.icon,
+      logo: feed.logo,
+      entries: feed.entries.map((e) => StringerEntry.fromRemote(e, feed.id))
+    };
+    return new StringerFeed(props);
+  }
+}
+
+export interface PersistanceFeedDTO {
+  id: string,
+  feedType: string,
+  title: string,
+  updated?: string,
+  description?: string,
+  feedLink?: string,
+  siteLink?: string,
+  categories?: string,
+  icon?: string,
+  logo?: string,
+  entries?: PersistanceEntryDTO[];
+}
+
+export interface StringerFeedDTO {
+  id: string,
+  feedType: string,
+  title: string,
+  updated?: Date,
+  description?: string,
+  feedLink?: string,
+  siteLink?: string,
+  categories?: string,
+  icon?: string,
+  logo?: string,
+  entries?: StringerEntryDTO[];
 }

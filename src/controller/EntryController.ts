@@ -10,6 +10,7 @@ import { StringerEntry } from "../model/StringerEntry";
 import { Subscription } from "../lib/types/Subscription";
 import { None } from "../view/pages/posts/None";
 import { Find } from "../view/pages/feeds/Find";
+import { StringerFeed } from "../model/StringerFeed";
 
 const app = new Hono();
 
@@ -19,6 +20,7 @@ app.get('/all', async (c: Context) => {
   const rssService = new RssService();
   const session = c.get('session');
   const user = session.get('user');
+  const posts: StringerEntry[] = [];
 
   //TODO: When we integrate HTMX, the pattern should be:
   // 1. Get stored feeds from DB
@@ -42,9 +44,36 @@ app.get('/all', async (c: Context) => {
     return c.redirect('/app/feeds/find');
   }
 
-  c.set('posts', storedItemsResult.data);
+  for (const subscription of subscriptions) {
+    const feedResult: Result<StringerFeed | null> = feedRepo.getFeedById(subscription.feedId);
+
+    if (!feedResult.ok) {
+      session.flash('error', 'There was a problem getting your feeds.');
+      return c.redirect('/app/feeds/find');
+      // return PostList(c);
+    }
+
+    if (feedResult.data === null) {
+      session.flash('error', 'There was a problem getting your feeds.');
+      return c.redirect('/app/feeds/find');
+      // return PostList(c);
+    }
+
+    const feed = feedResult.data;
+    const entriesResult: Result<StringerEntry[]> = feedRepo.getEntriesByFeedId(feed.id);
+
+    if (!entriesResult.ok) {
+      session.flash('error', 'There was a problem getting your feeds.');
+      return c.redirect('/app/feeds/find');
+      // return PostList(c);
+    }
+
+    posts.push(...entriesResult.data);
+  }
+
+
+  c.set('posts', posts);
   c.set('pageTitle', 'All Posts');
-  session.set('page', page);
   return PostList(c);
 });
 
@@ -52,17 +81,12 @@ app.get('/:id', async (c: Context) => {
   const session = c.get('session');
   const id = parseInt(c.req.param('id'));
   const itemRepo = new SQLiteFeedRepository(db);
-  const itemResult: Result<StringerEntry> = itemRepo.getItemById(id);
+  const itemResult: Result<StringerEntry> = itemRepo.getEntryById(id);
   if (!itemResult.ok) {
     session.flash('Could not find item');
   } else {
     const item = itemResult.data;
-
-    if (item.enclosure) {
-      item.enclosure = JSON.parse(item.enclosure);
-    }
-
-    c.set('item', itemResult.data);
+    c.set('item', item);
   }
 
   return Post(c);

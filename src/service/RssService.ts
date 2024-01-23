@@ -53,8 +53,8 @@ export class RssService {
       }
     }
 
-    const { categories, ...rest } = feed;
-    console.log({ categories });
+    const { entries, links, ...rest } = feed;
+    // console.log({ links });
 
     // We can just send back the Feed directly
     // from feed-rs. I don't think I need to

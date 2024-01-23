@@ -9,6 +9,9 @@ import { SQLiteFeedRepository } from "../repo/FeedRepository";
 import { ResultPage } from "../view/pages/feeds/Result";
 import { Find } from "../view/pages/feeds/Find";
 import { RssSource } from "../lib/types/RssSource";
+import { StringerFeed } from "../model/StringerFeed";
+import { PostList } from "../view/pages/posts/PostList";
+import { SubscriptionRepository } from "../repo/SubscriptionRepository";
 
 const app = new Hono();
 
@@ -17,16 +20,20 @@ const searchFormSchema = z.object({
 });
 
 const subscribeFormSchema = z.object({
-  subscriptionUrl: z.string().url()
+  subscriptionUrl: z.string()
 });
 
+/**
+ * Find feed page
+ */
 app.get('/find', (c: Context) => {
-  // TODO: Change to /search
   return Find(c);
 });
 
+/**
+ * Find a feed
+ */
 app.post(
-  // TODO: Change to /search
   '/find',
   validator('form', (value, c) => {
     const result: z.SafeParseReturnType<any, any> = parseInput(c, searchFormSchema, value);
@@ -89,7 +96,8 @@ app.post(
       if (!feedResult.ok) {
         session.flash('error', 'Could not find a feed at that address.');
       } else {
-        c.set('feed', feedResult.data);
+        const feedUrlObject = new URL(rssUrl);
+        c.set('feed', StringerFeed.fromRemote(feedResult.data, feedUrlObject.origin, rssUrl));
       }
       // set context value to repopulate form
       // input on new page load
@@ -103,6 +111,9 @@ app.post(
   }
 );
 
+/**
+ * Subscribe to a feed
+ */
 app.post(
   '/subscribe',
   validator('form', (value, c) => {
@@ -112,25 +123,78 @@ app.post(
   async (c: Context) => {
     let data: { subscriptionUrl: string; } = c.req.valid('form');
     const session = c.get('session');
+    const user = session.get('user');
     const feedService = new RssService();
     const feedRepo = new SQLiteFeedRepository(db);
+    const subscriptionRepo = new SubscriptionRepository(db);
+    const subscriptionUrlObject = new URL(data.subscriptionUrl);
     const rssFeedResult = await feedService.getFeedByUrl(data.subscriptionUrl);
 
     if (!rssFeedResult.ok) {
+      c.set('searchUrl', data.subscriptionUrl);
       session.flash('error', `These was an error subscribing to the feed at ${data.subscriptionUrl}`);
       return ResultPage(c);
     }
 
-    try {
-      await feedRepo.saveFeed(rssFeedResult.data);
-    } catch (err) {
+    // 1.  Check if feed exists in db
+    //     -- can search by id, since id
+    //        is a field of feed-rs feeds
+    //     -- probably better to stick to url
+    //        since that's what we're using to
+    //        get the full remote feed
+    // 2a. Does not exist?
+    //     - save feed to db
+    // 2b. Exists? (should exist after 2a)
+    //     - add record to `subscriptions` table
+    // 3.  Show success message 
+    //     (redirect to /app/feeds/find and show related?)
+    //     (redirect to /app/posts/all?)
+
+    let storedFeedResult = feedRepo.getFeedByUrl(data.subscriptionUrl);
+
+    if (!storedFeedResult.ok) {
+      c.set('searchUrl', data.subscriptionUrl);
+      c.set('feed', rssFeedResult.data);
       session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
-      return c.redirect('/dashboard/new');
+      return ResultPage(c);
     }
+
+    if (storedFeedResult.data === null) {
+      const feed = StringerFeed.fromRemote(rssFeedResult.data, subscriptionUrlObject.origin, data.subscriptionUrl);
+
+      try {
+        await feedRepo.insertFeed(feed.toPersistance());
+      } catch (err) {
+        console.log({ err });
+        c.set('searchUrl', data.subscriptionUrl);
+        c.set('feed', rssFeedResult.data);
+        session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
+        return ResultPage(c);
+      }
+      storedFeedResult = { ok: true, data: feed };
+    }
+    const feed: StringerFeed = storedFeedResult.data!;
+
+    const subscriptionResult = subscriptionRepo.saveSubscription(feed.id, user.id);
+
+    if (!subscriptionResult.ok) {
+      session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
+      c.set('feed', rssFeedResult.data);
+      return ResultPage(c);
+    }
+
+    session.flash('message', `You have successfully subscribed to ${feed.title}`);
 
     return c.redirect('/app');
   });
 
+/**
+ * Parses form input with zod schema
+ * @param c Context
+ * @param schema z.Schema
+ * @param value Form input value
+ * @returns z.SafeParseReturnType
+ */
 function parseInput(c: Context, schema: z.Schema, value: any): z.SafeParseReturnType<any, any> {
   const session = c.get('session');
   const result = schema.safeParse(value);

@@ -1,15 +1,100 @@
-import { Database } from 'bun:sqlite';
+import { Database, SQLQueryBindings } from 'bun:sqlite';
 import { Result } from '../lib/types/Result';
-import { RssFeed } from '../lib/types/RssFeed';
-import { RssItem } from '../lib/types/RssItem';
-import { StringerFeed, StringerFeedPersistDTO } from '../model/StringerFeed';
-import { StringerEntry } from '../model/StringerEntry';
-import type { StringerItemProps } from '../model/StringerEntry';
+import { StringerFeed, StringerFeedDTO, PersistanceFeedDTO } from '../model/StringerFeed';
+import { StringerEntry, StringerEntryDTO, PersistanceEntryDTO } from '../model/StringerEntry';
+
 
 export type FeedInfo = {
   id: number,
   title: string,
   feedUrl: string;
+};
+
+const insertFeedQuery = `
+  INSERT INTO feeds (
+          id,
+          feedType,
+          title,
+          updated,
+          description,
+          feedLink,
+          siteLink,
+          categories,
+          icon,
+          logo
+        )
+        VALUES (
+          $id,
+          $feedType,
+          $title,
+          $updated,
+          $description,
+          $feedLink,
+          $siteLink,
+          $categories,
+          $icon,
+          $logo
+        )
+        RETURNING id;
+`;
+
+const feedQueryValues = (feedDTO: PersistanceFeedDTO) => {
+  return {
+    $id: feedDTO.id,
+    $feedType: feedDTO.feedType || null,
+    $title: feedDTO.title || null,
+    $updated: feedDTO.updated || null,
+    $description: feedDTO.description || null,
+    $feedLink: feedDTO.feedLink || null,
+    $siteLink: feedDTO.siteLink || null,
+    $categories: feedDTO.categories || null,
+    $icon: feedDTO.icon || null,
+    $logo: feedDTO.logo || null
+  };
+};
+
+const insertEntryQuery = `
+          INSERT INTO entries (
+          id,
+          feedId,
+          title,
+          updated,
+          published,
+          authors,
+          content,
+          links,
+          summary,
+          categories
+        )
+        VALUES (
+          $id,
+          $feedId,
+          $title,
+          $updated,
+          $published,
+          $authors,
+          $content,
+          $links,
+          $summary,
+          $categories
+        )
+        RETURNING id;
+`;
+
+
+const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
+  return {
+    $id: entryDTO.id,
+    $feedId: entryDTO.feedId || null,
+    $title: entryDTO.title || null,
+    $updated: entryDTO.updated || null,
+    $published: entryDTO.published || null,
+    $authors: entryDTO.authors || null,
+    $content: entryDTO.content || null,
+    $links: entryDTO.links || null,
+    $summary: entryDTO.summary || null,
+    $categories: entryDTO.categories || null
+  };
 };
 
 export class SQLiteFeedRepository {
@@ -24,15 +109,21 @@ export class SQLiteFeedRepository {
     const feedQuery = this._db.query(`
       SELECT * FROM feeds;
     `);
-    const res: StringerFeedPersistDTO[] = feedQuery.all() as StringerFeedPersistDTO[];
+    const res: StringerFeedDTO[] = feedQuery.all() as StringerFeedDTO[];
     for (const f of res) {
       const feed = StringerFeed.fromPersistance(f);
-      const itemQuery = this._db.query(`SELECT * FROM items WHERE feedId=$feedId ORDER BY pubDate DESC;`);
-      const itemsRes: RssItem[] | undefined = itemQuery.all({ $feedId: feed.id }) as RssItem[];
+      const entryQuery = this._db.query(
+        `SELECT * FROM entries
+           WHERE feedId=$feedId
+           ORDER BY published DESC;`
+      );
+      const entryRes: StringerEntryDTO[] | undefined = entryQuery.all(
+        { $feedId: feed.id }
+      ) as StringerEntryDTO[];
 
-      if (itemsRes) {
-        for (const item of itemsRes) {
-          feed.items.push(new StringerEntry({ ...item, feedTitle: feed.title, feedImage: feed.image }));
+      if (entryRes) {
+        for (const entry of entryRes) {
+          feed.entries.push(StringerEntry.fromPersistance(entry));
         }
       }
       this.feeds.push(feed);
@@ -40,66 +131,129 @@ export class SQLiteFeedRepository {
     return this.feeds;
   }
 
+  getFeedById(id: string): Result<StringerFeed | null> {
+    const query = this._db.query(
+      `SELECT * FROM feeds
+         WHERE id=$id
+      `);
+    let result: unknown = undefined;
+
+    try {
+      result = query.get({ $id: id });
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    if (result) {
+      return { ok: true, data: StringerFeed.fromPersistance(result) };
+    }
+
+    return { ok: true, data: null };
+  }
+
+  /**
+   * Queries the database of a feed with the given
+   * feedLink and returns the feed if it exists.
+   * @param feedLink URL of the feed
+   * @returns Result<StringerFeed | null>
+   */
+  getFeedByUrl(feedLink: string): Result<StringerFeed | null> {
+    const query = this._db.query(
+      `SELECT * FROM feeds
+         WHERE feedLink=$feedLink
+      `);
+    let result: unknown = undefined;
+
+    try {
+      result = query.get({ $feedLink: feedLink });
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    if (result) {
+      return { ok: true, data: StringerFeed.fromPersistance(result) };
+    }
+
+    return { ok: true, data: null };
+  }
+
+  // TODO: Remove?
   getFeedInfo(): Result<FeedInfo[]> {
     const query = this._db.query(`SELECT id, title, feedUrl FROM feeds;`);
     const res: FeedInfo[] = query.all() as FeedInfo[];
     return { ok: true, data: res };
   }
 
-  getItemById(id: number): Result<StringerEntry> {
-    const query = this._db.query(`SELECT * FROM items WHERE id=$id`);
-    const queryResult = query.get({ $id: id });
-
-    // console.log({ queryResult });
+  getEntryById(id: number): Result<StringerEntry> {
+    const query = this._db.query(`
+      SELECT * FROM items
+        WHERE id=$id
+      `);
+    const queryResult = query.get({ $id: id }) as StringerEntryDTO;
 
     if (queryResult) {
-      return { ok: true, data: queryResult };
+      return {
+        ok: true,
+        data: StringerEntry.fromPersistance(queryResult)
+      };
     }
     return { ok: false, error: "No item with that id" };
   }
 
-  getAllItems(page = 1, limit = 100): Result<StringerEntry[]> {
-    // const query = this._db.query(`
-    //   SELECT * FROM items
-    //   ORDER BY pubDate DESC
-    //   LIMIT $limit OFFSET $offset
-    //   `);
+  getEntriesByFeedId(feedId: string): Result<StringerEntry[]> {
     const query = this._db.query(`
-    SELECT * FROM items
-      ORDER BY pubDate DESC
+      SELECT * FROM entries
+        WHERE feedId=$feedId
+        ORDER BY published DESC;
+    `);
+    const queryResult = query.all({ $feedId: feedId }) as StringerEntryDTO[];
+
+    const items = [];
+
+    for (const entryDTO of queryResult) {
+      const item = StringerEntry.fromPersistance(entryDTO);
+      items.push(item);
+    }
+
+    return { ok: true, data: items };
+  }
+
+  getAllEntries(page = 1, limit = 100): Result<StringerEntry[]> {
+    const query = this._db.query(`
+    SELECT * FROM entries
+      ORDER BY published DESC
       LIMIT $limit OFFSET $offset;
     `);
+
     let queryResult;
     try {
-      queryResult = query.all({ $limit: limit, $offset: limit * (page - 1) });
+      queryResult = query.all({
+        $limit: limit,
+        $offset: limit * (page - 1)
+      }) as StringerEntryDTO[];
     } catch (err) {
-      return { ok: false, error: "There was an error fetching your stories." };
+      return {
+        ok: false,
+        error: String(err)
+      };
     }
 
     const items = [];
 
-    for (const rssItem of queryResult) {
-      const feedQuery = this._db.query(`SELECT title, image FROM feeds WHERE id=$id`);
-      const feedInfo = feedQuery.get({ $id: rssItem.feedId });
-      const itemProps: StringerItemProps = {
-        ...rssItem,
-        enclosure: JSON.parse(rssItem.enclosure),
-        feedTitle: feedInfo.title,
-        feedImage: JSON.parse(feedInfo.image)
-      };
-      const item = new StringerEntry(itemProps);
+    for (const entryDTO of queryResult) {
+      const item = StringerEntry.fromPersistance(entryDTO);
       items.push(item);
     }
 
     const sorted = items.sort((a, b) => {
-      return (new Date(b.pubDate).valueOf()) - (new Date(a.pubDate.valueOf()));
+      return (new Date(b.published!).valueOf()) - (new Date(a.published!).valueOf());
     });
 
     return { ok: true, data: sorted };
   }
 
   getTotalItemCount(): Result<number> {
-    const query = this._db.query(`SELECT COUNT(*) FROM items;`);
+    const query = this._db.query(`SELECT COUNT(*) FROM entries;`);
     let countResult;
     try {
       countResult = query.get();
@@ -112,103 +266,63 @@ export class SQLiteFeedRepository {
     return { ok: true, data: countResult["COUNT(*)"] };
   }
 
-  async saveFeed(rssFeed: RssFeed): Promise<Result<number[]>> {
-    const insertFeedQuery = this._db.prepare(`
-      INSERT INTO feeds ( title, feedUrl, description, link, image)
-        VALUES ( $title, $feedUrl, $description, $link, $image )
-        RETURNING id;
-    `);
+  async insertFeed(feedDTO: PersistanceFeedDTO): Promise<Result<string[]>> {
+    const feedQuery = this._db.prepare(insertFeedQuery);
+    const entryQuery = this._db.prepare(insertEntryQuery);
 
-    const insertItemQuery = this._db.prepare(`
-      INSERT INTO items (feedId, title, author, pubDate, description, link, content, contentEncoded, contentSnippet, enclosure)
-        VALUES ($feedId, $title, $author, $pubDate, $description, $link, $content, $contentEncoded, $contentSnippet, $enclosure)
-        RETURNING id;
-    `);
+    const insertFeedAndEntries = this._db.transaction(
+      (feedDTO) => {
+        const res = {
+          feedId: undefined,
+          itemIds: []
+        };
 
-    const insertFeedAndItems = this._db.transaction((rssFeed) => {
-      const res = {
-        feedId: undefined,
-        itemIds: []
-      };
-
-      let feedInsertResult = undefined;
-      try {
-        feedInsertResult = insertFeedQuery.get({
-          $title: rssFeed.title,
-          $feedUrl: rssFeed.feedUrl,
-          $description: rssFeed.description,
-          $link: rssFeed.link,
-          $image: JSON.stringify(rssFeed.image)
-        });
-      } catch (err) {
-        console.error("insert feed error: ", err);
-        // return { ok: false, error: String(err) };
-      }
-
-      if (feedInsertResult) {
-        res.feedId = feedInsertResult.id;
-      }
-
-      for (const rssItem: RssItem of rssFeed.items) {
-        let itemResult = undefined;
+        let feedInsertResult = undefined;
         try {
-          itemResult = insertItemQuery.get({
-            $feedId: feedInsertResult.id,
-            $title: rssItem.title,
-            $author: rssItem.author,
-            $pubDate: rssItem.pubDate,
-            $description: rssItem.description,
-            $link: rssItem.link,
-            $content: rssItem.content,
-            $contentEncoded: rssItem["content:encoded"],
-            $contentSnippet: rssItem.contentSnippet,
-            $enclosure: JSON.stringify(rssItem.enclosure)
-          });
+          const feedQueryVals = feedQueryValues(feedDTO);
+          feedInsertResult = feedQuery.get(feedQueryVals);
         } catch (err) {
+          console.error("insert feed error: ", err);
           return { ok: false, error: String(err) };
         }
 
-        if (itemResult) {
-          res.itemIds.push(itemResult.id);
-        }
-      }
-      return { ok: true, data: res };
-    });
+        for (const entryDTO of feedDTO.entries) {
+          console.log({ entryDTO });
+          let entryResult = undefined;
+          try {
+            const entryQueryVals = entryQueryValues(entryDTO);
+            entryResult = entryQuery.get(entryQueryVals);
+          } catch (err) {
+            console.error("insert entry error: ", err);
+            return { ok: false, error: String(err) };
+          }
 
-    const insertResult = insertFeedAndItems(rssFeed);
+          if (entryResult) {
+            res.itemIds.push(entryResult.id);
+          }
+        }
+        return { ok: true, data: res };
+      });
+
+    const insertResult = insertFeedAndEntries(feedDTO);
 
     return { ok: true, data: insertResult };
   };
 
-  insertItem(rssItem: RssItem, feedId: number): Result<number | null> {
-    const insertItemQuery = this._db.query(`
-      INSERT INTO items (feedId, title, author, pubDate, description, link, content, contentEncoded, contentSnippet, enclosure)
-        VALUES ($feedId, $title, $author, $pubDate, $description, $link, $content, $contentEncoded, $contentSnippet, $enclosure)
-        ON CONFLICT DO NOTHING
-        RETURNING id;
-    `);
+  insertEntry(entryDTO: StringerEntryDTO): Result<number | null> {
+    const entryQuery = this._db.query(insertEntryQuery);
 
-    let itemResult = undefined;
+    let entryResult = undefined;
     try {
-      itemResult = insertItemQuery.get({
-        $feedId: feedId,
-        $title: rssItem.title,
-        $author: rssItem.author,
-        $pubDate: rssItem.pubDate,
-        $description: rssItem.description,
-        $link: rssItem.link,
-        $content: rssItem.content,
-        $contentEncoded: rssItem["content:encoded"],
-        $contentSnippet: rssItem.contentSnippet,
-        $enclosure: JSON.stringify(rssItem.enclosure)
-      });
+      const entryQueryVals = entryQueryValues(entryDTO);
+      entryResult = entryQuery.get(entryQueryVals);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
-    if (itemResult) {
-      return { ok: true, data: itemResult.id };
+    if (entryResult) {
+      return { ok: true, data: entryResult.id };
     } else {
       return { ok: true, data: null };
     }
   }
-}
+};
