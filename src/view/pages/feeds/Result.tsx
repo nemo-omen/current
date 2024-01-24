@@ -1,7 +1,7 @@
 import { Context } from 'hono'
 import { Search } from './partials/Search';
 import { Page } from '../../layout/Page';
-import { List } from './partials/List';
+import { SearchResultList } from './partials/SearchResultList';
 import { useRequestContext } from 'hono/jsx-renderer';
 import { FC } from 'hono/jsx';
 
@@ -11,7 +11,7 @@ export const ResultPage = (c: Context) => {
     <Page>
       <section class="feed-search">
         <Search />
-        {feed ? <List /> : <Flash />}
+        {feed ? <SearchResultList /> : <Flash />}
       </section>
     </Page>,
     {

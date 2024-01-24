@@ -1,4 +1,5 @@
 import { Content, Entry } from "@nooptoday/feed-rs";
+import { parse as parseHtml } from 'node-html-parser';
 
 export type StringerEntryProps = {
   id: string,
@@ -88,6 +89,7 @@ export class StringerEntry {
     const hasher = new Bun.CryptoHasher("md5");
     const idHash = hasher.update(entry.id);
     const id = idHash.digest("base64");
+    const summary = entry.summary ? stripHtml(entry.summary.content) : undefined;
 
     const props = {
       id: id,
@@ -96,16 +98,25 @@ export class StringerEntry {
       title: entry.title?.content,
       updated: entry.updated,
       published: entry.published,
-      authors: entry.authors.map((a) => (
+      authors: entry.authors?.map((a) => (
         { name: a.name, uri: a.uri, email: a.email }
       )),
       content: entry.content,
-      links: entry.links.map((l) => l.href),
-      summary: entry.summary?.content,
-      categories: entry.categories.map((c) => c.term)
+      links: entry.links?.map((l) => l.href),
+      summary: summary,
+      categories: entry.categories?.map((c) => c.term)
     };
     return new StringerEntry(props);
   }
+}
+
+function stripHtml(html: string): string {
+  const document = parseHtml(html);
+  const p = document.querySelector('p');
+  if (p) {
+    return p.innerText;
+  }
+  return '';
 }
 
 export interface PersistanceEntryDTO {

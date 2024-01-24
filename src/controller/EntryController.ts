@@ -7,7 +7,7 @@ import { RssService } from "../service/RssService";
 import { db } from "../lib/infra/sqlite";
 import { Post } from "../view/pages/posts/Post";
 import { StringerEntry } from "../model/StringerEntry";
-import { Subscription } from "../lib/types/Subscription";
+import { PersistanceSubscriptionDTO, Subscription, SubscriptionDTO } from "../model/Subscription";
 import { None } from "../view/pages/posts/None";
 import { Find } from "../view/pages/feeds/Find";
 import { StringerFeed } from "../model/StringerFeed";
@@ -29,7 +29,7 @@ app.get('/all', async (c: Context) => {
   // 4. Store new items
   // 5. Render new items
   // 6. Set an update interval and run steps 3-5
-  const subscriptionsResult: Result<Subscription[]> = subscriptionRepo.getUserSubscriptions(user.id);
+  const subscriptionsResult: Result<Subscription[]> = subscriptionRepo.getSubscriptionByUserId(user.id);
 
   if (!subscriptionsResult.ok) {
     session.flash('error', 'There was a problem getting your subscriptions.');
@@ -54,6 +54,7 @@ app.get('/all', async (c: Context) => {
     }
 
     if (feedResult.data === null) {
+      console.log('DOOKIE!!!');
       session.flash('error', 'There was a problem getting your feeds.');
       return c.redirect('/app/feeds/find');
       // return PostList(c);

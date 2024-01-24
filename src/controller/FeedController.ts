@@ -12,6 +12,7 @@ import { RssSource } from "../lib/types/RssSource";
 import { StringerFeed } from "../model/StringerFeed";
 import { PostList } from "../view/pages/posts/PostList";
 import { SubscriptionRepository } from "../repo/SubscriptionRepository";
+import { Subscription } from "../model/Subscription";
 
 const app = new Hono();
 
@@ -56,10 +57,11 @@ app.post(
       const formdata = (await c.req.formData());
       feedurl = String(formdata.get('feedurl'));
       // TODO: Call FeedRepository to SELECT title ILIKE
-      //       or feedUrl ILIKE
+      //       or feedUrl ILIKE (maybe search in categories too?)
 
       // we don't have a valid url, so attempt
       // to build one
+      // TODO: (probably ought to remove this from RssService)
       const builtUrlResult = rssService.buildUrl(feedurl);
       if (!builtUrlResult.ok) {
         // return results with flash error if can't build url
@@ -91,13 +93,12 @@ app.post(
     }
 
     if (rssUrl) {
-      const feedResult = await rssService.getFeedByUrl(rssUrl);
+      const feedResult: Result<StringerFeed> = await rssService.getFeedByUrl(rssUrl);
 
       if (!feedResult.ok) {
         session.flash('error', 'Could not find a feed at that address.');
       } else {
-        const feedUrlObject = new URL(rssUrl);
-        c.set('feed', StringerFeed.fromRemote(feedResult.data, feedUrlObject.origin, rssUrl));
+        c.set('feed', feedResult.data);
       }
       // set context value to repopulate form
       // input on new page load
@@ -128,7 +129,8 @@ app.post(
     const feedRepo = new SQLiteFeedRepository(db);
     const subscriptionRepo = new SubscriptionRepository(db);
     const subscriptionUrlObject = new URL(data.subscriptionUrl);
-    const rssFeedResult = await feedService.getFeedByUrl(data.subscriptionUrl);
+
+    const rssFeedResult: Result<StringerFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
 
     if (!rssFeedResult.ok) {
       c.set('searchUrl', data.subscriptionUrl);
@@ -150,7 +152,7 @@ app.post(
     //     (redirect to /app/feeds/find and show related?)
     //     (redirect to /app/posts/all?)
 
-    let storedFeedResult = feedRepo.getFeedByUrl(data.subscriptionUrl);
+    let storedFeedResult: Result<StringerFeed | null> = feedRepo.getFeedByUrl(data.subscriptionUrl);
 
     if (!storedFeedResult.ok) {
       c.set('searchUrl', data.subscriptionUrl);
@@ -160,11 +162,13 @@ app.post(
     }
 
     if (storedFeedResult.data === null) {
-      const feed = StringerFeed.fromRemote(rssFeedResult.data, subscriptionUrlObject.origin, data.subscriptionUrl);
+      const feed: StringerFeed = rssFeedResult.data;
 
       try {
         await feedRepo.insertFeed(feed.toPersistance());
+        // TODO: check for id return?
       } catch (err) {
+        // LOG
         console.log({ err });
         c.set('searchUrl', data.subscriptionUrl);
         c.set('feed', rssFeedResult.data);
@@ -175,7 +179,7 @@ app.post(
     }
     const feed: StringerFeed = storedFeedResult.data!;
 
-    const subscriptionResult = subscriptionRepo.saveSubscription(feed.id, user.id);
+    const subscriptionResult: Result<Subscription> = subscriptionRepo.saveSubscription(feed.id, user.id);
 
     if (!subscriptionResult.ok) {
       session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);

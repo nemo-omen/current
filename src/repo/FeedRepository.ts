@@ -293,7 +293,6 @@ export class SQLiteFeedRepository {
         }
 
         for (const entryDTO of feedDTO.entries) {
-          console.log({ entryDTO });
           let entryResult = undefined;
           try {
             const entryQueryVals = entryQueryValues(entryDTO);

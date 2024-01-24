@@ -5,9 +5,9 @@ import { Feed, Entry, Image, Text } from '@nooptoday/feed-rs';
 import { html } from "hono/html";
 import { HtmlEscapedString } from "hono/utils/html";
 
-export const List: FC = () => {
+export const SearchResultList: FC = () => {
   const c = useRequestContext();
-  const feed: Feed = c.get('feed');
+  const feed: StringerFeed = c.get('feed');
   
   return (
     <section class="search-results">

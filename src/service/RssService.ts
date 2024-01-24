@@ -4,6 +4,7 @@ import { parse, Feed, Entry } from '@nooptoday/feed-rs';
 import type { RssSource } from '../lib/types/RssSource';
 import { getFeedSources } from '../lib/util/getFeedSources';
 import { parse as parseHtml } from 'node-html-parser';
+import { StringerFeed } from '../model/StringerFeed';
 
 export class RssService {
   parser: Parser;
@@ -12,8 +13,10 @@ export class RssService {
     this.parser = new Parser();
   }
 
-  async getFeedByUrl(url: string): Promise<Result<Feed>> {
+  async getFeedByUrl(url: string): Promise<Result<StringerFeed>> {
     let response: Response;
+    const urlObj = new URL(url);
+
     try {
       response = await fetch(url);
     } catch (err) {
@@ -27,42 +30,25 @@ export class RssService {
       return { ok: false, error: String(err) };
     }
 
-    let feed: Feed;
+    let remoteFeed: Feed | undefined = undefined;
+    let stringerFeed: StringerFeed | undefined = undefined;
 
     try {
       const urlObj = new URL(url);
-      feed = parse(data, urlObj.origin);
+      remoteFeed = parse(data, urlObj.origin);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
-    for (const entry of feed.entries) {
-      if (!entry.summary) {
-        if (entry.content?.contentType === 'text/html') {
-          const root = parseHtml(entry.content.body!);
-
-          const p = root.querySelector('p');
-
-          if (p) {
-            if (p.innerHTML) {
-              entry.summary = {
-                contentType: 'text/html',
-                content: `${p.innerText}`
-              };
-            }
-          }
-        }
-      }
+    if (remoteFeed) {
+      stringerFeed = StringerFeed.fromRemote(remoteFeed, urlObj.origin, urlObj.href);
     }
 
-    const { entries, links, ...rest } = feed;
-    // console.log({ links });
+    if (!stringerFeed) {
+      return { ok: false, error: 'Could not parse feed' };
+    }
 
-    // We can just send back the Feed directly
-    // from feed-rs. I don't think I need to
-    // worry about transforming that into
-    // a StringerFeed until the user has subscribed.
-    return { ok: true, data: feed };
+    return { ok: true, data: stringerFeed };
   }
 
   isValidURL(str: string): boolean {
