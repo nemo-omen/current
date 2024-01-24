@@ -6,31 +6,34 @@ import { highlight } from "../../../lib/util/highlight";
 import { css, cx, keyframes, Style } from 'hono/css'
 
 export const Post = (c: Context) => {
-  const item = c.get('item');
-  let imageSrc = undefined;
-  if(item.enclosure) {
-    if(item.enclosure.type.startsWith('image')) {
-      imageSrc = item.enclosure.url;
-    }
-  }
+  const entry = c.get('entry');
+  console.log({entry});
+  // let imageSrc = undefined;
+  // if(entry.enclosure) {
+  //   if(entry.enclosure.type.startsWith('image')) {
+  //     imageSrc = entry.enclosure.url;
+  //   }
+  // }
 
   return c.render(
     <SidebarPage>
     {/* <TomorrowNightBright /> */}
     <article class="story-article flow post">
-      {imageSrc ? <img src={imageSrc} alt={item.title} /> : null}
-        <a href={item.link}>
+      {/* <h1>{entry.title}</h1>
+      {imageSrc ? <img src={imageSrc} alt={entry.title} /> : null}
+        <a href={entry.links[0]}>
         <h1>
-          {item.title}
+          {entry.title}
         </h1>
         </a>
-      <time>{new Date(item.pubDate).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
-      {item.author ? <p>{item.author}</p> : null}
-      <ItemContent content={item.content} link={item.link}/>
-      <a href={item.link}>View Original</a>
+      <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
+      {entry.authors ? <p>{entry.authors[0]}</p> : null}
+      <ItemContent content={entry.content.body} link={entry.links[0]}/>
+      <a href={entry.links[0]}>View Original</a> */}
     </article>
     </SidebarPage>,
-    {title: item.title}
+    // {title: entry.title}
+    {title: ''}
   );
 }
 

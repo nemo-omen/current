@@ -83,12 +83,13 @@ app.get('/:id', async (c: Context) => {
   const session = c.get('session');
   const id = parseInt(c.req.param('id'));
   const itemRepo = new SQLiteFeedRepository(db);
-  const itemResult: Result<StringerEntry> = itemRepo.getEntryById(id);
-  if (!itemResult.ok) {
+  const entryResult: Result<StringerEntry> = itemRepo.getEntryById(id);
+  if (!entryResult.ok) {
     session.flash('Could not find item');
   } else {
-    const item = itemResult.data;
-    c.set('item', item);
+    const entry = entryResult.data;
+    console.log({ entryResult });
+    c.set('entry', entry);
   }
 
   return Post(c);

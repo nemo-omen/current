@@ -204,10 +204,10 @@ export class SQLiteFeedRepository {
 
   getEntryById(id: number): Result<StringerEntry> {
     const query = this._db.query(`
-      SELECT * FROM items
+      SELECT * FROM entries
         WHERE id=$id
       `);
-    const queryResult = query.get({ $id: id }) as StringerEntryDTO;
+    const queryResult: PersistanceEntryDTO = query.get({ $id: id }) as PersistanceEntryDTO;
 
     if (queryResult) {
       return {
