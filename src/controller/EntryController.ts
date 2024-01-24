@@ -54,7 +54,6 @@ app.get('/all', async (c: Context) => {
     }
 
     if (feedResult.data === null) {
-      console.log('DOOKIE!!!');
       session.flash('error', 'There was a problem getting your feeds.');
       return c.redirect('/app/feeds/find');
       // return PostList(c);
@@ -71,8 +70,11 @@ app.get('/all', async (c: Context) => {
     posts.push(...entriesResult.data);
   }
 
+  const sorted = posts.sort((a, b) => {
+    return (new Date(b.published!).valueOf()) - (new Date(a.published!).valueOf());
+  });
 
-  c.set('posts', posts);
+  c.set('posts', sorted);
   c.set('pageTitle', 'All Posts');
   return PostList(c);
 });

@@ -68,7 +68,11 @@ const insertEntryQuery = `
           content,
           links,
           summary,
-          categories
+          categories,
+          media,
+          feedTitle,
+          feedLogo,
+          feedIcon
         )
         VALUES (
           $id,
@@ -81,7 +85,11 @@ const insertEntryQuery = `
           $content,
           $links,
           $summary,
-          $categories
+          $categories,
+          $media,
+          $feedTitle,
+          $feedLogo,
+          $feedIcon
         )
         RETURNING id;
 `;
@@ -99,7 +107,11 @@ const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
     $content: entryDTO.content || null,
     $links: entryDTO.links || null,
     $summary: entryDTO.summary || null,
-    $categories: entryDTO.categories || null
+    $categories: entryDTO.categories || null,
+    $media: entryDTO.media || null,
+    $feedTitle: entryDTO.feedTitle || null,
+    $feedLogo: entryDTO.feedLogo || null,
+    $feedIcon: entryDTO.feedIcon || null
   };
 };
 

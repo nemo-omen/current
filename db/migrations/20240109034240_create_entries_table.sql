@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS
         links JSON,
         summary TEXT,
         categories JSON,
+        media JSON,
+        feedLogo JSON,
+        feedIcon JSON,
+        feedTitle VARCHAR(255),
         FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
     );
 

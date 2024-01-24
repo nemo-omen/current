@@ -4,7 +4,24 @@ import { html } from "hono/html";
 
 export const EntryCard: FC = (props) => {
   const { entry } = props;
-  let image;
+
+  let cardDate: Date | undefined;
+  if(entry.updated) {
+    cardDate = entry.updated;
+  } else if(entry.published) {
+    cardDate = entry.published;
+  } else {
+    cardDate = undefined;
+  }
+
+  let summary: string = '';
+  if(entry.summary) {
+    if(entry.summary.length > 256) {
+      summary = entry.summary.substring(0, 256) + '...';
+    } else {
+      summary = entry.summary;
+    }
+  }
   // if(enclosure) {
   //   if(enclosure.type.startsWith('image')) {
   //     image = enclosure.url
@@ -15,19 +32,40 @@ export const EntryCard: FC = (props) => {
     <li class="item-card">
       <a href={`/app/posts/${entry.id}`}>
       {/* TODO: Replace bolt icon with site favicon, if possible */}
-      {image ? <img src={image} alt={entry.title} class="item-card-thumbnail" /> : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>}
+      {
+        <CardThumbnail 
+          media={entry.media}
+          logo={entry.feedLogo}
+          icon={entry.feedIcon}
+          title={entry.title}
+          feedTitle={entry.feedTitle}
+        />
+      }
       <section class="item-card-content">
         <h2 class="item-card-header">{entry.title}</h2>
         <p class="item-card-text">
-          {/* TODO: Strip html tags from summary */}
-          {entry.summary}
+          {summary}
         </p>
         <div class="item-card-footer">
           <div class="item-card-footer-meta item-card-footer-row">
             <div class="item-card-footer-title-container">
               <h3 class="item-card-footer-title">{entry.feedTitle}</h3>
             </div>
-            <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'})}</time>
+            <time>
+              {
+                cardDate 
+                  ? cardDate.toLocaleDateString(
+                      'en-US',
+                      {
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long',
+                        year: 'numeric'
+                      }
+                  ) 
+                  : ''
+              }
+            </time>
           </div>
           <div class="item-card-footer-actions item-card-footer-row">
             {/* TODO: Make this a nav? */}
@@ -66,3 +104,47 @@ export const EntryCard: FC = (props) => {
     </li>
   );
 };
+
+const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
+  let mediaContent, feedLogo, feedIcon = undefined;
+  if(media) {
+    if(media.length > 0) {
+      const firstMediaObject = media[0];
+      mediaContent = firstMediaObject.content[0];
+    }
+  }
+
+  if (logo) {
+    feedLogo = logo;
+  }
+
+  if(icon) {
+    feedIcon = icon;
+  }
+
+  console.log({mediaContent});
+  console.log({feedLogo});
+  console.log({feedIcon});
+
+  let image: {src: string, alt: string} | undefined = undefined;
+
+  if(mediaContent) {
+    if(mediaContent.contentType.startsWith('image')) {
+      image = {src: mediaContent.url, alt: title}
+    }
+  }
+
+  // TODO: Return different media representations
+  //       depending on contentType
+  return (
+    <>
+      {
+        image
+          ? <img src={image.src} alt={image.alt} class="item-card-thumbnail" />
+          : feedLogo ? <div class="thumbnail-placeholder"><image src={feedLogo.uri} alt={feedTitle} /></div>
+            : feedIcon ? <div class="thumbnail-placeholder"><image src={feedIcon.uri} alt={feedTitle} /></div>
+              : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>
+      }
+    </>
+  );
+}

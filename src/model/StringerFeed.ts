@@ -100,7 +100,7 @@ export class StringerFeed {
   static fromRemote(feed: Feed, siteLink: string, feedLink: string): StringerFeed {
     const hasher = new Bun.CryptoHasher("md5");
     const idHash = hasher.update(feed.id);
-    const id = idHash.digest("base64");
+    const id = idHash.digest("hex");
 
     const props = {
       id: id,
@@ -114,7 +114,13 @@ export class StringerFeed {
       categories: feed.categories.map((c) => c.term),
       icon: feed.icon,
       logo: feed.logo,
-      entries: feed.entries.map((e) => StringerEntry.fromRemote(e, id))
+      entries: feed.entries.map((e) => StringerEntry.fromRemote(
+        e,
+        id,
+        feed.title?.content,
+        feed.logo,
+        feed.icon
+      ))
     };
     return new StringerFeed(props);
   }
