@@ -195,14 +195,11 @@ h4 {
 
 main {
   grid-area: main;
-  /* padding: 2rem; */
   overflow: auto;
-  /* background: tomato; */
 }
 
 main>* {
   width: var(--content-width);
-  /* width: var(--reading-width); */
   margin: 0 auto;
 }
 
@@ -380,7 +377,7 @@ input {
   border: 1px solid var(--accent-alt-2);
   outline-color: var(--accent-alt-2);
   font-size: 1rem;
-  padding-block: 0.25em;
+  padding: 0.5em;
   transition: all var(--transition);
   color: var(--foreground);
 }
@@ -417,6 +414,7 @@ select:-webkit-autofill:focus {
 button,
 .button {
   background-color: var(--accent-alt-6);
+  color: var(--background);
   font-size: 1rem;
   padding: 0.5em;
   border: none;
@@ -427,6 +425,7 @@ button,
 
 button:hover,
 .button:hover {
+  color: var(--background);
   background-color: var(--accent-alt-7);
 }
 
@@ -506,16 +505,16 @@ button:hover,
   padding: 0 1rem;
 }
 
-/* MAIN DASHBOARD LIST */
+/* CARD LIST */
 
-.dashboard-items-list {
+.card-list {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   list-style-type: none;
-  /* width: min(65rem, 90vw); */
-  margin: 0 auto;
   padding: 0;
+  /* width: min(65rem, 90vw); */
+  /* margin: 0 auto; */
 }
 
 .item-card {

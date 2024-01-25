@@ -1,36 +1,42 @@
 import { Context } from "hono";
 import { html, raw } from "hono/html";
-import { Page } from "../../layout/Page";
+import { SidebarPage } from "../../layout/SidebarPage";
 import { addImgSrcOrigins } from "../../../lib/util/addImgSrcOrigins";
 import { highlight } from "../../../lib/util/highlight";
 import { css, cx, keyframes, Style } from 'hono/css'
 
 export const Post = (c: Context) => {
-  const item = c.get('item');
-  let imageSrc = undefined;
-  if(item.enclosure) {
-    if(item.enclosure.type.startsWith('image')) {
-      imageSrc = item.enclosure.url;
+  const entry = c.get('entry');
+
+  let imageSrc: string | undefined, imgAlt: string | undefined;
+  if(entry.media) {
+    if(entry.media.length > 0) {
+      if(entry.media[0].content.length > 0) {
+        if(entry.media[0].content[0].contentType.startsWith('image')) {
+          imageSrc = entry.media[0].content[0].url;
+          imgAlt = entry.feedTitle;
+        }
+      }
     }
   }
 
   return c.render(
-    <Page>
-    {/* <TomorrowNightBright /> */}
+    <SidebarPage>
+    <TomorrowNightBright />
     <article class="story-article flow post">
-      {imageSrc ? <img src={imageSrc} alt={item.title} /> : null}
-        <a href={item.link}>
+      {imageSrc ? <img src={imageSrc} alt={imgAlt} /> : null}
+        <a href={entry.links[0]}>
         <h1>
-          {item.title}
+          {entry.title}
         </h1>
         </a>
-      <time>{new Date(item.pubDate).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
-      {item.author ? <p>{item.author}</p> : null}
-      <ItemContent content={item.content} link={item.link}/>
-      <a href={item.link}>View Original</a>
+      <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
+      {entry.authors ? <p>{entry.authors[0]}</p> : null}
+      <ItemContent content={entry.content.body} link={entry.links[0]}/>
+      <a href={entry.links[0]}>View Original</a>
     </article>
-    </Page>,
-    {title: item.title}
+    </SidebarPage>,
+    {title: entry.title}
   );
 }
 
@@ -38,6 +44,7 @@ export const Post = (c: Context) => {
 const ItemContent = async (props) => {
   const doc = await addImgSrcOrigins(props.link, props.content);
   const highlighted = await highlight(doc);
+  console.log(props);
 
   return(html`
     <div class="content">

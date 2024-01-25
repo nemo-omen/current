@@ -8,7 +8,7 @@ export const MainSidebar: FC = () => {
   const current = c.req.path;
   
   return (
-    <header class="sidebar" id="sidebar-main">
+    <aside class="sidebar" id="sidebar-main">
       <nav aria-label="main" id="#sidebar-nav">
       {/* <a href="/" id="main-link">
         Stringer
@@ -25,23 +25,25 @@ export const MainSidebar: FC = () => {
           <MenuLink href="/app/collections/unread" current={current} iconName="inbox" text="Unread" />
         </li>
         <li>
-          <MenuLink href="/app/collections/reading-list" current={current} iconName="stopwatch" text="Reading List" />
+          <MenuLink href="/app/collections/read-later" current={current} iconName="stopwatch" text="Read Later" />
         </li>
         <li>
           <MenuLink href="/app/collections/saved" current={current} iconName="bookmark" text="Saved" />
         </li>
         <li>
-          <MenuLink href="/app/collections/tagged" current={current} iconName="tag" text="Tagged" />
-        </li>
-        <li>
           <MenuLink href="/app/notes" current={current} iconName="note" text="Notes" />
         </li>
         <li>
-          <MenuLink href="/app/feeds/new" current={current} iconName="add" text="Add Feed" />
+          <MenuLink href="/app/feeds/find" current={current} iconName="add" text="Add Feed" />
+        </li>
+      </ul>
+      <ul style="border-bottom: none;">
+        <li>
+          <MenuLink href="/app/collections/new" current={current} iconName="folder_add" text="Add Collection" />
         </li>
       </ul>
       </nav>
-    </header>
+    </aside>
   )
 }
 

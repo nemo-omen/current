@@ -6,35 +6,44 @@ CREATE TABLE users (
     );
 CREATE TABLE sessions (id TEXT PRIMARY KEY, data TEXT);
 CREATE TABLE feeds (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id VARCHAR(255) PRIMARY KEY,
+        feedType VARCHAR(255),
         title VARCHAR(255),
+        updated DATE,
         description TEXT,
-        feedUrl VARCHAR(255) UNIQUE NOT NULL,
-        link VARCHAR(255),
-        image JSON
+        feedLink VARCHAR(255) UNIQUE NOT NULL,
+        siteLink VARCHAR(255),
+        icon JSON,
+        logo JSON
     );
-CREATE TABLE items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        feedId INTEGER NOT NULL,
+CREATE TABLE entries (
+        id VARCHAR(255) PRIMARY KEY,
+        feedId VARCHAR(255) NOT NULL,
         title VARCHAR(255),
-        author VARCHAR(255),
+        updated DATETIME,
+        published DATETIME,
+        authors JSON,
         description TEXT,
-        link VARCHAR(255) UNIQUE NOT NULL,
-        pubDate DATETIME,
-        content TEXT,
-        contentEncoded TEXT,
-        contentSnippet TEXT,
-        enclosure JSON,
+        content JSON,
+        links JSON,
+        categories JSON,
         FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
     );
 CREATE TABLE subscriptions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER NOT NULL,
-        feedId INTEGER NOT NULL,
-        subscribedDate DATE,
+        feedId VARCHAR(255) NOT NULL,
+        subscribedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
     );
+CREATE TABLE collection_entries(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entryId INTEGER NOT NULL,
+    collectionId INTEGER NOT NULL,
+    FOREIGN KEY (entryId) REFERENCES entries (id) ON DELETE CASCADE,
+    FOREIGN KEY (collectionId) REFERENCES collections (id) ON DELETE CASCADE
+);
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20240106141030'),
@@ -44,4 +53,6 @@ INSERT INTO "schema_migrations" (version) VALUES
   ('20240110133129'),
   ('20240113231019'),
   ('20240113232153'),
-  ('20240116125932');
+  ('20240116125932'),
+  ('20240122143749'),
+  ('20240122155335');

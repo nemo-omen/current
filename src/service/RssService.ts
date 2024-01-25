@@ -1,17 +1,10 @@
 import Parser from 'rss-parser';
-import type { Output } from 'rss-parser';
-import { Result } from '../lib/interfaces/Result';
-import { StringerFeed } from '../model/StringerFeed';
-import { StringerItem } from '../model/StringerItem';
-import type { StringerItemProps } from '../model/StringerItem';
-import { RssItem } from '../lib/interfaces/RssItem';
-import * as htmlparser2 from 'htmlparser2';
+import { Result } from '../lib/types/Result';
 import { parse, Feed, Entry } from '@nooptoday/feed-rs';
-// type RssItem = Item & {
-//   author?: string;
-//   creator?: string;
-//   "content:encoded"?: string;
-// };
+import type { RssSource } from '../lib/types/RssSource';
+import { getFeedSources } from '../lib/util/getFeedSources';
+import { parse as parseHtml } from 'node-html-parser';
+import { StringerFeed } from '../model/StringerFeed';
 
 export class RssService {
   parser: Parser;
@@ -20,8 +13,10 @@ export class RssService {
     this.parser = new Parser();
   }
 
-  async getRsFeed(url: string): Promise<Result<Feed>> {
-    let response;
+  async getFeedByUrl(url: string): Promise<Result<StringerFeed>> {
+    let response: Response;
+    const urlObj = new URL(url);
+
     try {
       response = await fetch(url);
     } catch (err) {
@@ -35,97 +30,25 @@ export class RssService {
       return { ok: false, error: String(err) };
     }
 
-    let feed;
+    let remoteFeed: Feed | undefined = undefined;
+    let stringerFeed: StringerFeed | undefined = undefined;
+
     try {
       const urlObj = new URL(url);
-      const host = urlObj.host;
-      const proto = urlObj.protocol;
-      feed = parse(data, proto + host);
+      remoteFeed = parse(data, urlObj.origin);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
-    return { ok: true, data: feed };
-  }
-
-  async getFeedByUrl(url: string): Promise<Result<StringerFeed>> {
-    let response: Response;
-
-    // feed-rs is the better alternative. It's faster and
-    // has consistent normalization between feed types.
-    const rsResult: Result<Feed> = await this.getRsFeed(url);
-    if (!rsResult.ok) {
-      return rsResult;
+    if (remoteFeed) {
+      stringerFeed = StringerFeed.fromRemote(remoteFeed, urlObj.origin, urlObj.href);
     }
 
-    // console.log(rsResult.data.entries[0]);
-
-    try {
-      response = await fetch(url);
-    } catch (err) {
-      return { ok: false, error: String(err) };
+    if (!stringerFeed) {
+      return { ok: false, error: 'Could not parse feed' };
     }
 
-    let xml: string;
-    try {
-      xml = await response.text();
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    let parsed: Output<RssItem>;
-
-    try {
-      parsed = await this.parser.parseString(xml);
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    const parsedImage = (parsed.image ? {
-      url: parsed.image.url,
-      link: parsed.image.link,
-      title: parsed.image.title,
-      width: parsed.image.width,
-      height: parsed.image.height
-    } : null);
-
-    const feed = new StringerFeed(
-      undefined,
-      parsed.title,
-      parsed.feedUrl,
-      parsed.description,
-      parsed.link,
-      parsedImage,
-      []);
-
-    for (const parsedItem of parsed.items) {
-      let summary;
-
-      if (parsedItem.contentSnippet) {
-        summary = parsedItem.contentSnippet.substring(0, 256);
-      } else {
-        summary = parsedItem.content.substring(0, 256);
-      }
-      const itemProps: StringerItemProps = {
-        id: undefined,
-        title: parsedItem.title,
-        author: parsedItem.author,
-        link: parsedItem.link,
-        pubDate: parsedItem.pubDate,
-        content: parsedItem.content,
-        contentEncoded: parsedItem["content:encoded"],
-        contentSnippet: summary,
-        enclosure: parsedItem.enclosure,
-        feedId: undefined,
-        feedImage: feed.image,
-        feedTitle: feed.title
-      };
-
-      const item: StringerItem = new StringerItem(itemProps);
-      feed.addItem(item);
-    }
-
-    return { ok: true, data: feed };
+    return { ok: true, data: stringerFeed };
   }
 
   isValidURL(str: string): boolean {
@@ -148,55 +71,22 @@ export class RssService {
     return { ok: true, data: built };
   }
 
-  async findDocumentRssLink(url: string): Promise<Result<string>> {
-    let response;
+  async findDocumentRssLink(url: string): Promise<Result<RssSource>> {
+    let rssUrlResult: Result<RssSource[]>;
     try {
-      response = await fetch(url);
+      rssUrlResult = await getFeedSources(url);
+      // rssUrlResult = await getRssUrlsFromUrl(url);
     } catch (err) {
       return { ok: false, error: String(err) };
     }
-
-    let data;
-    try {
-      data = await response.text();
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    let rssLink: string;
-
-    const parser = new htmlparser2.Parser({
-      onopentag(name, attribs, isImplied) {
-        // For now, only return first
-        // rss link.
-        // TODO: Handle multiple RSS links
-        if (!rssLink) {
-          if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/rss+xml') {
-            rssLink = attribs.href;
-          }
-          if (name === 'link' && attribs.rel === 'alternate' && attribs.type === 'application/atom+xml') {
-            rssLink = attribs.href;
-          }
-        }
-      }
-    });
-
-    parser.write(data);
-    let finalUrl: string;
-
-    if (rssLink != undefined) {
-      if (!rssLink.startsWith(url)) {
-        if (url.endsWith('/')) {
-          finalUrl = url.substring(0, url.length - 1) + rssLink;
-        } else {
-          finalUrl = url + rssLink;
-        }
+    if (rssUrlResult.ok) {
+      if (rssUrlResult.data.length < 1) {
+        return { ok: false, error: 'No RSS url at that location.' };
       } else {
-        finalUrl = rssLink;
+        // TODO: Handle multiple feeds at same url
+        return { ok: true, data: rssUrlResult.data[0] };
       }
-      return { ok: true, data: finalUrl };
     }
-
-    return { ok: false, error: 'Could not find RSS url.' };
+    return { ok: false, error: 'No RSS url at that location' };
   }
 }
