@@ -26,23 +26,25 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
 - Create feed from search term (?)
 
 ## Routes
-- /feeds
--  |--/add
-- /posts
--  |--/all
--  |--/unread
--  |--/read
--  |--/bookmarks (favorites?)
--  |--/:slug | :id
-- /collections
--  |--/read-later
--  |--/saved (same as bookmarks?)
--  |--/:slug | :id
-- /notes
--  |--/:slug | :id
-- /auth
--  |--/login
--  |--/logout
-- /account
--  |--/:username-slug
--      |/profile
+```
+/feeds
+ |--/add
+/posts
+ |--/all
+ |--/unread
+ |--/read
+ |--/bookmarks (favorites?)
+ |--/:slug | :id
+/collections
+ |--/read-later
+ |--/saved (same as bookmarks?)
+ |--/:slug | :id
+/notes
+ |--/:slug | :id
+/auth
+ |--/login
+ |--/logout
+/account
+ |--/:username-slug
+     |/profile
+```
