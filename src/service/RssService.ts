@@ -1,17 +1,10 @@
-import Parser from 'rss-parser';
 import { Result } from '../lib/types/Result';
-import { parse, Feed, Entry } from '@nooptoday/feed-rs';
+import { parse, Feed } from '@nooptoday/feed-rs';
 import type { RssSource } from '../lib/types/RssSource';
 import { getFeedSources } from '../lib/util/getFeedSources';
-import { parse as parseHtml } from 'node-html-parser';
 import { CurrentFeed } from '../model/CurrentFeed';
 
 export class RssService {
-  parser: Parser;
-
-  constructor () {
-    this.parser = new Parser();
-  }
 
   async getFeedByUrl(url: string): Promise<Result<CurrentFeed>> {
     let response: Response;
