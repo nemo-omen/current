@@ -10,114 +10,6 @@ export type FeedInfo = {
   feedUrl: string;
 };
 
-const insertFeedQuery = `
-  INSERT INTO feeds (
-          id,
-          rssId,
-          feedType,
-          title,
-          updated,
-          description,
-          feedLink,
-          siteLink,
-          categories,
-          icon,
-          logo
-        )
-        VALUES (
-          $id,
-          $rssId,
-          $feedType,
-          $title,
-          $updated,
-          $description,
-          $feedLink,
-          $siteLink,
-          $categories,
-          $icon,
-          $logo
-        )
-        RETURNING id;
-`;
-
-const feedQueryValues = (feedDTO: PersistanceFeedDTO) => {
-  return {
-    $id: feedDTO.id,
-    $rssId: feedDTO.rssId || null,
-    $feedType: feedDTO.feedType || null,
-    $title: feedDTO.title || null,
-    $updated: feedDTO.updated || null,
-    $description: feedDTO.description || null,
-    $feedLink: feedDTO.feedLink || null,
-    $siteLink: feedDTO.siteLink || null,
-    $categories: feedDTO.categories || null,
-    $icon: feedDTO.icon || null,
-    $logo: feedDTO.logo || null
-  };
-};
-
-const insertEntryQuery = `
-          INSERT INTO entries (
-          id,
-          rssId,
-          feedId,
-          title,
-          updated,
-          published,
-          authors,
-          content,
-          links,
-          summary,
-          categories,
-          media,
-          feedTitle,
-          feedLogo,
-          feedIcon,
-          read
-        )
-        VALUES (
-          $id,
-          $rssId,
-          $feedId,
-          $title,
-          $updated,
-          $published,
-          $authors,
-          $content,
-          $links,
-          $summary,
-          $categories,
-          $media,
-          $feedTitle,
-          $feedLogo,
-          $feedIcon,
-          $read
-        )
-        RETURNING id;
-`;
-
-
-const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
-  return {
-    $id: entryDTO.id,
-    $rssId: entryDTO.rssId || null,
-    $feedId: entryDTO.feedId || null,
-    $title: entryDTO.title || null,
-    $updated: entryDTO.updated || null,
-    $published: entryDTO.published || null,
-    $authors: entryDTO.authors || null,
-    $content: entryDTO.content || null,
-    $links: entryDTO.links || null,
-    $summary: entryDTO.summary || null,
-    $categories: entryDTO.categories || null,
-    $media: entryDTO.media || null,
-    $feedTitle: entryDTO.feedTitle || null,
-    $feedLogo: entryDTO.feedLogo || null,
-    $feedIcon: entryDTO.feedIcon || null,
-    $read: entryDTO.read || false,
-  };
-};
-
 export class SQLiteFeedRepository {
   private _db: Database;
   feeds: CurrentFeed[];
@@ -345,4 +237,112 @@ export class SQLiteFeedRepository {
       return { ok: true, data: null };
     }
   }
+};
+
+const insertFeedQuery = `
+  INSERT INTO feeds (
+          id,
+          rssId,
+          feedType,
+          title,
+          updated,
+          description,
+          feedLink,
+          siteLink,
+          categories,
+          icon,
+          logo
+        )
+        VALUES (
+          $id,
+          $rssId,
+          $feedType,
+          $title,
+          $updated,
+          $description,
+          $feedLink,
+          $siteLink,
+          $categories,
+          $icon,
+          $logo
+        )
+        RETURNING id;
+`;
+
+const feedQueryValues = (feedDTO: PersistanceFeedDTO) => {
+  return {
+    $id: feedDTO.id,
+    $rssId: feedDTO.rssId || null,
+    $feedType: feedDTO.feedType || null,
+    $title: feedDTO.title || null,
+    $updated: feedDTO.updated || null,
+    $description: feedDTO.description || null,
+    $feedLink: feedDTO.feedLink || null,
+    $siteLink: feedDTO.siteLink || null,
+    $categories: feedDTO.categories || null,
+    $icon: feedDTO.icon || null,
+    $logo: feedDTO.logo || null
+  };
+};
+
+const insertEntryQuery = `
+          INSERT INTO entries (
+          id,
+          rssId,
+          feedId,
+          title,
+          updated,
+          published,
+          authors,
+          content,
+          links,
+          summary,
+          categories,
+          media,
+          feedTitle,
+          feedLogo,
+          feedIcon,
+          read
+        )
+        VALUES (
+          $id,
+          $rssId,
+          $feedId,
+          $title,
+          $updated,
+          $published,
+          $authors,
+          $content,
+          $links,
+          $summary,
+          $categories,
+          $media,
+          $feedTitle,
+          $feedLogo,
+          $feedIcon,
+          $read
+        )
+        RETURNING id;
+`;
+
+
+const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
+  return {
+    $id: entryDTO.id,
+    $rssId: entryDTO.rssId || null,
+    $feedId: entryDTO.feedId || null,
+    $title: entryDTO.title || null,
+    $updated: entryDTO.updated || null,
+    $published: entryDTO.published || null,
+    $authors: entryDTO.authors || null,
+    $content: entryDTO.content || null,
+    $links: entryDTO.links || null,
+    $summary: entryDTO.summary || null,
+    $categories: entryDTO.categories || null,
+    $media: entryDTO.media || null,
+    $feedTitle: entryDTO.feedTitle || null,
+    $feedLogo: entryDTO.feedLogo || null,
+    $feedIcon: entryDTO.feedIcon || null,
+    $read: entryDTO.read || false,
+  };
 };
