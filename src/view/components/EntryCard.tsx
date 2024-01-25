@@ -122,9 +122,9 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
     feedIcon = icon;
   }
 
-  console.log({mediaContent});
-  console.log({feedLogo});
-  console.log({feedIcon});
+  // console.log({mediaContent});
+  // console.log({feedLogo});
+  // console.log({feedIcon});
 
   let image: {src: string, alt: string} | undefined = undefined;
 

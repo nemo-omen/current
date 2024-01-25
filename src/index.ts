@@ -36,7 +36,7 @@ app.use('*', csrf({ origin: 'http://localhost:3000' }));
 app.use('*', sessionMiddleware({
   store,
   encryptionKey: "some_password_that_is_at_least_thirty_two_characters_long",
-  expireAfterSeconds: 900, // 15min
+  expireAfterSeconds: 1800, // 30min
   cookieOptions: {
     sameSite: 'Strict',
     path: '/',

@@ -7,20 +7,24 @@ import { css, cx, keyframes, Style } from 'hono/css'
 
 export const Post = (c: Context) => {
   const entry = c.get('entry');
-  console.log({entry});
-  // let imageSrc = undefined;
-  // if(entry.enclosure) {
-  //   if(entry.enclosure.type.startsWith('image')) {
-  //     imageSrc = entry.enclosure.url;
-  //   }
-  // }
+
+  let imageSrc: string | undefined, imgAlt: string | undefined;
+  if(entry.media) {
+    if(entry.media.length > 0) {
+      if(entry.media[0].content.length > 0) {
+        if(entry.media[0].content[0].contentType.startsWith('image')) {
+          imageSrc = entry.media[0].content[0].url;
+          imgAlt = entry.feedTitle;
+        }
+      }
+    }
+  }
 
   return c.render(
     <SidebarPage>
-    {/* <TomorrowNightBright /> */}
+    <TomorrowNightBright />
     <article class="story-article flow post">
-      {/* <h1>{entry.title}</h1>
-      {imageSrc ? <img src={imageSrc} alt={entry.title} /> : null}
+      {imageSrc ? <img src={imageSrc} alt={imgAlt} /> : null}
         <a href={entry.links[0]}>
         <h1>
           {entry.title}
@@ -29,11 +33,10 @@ export const Post = (c: Context) => {
       <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
       {entry.authors ? <p>{entry.authors[0]}</p> : null}
       <ItemContent content={entry.content.body} link={entry.links[0]}/>
-      <a href={entry.links[0]}>View Original</a> */}
+      <a href={entry.links[0]}>View Original</a>
     </article>
     </SidebarPage>,
-    // {title: entry.title}
-    {title: ''}
+    {title: entry.title}
   );
 }
 
@@ -41,6 +44,7 @@ export const Post = (c: Context) => {
 const ItemContent = async (props) => {
   const doc = await addImgSrcOrigins(props.link, props.content);
   const highlighted = await highlight(doc);
+  console.log(props);
 
   return(html`
     <div class="content">

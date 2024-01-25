@@ -19,7 +19,7 @@ export async function addImgSrcOrigins(link: string, content: string) {
         (node) => {
           if (node.tagName === 'img') {
             const imgSrc = node.properties.src;
-            if (!imgSrc.startsWith(origin)) {
+            if (!imgSrc.startsWith(origin) && !link.startsWith('http')) {
               node.properties.src = origin + imgSrc;
             }
           }

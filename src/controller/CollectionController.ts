@@ -2,6 +2,7 @@ import { Context } from "hono";
 import { Hono } from "hono";
 import { Edit } from "../view/pages/collections/Edit";
 import { CollectionList } from "../view/pages/collections/CollectionList";
+import { NewCollection } from "../view/pages/collections/NewCollection";
 
 const app = new Hono();
 
@@ -17,7 +18,7 @@ app.get('/unread', (c: Context) => {
   return CollectionList(c);
 });
 
-app.get('/reading-list', (c: Context) => {
+app.get('/read-later', (c: Context) => {
   c.set('pageTitle', 'Reading List');
   c.set('collectionTitle', 'Reading List');
   return CollectionList(c);
@@ -27,6 +28,11 @@ app.get('/saved', (c: Context) => {
   c.set('pageTitle', 'Saved Posts');
   c.set('collectionTitle', 'Saved Posts');
   return CollectionList(c);
+});
+
+app.get('/new', (c: Context) => {
+  c.set('pageTitle', 'Add Collection');
+  return NewCollection(c);
 });
 
 export default app;

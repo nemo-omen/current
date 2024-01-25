@@ -195,14 +195,11 @@ h4 {
 
 main {
   grid-area: main;
-  /* padding: 2rem; */
   overflow: auto;
-  /* background: tomato; */
 }
 
 main>* {
   width: var(--content-width);
-  /* width: var(--reading-width); */
   margin: 0 auto;
 }
 
@@ -508,16 +505,16 @@ button:hover,
   padding: 0 1rem;
 }
 
-/* MAIN DASHBOARD LIST */
+/* CARD LIST */
 
-.dashboard-items-list {
+.card-list {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   list-style-type: none;
-  /* width: min(65rem, 90vw); */
-  margin: 0 auto;
   padding: 0;
+  /* width: min(65rem, 90vw); */
+  /* margin: 0 auto; */
 }
 
 .item-card {

@@ -1,13 +1,12 @@
 import { Context } from "hono";
 import { Page } from "../../layout/Page";
 
-export const CollectionList = (c: Context) => {
-  const collectionTitle = c.get('collectionTitle');
+export const NewCollection = (c: Context) => {
   return c.render(
     <>
     <Page>
       <div>
-        <h1>{collectionTitle}</h1>
+        <h1>Create a New Collection</h1>
       </div>
     </Page>
     </>,
