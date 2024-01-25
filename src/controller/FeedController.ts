@@ -9,7 +9,7 @@ import { SQLiteFeedRepository } from "../repo/FeedRepository";
 import { ResultPage } from "../view/pages/feeds/Result";
 import { Find } from "../view/pages/feeds/Find";
 import { RssSource } from "../lib/types/RssSource";
-import { StringerFeed } from "../model/StringerFeed";
+import { CurrentFeed } from "../model/CurrentFeed";
 import { PostList } from "../view/pages/posts/PostList";
 import { SubscriptionRepository } from "../repo/SubscriptionRepository";
 import { Subscription } from "../model/Subscription";
@@ -93,7 +93,7 @@ app.post(
     }
 
     if (rssUrl) {
-      const feedResult: Result<StringerFeed> = await rssService.getFeedByUrl(rssUrl);
+      const feedResult: Result<CurrentFeed> = await rssService.getFeedByUrl(rssUrl);
 
       if (!feedResult.ok) {
         session.flash('error', 'Could not find a feed at that address.');
@@ -130,7 +130,7 @@ app.post(
     const subscriptionRepo = new SubscriptionRepository(db);
     const subscriptionUrlObject = new URL(data.subscriptionUrl);
 
-    const rssFeedResult: Result<StringerFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
+    const rssFeedResult: Result<CurrentFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
 
     if (!rssFeedResult.ok) {
       c.set('searchUrl', data.subscriptionUrl);
@@ -152,7 +152,7 @@ app.post(
     //     (redirect to /app/feeds/find and show related?)
     //     (redirect to /app/posts/all?)
 
-    let storedFeedResult: Result<StringerFeed | null> = feedRepo.getFeedByUrl(data.subscriptionUrl);
+    let storedFeedResult: Result<CurrentFeed | null> = feedRepo.getFeedByUrl(data.subscriptionUrl);
 
     if (!storedFeedResult.ok) {
       c.set('searchUrl', data.subscriptionUrl);
@@ -162,7 +162,7 @@ app.post(
     }
 
     if (storedFeedResult.data === null) {
-      const feed: StringerFeed = rssFeedResult.data;
+      const feed: CurrentFeed = rssFeedResult.data;
 
       try {
         await feedRepo.insertFeed(feed.toPersistance());
@@ -177,7 +177,7 @@ app.post(
       }
       storedFeedResult = { ok: true, data: feed };
     }
-    const feed: StringerFeed = storedFeedResult.data!;
+    const feed: CurrentFeed = storedFeedResult.data!;
 
     const subscriptionResult: Result<Subscription> = subscriptionRepo.saveSubscription(feed.id, user.id);
 

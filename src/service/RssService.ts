@@ -4,7 +4,7 @@ import { parse, Feed, Entry } from '@nooptoday/feed-rs';
 import type { RssSource } from '../lib/types/RssSource';
 import { getFeedSources } from '../lib/util/getFeedSources';
 import { parse as parseHtml } from 'node-html-parser';
-import { StringerFeed } from '../model/StringerFeed';
+import { CurrentFeed } from '../model/CurrentFeed';
 
 export class RssService {
   parser: Parser;
@@ -13,7 +13,7 @@ export class RssService {
     this.parser = new Parser();
   }
 
-  async getFeedByUrl(url: string): Promise<Result<StringerFeed>> {
+  async getFeedByUrl(url: string): Promise<Result<CurrentFeed>> {
     let response: Response;
     const urlObj = new URL(url);
 
@@ -31,7 +31,7 @@ export class RssService {
     }
 
     let remoteFeed: Feed | undefined = undefined;
-    let stringerFeed: StringerFeed | undefined = undefined;
+    let stringerFeed: CurrentFeed | undefined = undefined;
 
     try {
       const urlObj = new URL(url);
@@ -41,7 +41,7 @@ export class RssService {
     }
 
     if (remoteFeed) {
-      stringerFeed = StringerFeed.fromRemote(remoteFeed, urlObj.origin, urlObj.href);
+      stringerFeed = CurrentFeed.fromRemote(remoteFeed, urlObj.origin, urlObj.href);
     }
 
     if (!stringerFeed) {

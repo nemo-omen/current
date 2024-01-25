@@ -1,7 +1,7 @@
 import { Database, SQLQueryBindings } from 'bun:sqlite';
 import { Result } from '../lib/types/Result';
-import { StringerFeed, StringerFeedDTO, PersistanceFeedDTO } from '../model/StringerFeed';
-import { StringerEntry, StringerEntryDTO, PersistanceEntryDTO } from '../model/StringerEntry';
+import { CurrentFeed, CurrentFeedDTO, PersistanceFeedDTO } from '../model/CurrentFeed';
+import { CurrentEntry, CurrentEntryDTO, PersistanceEntryDTO } from '../model/CurrentEntry';
 
 
 export type FeedInfo = {
@@ -72,7 +72,8 @@ const insertEntryQuery = `
           media,
           feedTitle,
           feedLogo,
-          feedIcon
+          feedIcon,
+          read
         )
         VALUES (
           $id,
@@ -89,7 +90,8 @@ const insertEntryQuery = `
           $media,
           $feedTitle,
           $feedLogo,
-          $feedIcon
+          $feedIcon,
+          $read
         )
         RETURNING id;
 `;
@@ -111,37 +113,38 @@ const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
     $media: entryDTO.media || null,
     $feedTitle: entryDTO.feedTitle || null,
     $feedLogo: entryDTO.feedLogo || null,
-    $feedIcon: entryDTO.feedIcon || null
+    $feedIcon: entryDTO.feedIcon || null,
+    $read: entryDTO.read || false,
   };
 };
 
 export class SQLiteFeedRepository {
   private _db: Database;
-  feeds: StringerFeed[];
+  feeds: CurrentFeed[];
   constructor (db: Database) {
     this._db = db;
     this.feeds = [];
   }
 
-  getFeeds(): StringerFeed[] {
+  getFeeds(): CurrentFeed[] {
     const feedQuery = this._db.query(`
       SELECT * FROM feeds;
     `);
-    const res: StringerFeedDTO[] = feedQuery.all() as StringerFeedDTO[];
+    const res: CurrentFeedDTO[] = feedQuery.all() as CurrentFeedDTO[];
     for (const f of res) {
-      const feed = StringerFeed.fromPersistance(f);
+      const feed = CurrentFeed.fromPersistance(f);
       const entryQuery = this._db.query(
         `SELECT * FROM entries
            WHERE feedId=$feedId
            ORDER BY published DESC;`
       );
-      const entryRes: StringerEntryDTO[] | undefined = entryQuery.all(
+      const entryRes: CurrentEntryDTO[] | undefined = entryQuery.all(
         { $feedId: feed.id }
-      ) as StringerEntryDTO[];
+      ) as CurrentEntryDTO[];
 
       if (entryRes) {
         for (const entry of entryRes) {
-          feed.entries.push(StringerEntry.fromPersistance(entry));
+          feed.entries.push(CurrentEntry.fromPersistance(entry));
         }
       }
       this.feeds.push(feed);
@@ -149,7 +152,7 @@ export class SQLiteFeedRepository {
     return this.feeds;
   }
 
-  getFeedById(id: string): Result<StringerFeed | null> {
+  getFeedById(id: string): Result<CurrentFeed | null> {
     const query = this._db.query(
       `SELECT * FROM feeds
          WHERE id=$id
@@ -163,7 +166,7 @@ export class SQLiteFeedRepository {
     }
 
     if (result) {
-      return { ok: true, data: StringerFeed.fromPersistance(result) };
+      return { ok: true, data: CurrentFeed.fromPersistance(result) };
     }
 
     return { ok: true, data: null };
@@ -173,9 +176,9 @@ export class SQLiteFeedRepository {
    * Queries the database of a feed with the given
    * feedLink and returns the feed if it exists.
    * @param feedLink URL of the feed
-   * @returns Result<StringerFeed | null>
+   * @returns Result<CurrentFeed | null>
    */
-  getFeedByUrl(feedLink: string): Result<StringerFeed | null> {
+  getFeedByUrl(feedLink: string): Result<CurrentFeed | null> {
     const query = this._db.query(
       `SELECT * FROM feeds
          WHERE feedLink=$feedLink
@@ -189,7 +192,7 @@ export class SQLiteFeedRepository {
     }
 
     if (result) {
-      return { ok: true, data: StringerFeed.fromPersistance(result) };
+      return { ok: true, data: CurrentFeed.fromPersistance(result) };
     }
 
     return { ok: true, data: null };
@@ -202,7 +205,7 @@ export class SQLiteFeedRepository {
     return { ok: true, data: res };
   }
 
-  getEntryById(id: number): Result<StringerEntry> {
+  getEntryById(id: number): Result<CurrentEntry> {
     const query = this._db.query(`
       SELECT * FROM entries
         WHERE id=$id
@@ -212,31 +215,31 @@ export class SQLiteFeedRepository {
     if (queryResult) {
       return {
         ok: true,
-        data: StringerEntry.fromPersistance(queryResult)
+        data: CurrentEntry.fromPersistance(queryResult)
       };
     }
     return { ok: false, error: "No item with that id" };
   }
 
-  getEntriesByFeedId(feedId: string): Result<StringerEntry[]> {
+  getEntriesByFeedId(feedId: string): Result<CurrentEntry[]> {
     const query = this._db.query(`
       SELECT * FROM entries
         WHERE feedId=$feedId
         ORDER BY published DESC;
     `);
-    const queryResult = query.all({ $feedId: feedId }) as StringerEntryDTO[];
+    const queryResult = query.all({ $feedId: feedId }) as CurrentEntryDTO[];
 
     const items = [];
 
     for (const entryDTO of queryResult) {
-      const item = StringerEntry.fromPersistance(entryDTO);
+      const item = CurrentEntry.fromPersistance(entryDTO);
       items.push(item);
     }
 
     return { ok: true, data: items };
   }
 
-  getAllEntries(page = 1, limit = 100): Result<StringerEntry[]> {
+  getAllEntries(page = 1, limit = 100): Result<CurrentEntry[]> {
     const query = this._db.query(`
     SELECT * FROM entries
       ORDER BY published DESC
@@ -248,7 +251,7 @@ export class SQLiteFeedRepository {
       queryResult = query.all({
         $limit: limit,
         $offset: limit * (page - 1)
-      }) as StringerEntryDTO[];
+      }) as CurrentEntryDTO[];
     } catch (err) {
       return {
         ok: false,
@@ -259,7 +262,7 @@ export class SQLiteFeedRepository {
     const items = [];
 
     for (const entryDTO of queryResult) {
-      const item = StringerEntry.fromPersistance(entryDTO);
+      const item = CurrentEntry.fromPersistance(entryDTO);
       items.push(item);
     }
 
@@ -326,7 +329,7 @@ export class SQLiteFeedRepository {
     return { ok: true, data: insertResult };
   };
 
-  insertEntry(entryDTO: StringerEntryDTO): Result<number | null> {
+  insertEntry(entryDTO: CurrentEntryDTO): Result<number | null> {
     const entryQuery = this._db.query(insertEntryQuery);
 
     let entryResult = undefined;

@@ -6,11 +6,11 @@ import { SubscriptionRepository } from "../repo/SubscriptionRepository";
 import { RssService } from "../service/RssService";
 import { db } from "../lib/infra/sqlite";
 import { Post } from "../view/pages/posts/Post";
-import { StringerEntry } from "../model/StringerEntry";
+import { CurrentEntry } from "../model/CurrentEntry";
 import { PersistanceSubscriptionDTO, Subscription, SubscriptionDTO } from "../model/Subscription";
 import { None } from "../view/pages/posts/None";
 import { Find } from "../view/pages/feeds/Find";
-import { StringerFeed } from "../model/StringerFeed";
+import { StringerFeed } from "../model/CurrentFeed";
 
 const app = new Hono();
 
@@ -20,7 +20,7 @@ app.get('/all', async (c: Context) => {
   const rssService = new RssService();
   const session = c.get('session');
   const user = session.get('user');
-  const posts: StringerEntry[] = [];
+  const posts: CurrentEntry[] = [];
 
   //TODO: When we integrate HTMX, the pattern should be:
   // 1. Get stored feeds from DB
@@ -60,7 +60,7 @@ app.get('/all', async (c: Context) => {
     }
 
     const feed = feedResult.data;
-    const entriesResult: Result<StringerEntry[]> = feedRepo.getEntriesByFeedId(feed.id);
+    const entriesResult: Result<CurrentEntry[]> = feedRepo.getEntriesByFeedId(feed.id);
 
     if (!entriesResult.ok) {
       session.flash('error', 'There was a problem getting your feeds.');
@@ -83,7 +83,7 @@ app.get('/:id', async (c: Context) => {
   const session = c.get('session');
   const id = c.req.param('id');
   const itemRepo = new SQLiteFeedRepository(db);
-  const entryResult: Result<StringerEntry> = itemRepo.getEntryById(id);
+  const entryResult: Result<CurrentEntry> = itemRepo.getEntryById(id);
 
   if (!entryResult.ok) {
     session.flash('Could not find item');

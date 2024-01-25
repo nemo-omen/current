@@ -1,5 +1,5 @@
 import { Entry, Feed, FeedType, Image } from "@nooptoday/feed-rs";
-import { PersistanceEntryDTO, StringerEntry, StringerEntryDTO } from "./StringerEntry";
+import { PersistanceEntryDTO, CurrentEntry, CurrentEntryDTO } from "./CurrentEntry";
 
 export interface FeedProps {
   id: string,
@@ -13,10 +13,10 @@ export interface FeedProps {
   categories?: string[],
   icon?: Image,
   logo?: Image,
-  entries?: StringerEntry[];
+  entries?: CurrentEntry[];
 }
 
-export class StringerFeed {
+export class CurrentFeed {
   private props: FeedProps;
 
   constructor (props: FeedProps) {
@@ -35,7 +35,7 @@ export class StringerFeed {
     return this.props.title;
   }
 
-  get entries(): StringerEntry[] {
+  get entries(): CurrentEntry[] {
     return this.props.entries || [];
   }
 
@@ -86,7 +86,7 @@ export class StringerFeed {
     };
   }
 
-  static fromPersistance(p: any): StringerFeed {
+  static fromPersistance(p: any): CurrentFeed {
     const props = {
       ...p,
       updated: new Date(p.updated),
@@ -94,10 +94,10 @@ export class StringerFeed {
       icon: JSON.parse(p.icon),
       logo: JSON.parse(p.logo)
     };
-    return new StringerFeed(props);
+    return new CurrentFeed(props);
   }
 
-  static fromRemote(feed: Feed, siteLink: string, feedLink: string): StringerFeed {
+  static fromRemote(feed: Feed, siteLink: string, feedLink: string): CurrentFeed {
     const hasher = new Bun.CryptoHasher("md5");
     const idHash = hasher.update(feed.id);
     const id = idHash.digest("hex");
@@ -114,7 +114,7 @@ export class StringerFeed {
       categories: feed.categories.map((c) => c.term),
       icon: feed.icon,
       logo: feed.logo,
-      entries: feed.entries.map((e) => StringerEntry.fromRemote(
+      entries: feed.entries.map((e) => CurrentEntry.fromRemote(
         e,
         id,
         feed.title?.content,
@@ -122,7 +122,7 @@ export class StringerFeed {
         feed.icon
       ))
     };
-    return new StringerFeed(props);
+    return new CurrentFeed(props);
   }
 }
 
@@ -141,7 +141,7 @@ export interface PersistanceFeedDTO {
   entries?: PersistanceEntryDTO[];
 }
 
-export interface StringerFeedDTO {
+export interface CurrentFeedDTO {
   id: string,
   rssId?: string,
   feedType: string,
@@ -153,5 +153,5 @@ export interface StringerFeedDTO {
   categories?: string,
   icon?: string,
   logo?: string,
-  entries?: StringerEntryDTO[];
+  entries?: CurrentEntryDTO[];
 }

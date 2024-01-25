@@ -1,7 +1,7 @@
 import { Content, Entry, MediaObject, Person } from "@nooptoday/feed-rs";
 import { parse as parseHtml } from 'node-html-parser';
 import { Image } from '@nooptoday/feed-rs';
-export type StringerEntryProps = {
+export type CurrentEntryProps = {
   id: string,
   rssId?: string,
   feedId?: string,
@@ -24,12 +24,13 @@ export type StringerEntryProps = {
   feedTitle?: string,
   feedLogo?: Image,
   feedIcon?: Image,
+  read?: boolean;
 };
 
-export class StringerEntry {
-  private props: StringerEntryProps;
+export class CurrentEntry {
+  private props: CurrentEntryProps;
 
-  constructor (props: StringerEntryProps) {
+  constructor (props: CurrentEntryProps) {
     this.props = props;
   }
 
@@ -93,6 +94,18 @@ export class StringerEntry {
     return this.props.feedIcon;
   }
 
+  get read(): boolean | undefined {
+    return this.props.read;
+  }
+
+  setRead() {
+    this.props.read = true;
+  }
+
+  setUnread() {
+    this.props.read = false;
+  }
+
   toPersistance(): PersistanceEntryDTO {
     return {
       ...this.props,
@@ -108,7 +121,7 @@ export class StringerEntry {
     };
   }
 
-  static fromPersistance(p: PersistanceEntryDTO): StringerEntry {
+  static fromPersistance(p: PersistanceEntryDTO): CurrentEntry {
     const props = {
       ...p,
       published: p.published ? new Date(p.published) : undefined,
@@ -121,7 +134,7 @@ export class StringerEntry {
       feedLogo: p.feedLogo ? JSON.parse(p.feedLogo) : undefined,
       feedIcon: p.feedIcon ? JSON.parse(p.feedIcon) : undefined
     };
-    return new StringerEntry(props);
+    return new CurrentEntry(props);
   }
 
   static fromRemote(
@@ -130,7 +143,7 @@ export class StringerEntry {
     feedTitle?: string,
     feedLogo?: Image,
     feedIcon?: Image
-  ): StringerEntry {
+  ): CurrentEntry {
     const hasher = new Bun.CryptoHasher("md5");
     const idHash = hasher.update(entry.id);
     const id = idHash.digest("hex");
@@ -174,9 +187,10 @@ export class StringerEntry {
       media: entry.media,
       feedTitle,
       feedLogo,
-      feedIcon
+      feedIcon,
+      read: false,
     };
-    return new StringerEntry(props);
+    return new CurrentEntry(props);
   }
 }
 
@@ -210,9 +224,10 @@ export interface PersistanceEntryDTO {
   feedLogo?: string,
   feedTitle?: string,
   feedIcon?: string,
+  read?: boolean;
 };
 
-export interface StringerEntryDTO {
+export interface CurrentEntryDTO {
   id: string,
   rssId?: string,
   feedId?: string,
@@ -227,5 +242,6 @@ export interface StringerEntryDTO {
   media?: MediaObject[],
   feedLogo?: Image,
   feedTitle: string,
-  feedIcon?: Image;
+  feedIcon?: Image,
+  read?: boolean;
 };

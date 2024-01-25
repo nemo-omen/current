@@ -1,6 +1,6 @@
 import { FC } from "hono/jsx";
 import { useRequestContext } from "hono/jsx-renderer";
-import { StringerEntry } from "../../../../model/StringerEntry";
+import { CurrentEntry } from "../../../../model/CurrentEntry";
 import { Feed, Entry, Image, Text } from '@nooptoday/feed-rs';
 import { html } from "hono/html";
 import { HtmlEscapedString } from "hono/utils/html";
@@ -36,7 +36,7 @@ const FeedImg = (logo: Image) => {
   );
 }
 
-const FeedItemCard = async (entry: StringerEntry) => {
+const FeedItemCard = async (entry: CurrentEntry) => {
   let dateString = '';
   if(entry.updated) {
     dateString = new Date(entry.updated!).toLocaleDateString('en-US', {month: 'long', day: 'numeric', weekday: 'long', year: 'numeric'});
