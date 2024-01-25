@@ -1,6 +1,8 @@
 # Stringer
 A news reader with productivity enhancements.
 
+__Dear lord! I've just discovered that someone else has an RSS reader named Stringer. I'm crestfallen (but happy for them!). Time to come up with a different name.__
+
 ## Backend
 This is in its earliest stages. Right now, the server uses Hono with Bun's SQLite. It may not stay that way. I might use Go.
 
