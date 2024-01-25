@@ -1,7 +1,5 @@
-# ~~Stringer~~
+# Current
 A news reader with productivity enhancements.
-
-__Dear lord! I've just discovered that someone else has an RSS reader named Stringer. I'm crestfallen (but happy for them!). Time to come up with a different name.__
 
 ## Backend
 This is in its earliest stages. Right now, the server uses Hono with Bun's SQLite. It may not stay that way. I might use Go.
@@ -26,33 +24,6 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
   - Related to story (?) -- prompt user to pick key words/phrases
   - Reading list reminders (?)
 - Create feed from search term (?)
-
-## Possible Names
-- ~~Stringer~~
-- ~~Angle~~
-- Brief
-- Beat
-- FiveOne
-- W5H
-- Fold
-- Deck
-- Graf
-- Kicker
-- Lede
-- Rundown
-
-### Mixed
-- Blotter
-- Slug
-- Spread
-- Ticker
-- Gram
-- Wire
-- BeatDeck
-- BreakBeat
-- BeatWire
-- SlugStack
-- StoryDeck (this sounds familiar)
 
 ## Routes
 /feeds
