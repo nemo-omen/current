@@ -1,4 +1,4 @@
-# Frosty (working title)
+# Stringer
 A news reader with productivity enhancements.
 
 ## Backend
@@ -26,7 +26,7 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
 - Create feed from search term (?)
 
 ## Possible Names
-- Stringer
+- [x] Stringer
 - Brief
 
 
@@ -36,15 +36,15 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
 /posts
  |--/all
  |--/unread
- |--/bookmarks
- |--/:slug
+ |--/read
+ |--/bookmarks (favorites?)
+ |--/:slug | :id
 /collections
- |--/reading-list
- |--/saved
- |--/tagged
- |--/:slug
+ |--/read-later
+ |--/saved (same as bookmarks?)
+ |--/:slug | :id
 /notes
- |--/:slug
+ |--/:slug | :id
 /auth
  |--/login
  |--/logout
