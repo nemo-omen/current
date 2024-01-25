@@ -28,23 +28,23 @@ I don't think this app will have heavy enough interactivity to warrant a front-e
 ## Routes
 ```
 /feeds
- |--/add
+  /add
 /posts
- |--/all
- |--/unread
- |--/read
- |--/bookmarks (favorites?)
- |--/:slug | :id
+  /all
+  /unread
+  /read
+  /bookmarks (favorites?)
+  /:slug | :id
 /collections
- |--/read-later
- |--/saved (same as bookmarks?)
- |--/:slug | :id
+  /read-later
+  /saved (same as bookmarks?)
+  /:slug | :id
 /notes
- |--/:slug | :id
+  /:slug | :id
 /auth
- |--/login
- |--/logout
+  /login
+  /logout
 /account
- |--/:username-slug
-     |/profile
+  /:username-slug
+    /profile
 ```
