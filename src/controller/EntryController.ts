@@ -70,9 +70,9 @@ app.get('/all', async (c: Context) => {
 
     for (const entry of remoteFeedResult.data.entries) {
       const insertEntryResult: Result<string> = entryRepo.create(entry);
-
+      // TODO: Filter by date > latest stored entry date
       if (!insertEntryResult.ok) {
-        console.error(`Failed to save entry ${entry.title}`);
+        // console.error(`Failed to save entry ${entry.title}`);
       }
     }
 

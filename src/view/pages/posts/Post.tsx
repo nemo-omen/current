@@ -7,12 +7,27 @@ import { css, cx, keyframes, Style } from 'hono/css'
 
 export const Post = (c: Context) => {
   const entry = c.get('entry');
-
+  console.log(entry.authors);
   let imageSrc: string | undefined, imgAlt: string | undefined;
+  // TODO: This is NOT GREAT - find a way to make it better
+  // Probably a Media component
   if(entry.media) {
     if(entry.media.length > 0) {
       if(entry.media[0].content.length > 0) {
-        if(entry.media[0].content[0].contentType.startsWith('image')) {
+        if(entry.media[0].content[0].contentType) {
+          if(entry.media[0].content[0].contentType.startsWith('image')) {
+            imageSrc = entry.media[0].content[0].url;
+            imgAlt = entry.feedTitle;
+          }
+        } else if(
+          entry.media[0].content[0].url.endsWith('jpg')
+          || entry.media[0].content[0].url.endsWith('png')
+          || entry.media[0].content[0].url.endsWith('webp')
+          || entry.media[0].content[0].url.endsWith('avif')
+          || entry.media[0].content[0].url.endsWith('apng')
+          || entry.media[0].content[0].url.endsWith('svg')
+          || entry.media[0].content[0].url.endsWith('gif')
+          ) {
           imageSrc = entry.media[0].content[0].url;
           imgAlt = entry.feedTitle;
         }
@@ -31,8 +46,12 @@ export const Post = (c: Context) => {
         </h1>
         </a>
       <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
-      {entry.authors ? <p>{entry.authors[0]}</p> : null}
-      <ItemContent content={entry.content.body} link={entry.links[0]}/>
+      {(entry.authors && entry.authors.length > 0) ? <p>{entry.authors[0].name}</p> : null}
+      {
+        entry.content 
+        ? <ItemContent content={entry.content.body} link={entry.links[0]}/>
+        : <ItemContent content={entry.summary} link={entry.links[0]}/>
+      }
       <a href={entry.links[0]}>View Original</a>
     </article>
     </SidebarPage>,
@@ -44,7 +63,7 @@ export const Post = (c: Context) => {
 const ItemContent = async (props) => {
   const doc = await addImgSrcOrigins(props.link, props.content);
   const highlighted = await highlight(doc);
-  console.log(props);
+  // console.log(props);
 
   return(html`
     <div class="content">
