@@ -1,13 +1,13 @@
 export interface SubscriptionProps {
   feedId: string;
-  userId: string;
-  subscribedAt: Date;
+  userId: number;
+  subscribedAt?: Date;
 }
 
 export interface PersistanceSubscriptionDTO {
   feedId: string;
-  userId: string;
-  subscribedAt: string;
+  userId: number;
+  subscribedAt?: string;
 }
 
 export class Subscription {
@@ -18,19 +18,19 @@ export class Subscription {
   }
   get feedId(): string { return this.props.feedId; }
 
-  get userId(): string { return this.props.userId; }
+  get userId(): number { return this.props.userId; }
 
   toPersistance(): PersistanceSubscriptionDTO {
     return {
       ...this.props,
-      subscribedAt: this.props.subscribedAt.toISOString()
+      subscribedAt: this.props.subscribedAt?.toISOString()
     };
   }
 
   static fromPersistance(subscription: PersistanceSubscriptionDTO): Subscription {
     return new Subscription({
       ...subscription,
-      subscribedAt: new Date(subscription.subscribedAt)
+      subscribedAt: new Date(subscription.subscribedAt!)
     });
   }
 }

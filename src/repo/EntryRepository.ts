@@ -38,7 +38,9 @@ export class EntryRepository implements Repository<CurrentEntry> {
     const query = this._db.query(updateEntryQuery);
     let updateResponse: CurrentEntryDTO | undefined = undefined;
     try {
-      updateResponse = query.get(entryQueryValues(entry.toPersistance())) as CurrentEntryDTO;
+      updateResponse = query.get(
+        entryQueryValues(entry.toPersistance())
+      ) as CurrentEntryDTO;
     } catch (err) {
       return { ok: false, error: String(err) };
     }
@@ -51,7 +53,8 @@ export class EntryRepository implements Repository<CurrentEntry> {
   }
 
   delete(entryId: string): Result<boolean> {
-    const query = this._db.query(`DELETE FROM entries WHERE id=$id RETURNING id`);
+    const query = this._db
+      .query(`DELETE FROM entries WHERE id=$id RETURNING id`);
     let deleteResult: { id: string; } | undefined = undefined;
     try {
       deleteResult = query.get() as { id: string; };
@@ -60,43 +63,121 @@ export class EntryRepository implements Repository<CurrentEntry> {
     }
 
     if (!deleteResult) {
-      return { ok: false, error: `There was a problem deleting the entry ${entryId}` };
+      return {
+        ok: false,
+        error: `There was a problem deleting the entry ${entryId}`
+      };
     }
 
     return { ok: true, data: true };
   }
 
   findById(entryId: string): Result<CurrentEntry> {
-    const query = this._db.query(`SELECT * FROM entries WHERE id=$id;`);
+    const query = this._db.query(
+      `SELECT * FROM entries WHERE id=$id;`
+    );
     let unreadResult: PersistanceEntryDTO | undefined = undefined;
 
     try {
-      unreadResult = query.get({ $id: entryId }) as PersistanceEntryDTO;
+      unreadResult = query
+        .get({ $id: entryId }) as PersistanceEntryDTO;
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
     if (!unreadResult) {
-      return { ok: false, error: 'There was a problem retrieving unread entries' };
+      return {
+        ok: false,
+        error: `There was a problem retrievingthe entry: ${entryId}`
+      };
     }
 
-    return { ok: true, data: CurrentEntry.fromPersistance(unreadResult) };
+    return {
+      ok: true,
+      data: CurrentEntry.fromPersistance(unreadResult)
+    };
+  }
+
+  findByFeedId(feedId: string): Result<CurrentEntry[]> {
+    const query = this._db.query(
+      `SELECT * FROM entries WHERE feedId=$feedId;`
+    );
+    let entriesResult: PersistanceEntryDTO[] | undefined = undefined;
+
+    try {
+      entriesResult = query.all(
+        { $feedId: feedId }
+      ) as PersistanceEntryDTO[];
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    if (!entriesResult) {
+      return {
+        ok: false,
+        error: `There was a problem retrieving entries for the feed ${feedId}.`
+      };
+    }
+
+    return {
+      ok: true,
+      data: entriesResult.map(
+        (e) => CurrentEntry.fromPersistance(e)
+      )
+    };
+  }
+
+  findAll(): Result<CurrentEntry[]> {
+    const query = this._db.query(
+      `SELECT * FROM entries;`
+    );
+    let entriesResult: PersistanceEntryDTO[] | undefined = undefined;
+
+    try {
+      entriesResult = query.all() as PersistanceEntryDTO[];
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    if (!entriesResult) {
+      return {
+        ok: false,
+        error: 'There was a problem retrieving entries'
+      };
+    }
+
+    return {
+      ok: true,
+      data: entriesResult.map(
+        (e) => CurrentEntry.fromPersistance(e)
+      )
+    };
   }
 
   findByStatus(status: 'read' | 'unread'): Result<CurrentEntry[]> {
-    const query = this._db.query(`SELECT * FROM entries WHERE read=$read;`);
+    const query = this._db.query(
+      `SELECT * FROM entries WHERE read=$read;`
+    );
     let statusResult: PersistanceEntryDTO[] | undefined = undefined;
     try {
-      statusResult = query.all({ $read: status === 'read' ? 1 : 0 }) as PersistanceEntryDTO[];
+      statusResult = query.all(
+        { $read: status === 'read' ? 1 : 0 }
+      ) as PersistanceEntryDTO[];
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
     if (!statusResult) {
-      return { ok: false, error: `There was a problem retrieving ${status} entries` };
+      return {
+        ok: false,
+        error: `There was a problem retrieving ${status} entries`
+      };
     }
 
-    return { ok: true, data: statusResult.map((e) => CurrentEntry.fromPersistance(e)) };
+    return {
+      ok: true,
+      data: statusResult.map((e) => CurrentEntry.fromPersistance(e))
+    };
   }
 }
 

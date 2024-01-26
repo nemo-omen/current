@@ -6,5 +6,6 @@ export interface Repository<T> {
   create(entity: T): Result<any>;
   update(entity: T): Result<T>;
   delete(id: any): Result<boolean>;
+  findAll(): Result<T[]>;
   findById(id: any): Result<T | null>;
 }

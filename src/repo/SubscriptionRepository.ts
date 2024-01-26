@@ -1,15 +1,17 @@
 import { Database } from 'bun:sqlite';
 import { Result } from '../lib/types/Result';
 import { PersistanceSubscriptionDTO, Subscription } from '../model/Subscription';
+import { Repository } from './Repository';
 
-export class SubscriptionRepository {
+
+export class SubscriptionRepository implements Repository<Subscription> {
   private _db: Database;
 
   constructor (db: Database) {
     this._db = db;
   }
 
-  saveSubscription(feedId: string, userId: number): Result<Subscription> {
+  create(subscription: Subscription): Result<Subscription> {
     const query = this._db.query(`
       INSERT INTO subscriptions (
         feedId,
@@ -21,7 +23,10 @@ export class SubscriptionRepository {
 
     let data: unknown;
     try {
-      data = query.get({ $feedId: feedId, $userId: userId });
+      data = query.get({
+        $feedId: subscription.feedId,
+        $userId: subscription.userId
+      });
     } catch (err) {
       return { ok: false, error: String(err) };
     }

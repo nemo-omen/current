@@ -5,14 +5,15 @@ import { COMMON_FEED_EXTENSIONS } from "../lib/constants/COMMON_FEED_EXTENSIONS"
 import { Result } from "../lib/types/Result";
 import { db } from "../lib/infra/sqlite";
 import { RssService } from "../service/RssService";
-import { SQLiteFeedRepository } from "../repo/FeedRepository";
+import { FeedRepository } from "../repo/FeedRepository";
 import { ResultPage } from "../view/pages/feeds/Result";
 import { Find } from "../view/pages/feeds/Find";
 import { RssSource } from "../lib/types/RssSource";
 import { CurrentFeed } from "../model/CurrentFeed";
 import { PostList } from "../view/pages/posts/PostList";
-import { SubscriptionRepository } from "../repo/SubscriptionRepository";
 import { Subscription } from "../model/Subscription";
+import { SubscriptionRepository } from "../repo/SubscriptionRepository";
+import { SubscriptionService } from "../service/SubscriptionService";
 
 const app = new Hono();
 
@@ -126,8 +127,9 @@ app.post(
     const session = c.get('session');
     const user = session.get('user');
     const feedService = new RssService();
-    const feedRepo = new SQLiteFeedRepository(db);
+    const feedRepo = new FeedRepository(db);
     const subscriptionRepo = new SubscriptionRepository(db);
+    const subscriptionService = new SubscriptionService(db);
     const subscriptionUrlObject = new URL(data.subscriptionUrl);
 
     const rssFeedResult: Result<CurrentFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
@@ -152,7 +154,7 @@ app.post(
     //     (redirect to /app/feeds/find and show related?)
     //     (redirect to /app/posts/all?)
 
-    let storedFeedResult: Result<CurrentFeed | null> = feedRepo.getFeedByUrl(data.subscriptionUrl);
+    let storedFeedResult: Result<CurrentFeed | null> = feedRepo.findByUrl(data.subscriptionUrl);
 
     if (!storedFeedResult.ok) {
       c.set('searchUrl', data.subscriptionUrl);
@@ -165,8 +167,7 @@ app.post(
       const feed: CurrentFeed = rssFeedResult.data;
 
       try {
-        await feedRepo.insertFeed(feed.toPersistance());
-        // TODO: check for id return?
+        subscriptionService.saveSubscriptionFeedEntries(feed, user.id);
       } catch (err) {
         // LOG
         console.log({ err });
@@ -178,14 +179,6 @@ app.post(
       storedFeedResult = { ok: true, data: feed };
     }
     const feed: CurrentFeed = storedFeedResult.data!;
-
-    const subscriptionResult: Result<Subscription> = subscriptionRepo.saveSubscription(feed.id, user.id);
-
-    if (!subscriptionResult.ok) {
-      session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
-      c.set('feed', rssFeedResult.data);
-      return ResultPage(c);
-    }
 
     session.flash('message', `You have successfully subscribed to ${feed.title}`);
 

@@ -1,21 +1,18 @@
 import { Context, Hono } from "hono";
 import { PostList } from "../view/pages/posts/PostList";
 import { Result } from "../lib/types/Result";
-import { FeedInfo, SQLiteFeedRepository } from "../repo/FeedRepository";
 import { SubscriptionRepository } from "../repo/SubscriptionRepository";
 import { RssService } from "../service/RssService";
 import { db } from "../lib/infra/sqlite";
 import { Post } from "../view/pages/posts/Post";
 import { CurrentEntry } from "../model/CurrentEntry";
-import { PersistanceSubscriptionDTO, Subscription, SubscriptionDTO } from "../model/Subscription";
-import { None } from "../view/pages/posts/None";
-import { Find } from "../view/pages/feeds/Find";
-import { StringerFeed } from "../model/CurrentFeed";
+import { Subscription } from "../model/Subscription";
+import { EntryRepository } from "../repo/EntryRepository";
 
 const app = new Hono();
 
 app.get('/all', async (c: Context) => {
-  const feedRepo = new SQLiteFeedRepository(db);
+  const entryRepo = new EntryRepository(db);
   const subscriptionRepo = new SubscriptionRepository(db);
   const rssService = new RssService();
   const session = c.get('session');
@@ -45,22 +42,7 @@ app.get('/all', async (c: Context) => {
   }
 
   for (const subscription of subscriptions) {
-    const feedResult: Result<StringerFeed | null> = feedRepo.getFeedById(subscription.feedId);
-
-    if (!feedResult.ok) {
-      session.flash('error', 'There was a problem getting your feeds.');
-      return c.redirect('/app/feeds/find');
-      // return PostList(c);
-    }
-
-    if (feedResult.data === null) {
-      session.flash('error', 'There was a problem getting your feeds.');
-      return c.redirect('/app/feeds/find');
-      // return PostList(c);
-    }
-
-    const feed = feedResult.data;
-    const entriesResult: Result<CurrentEntry[]> = feedRepo.getEntriesByFeedId(feed.id);
+    const entriesResult: Result<CurrentEntry[]> = entryRepo.findByFeedId(subscription.feedId);
 
     if (!entriesResult.ok) {
       session.flash('error', 'There was a problem getting your feeds.');
@@ -71,7 +53,10 @@ app.get('/all', async (c: Context) => {
   }
 
   const sorted = posts.sort((a, b) => {
-    return (new Date(b.published!).valueOf()) - (new Date(a.published!).valueOf());
+    return (
+      (new Date(b.published!).valueOf())
+      - (new Date(a.published!).valueOf())
+    );
   });
 
   c.set('posts', sorted);
@@ -82,8 +67,8 @@ app.get('/all', async (c: Context) => {
 app.get('/:id', async (c: Context) => {
   const session = c.get('session');
   const id = c.req.param('id');
-  const itemRepo = new SQLiteFeedRepository(db);
-  const entryResult: Result<CurrentEntry> = itemRepo.getEntryById(id);
+  const entryRepo = new EntryRepository(db);
+  const entryResult: Result<CurrentEntry> = entryRepo.findById(id);
 
   if (!entryResult.ok) {
     session.flash('Could not find item');
