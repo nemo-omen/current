@@ -10,9 +10,6 @@ import { ResultPage } from "../view/pages/feeds/Result";
 import { Find } from "../view/pages/feeds/Find";
 import { RssSource } from "../lib/types/RssSource";
 import { CurrentFeed } from "../model/CurrentFeed";
-import { PostList } from "../view/pages/posts/PostList";
-import { Subscription } from "../model/Subscription";
-import { SubscriptionRepository } from "../repo/SubscriptionRepository";
 import { SubscriptionService } from "../service/SubscriptionService";
 
 const app = new Hono();
@@ -128,9 +125,7 @@ app.post(
     const user = session.get('user');
     const feedService = new RssService();
     const feedRepo = new FeedRepository(db);
-    const subscriptionRepo = new SubscriptionRepository(db);
     const subscriptionService = new SubscriptionService(db);
-    const subscriptionUrlObject = new URL(data.subscriptionUrl);
 
     const rssFeedResult: Result<CurrentFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
 
