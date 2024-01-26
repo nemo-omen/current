@@ -441,6 +441,19 @@ button:hover,
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  & .image-icon {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    background-color: var(--foreground);
+    object-fit: cover;
+    aspect-ratio: 1;
+  }
+
 }
 
 .icon-link-button {
@@ -667,6 +680,11 @@ button:hover,
   & img {
     width: 100%;
     height: auto;
+  }
+
+  & .authors {
+    display: flex;
+    gap: 0.5rem;
   }
 }
 

@@ -1,10 +1,12 @@
 import { FC } from 'hono/jsx';
 import { Icon } from './Icon';
 import { useRequestContext } from 'hono/jsx-renderer';
+import { Subscription } from "../../model/Subscription";
 
 export const MainSidebar: FC = () => {
   const c = useRequestContext();
-  const { feeds, collections } = c;
+  const userFeeds = c.get('userFeeds');
+  console.log(userFeeds[0]);
   const current = c.req.path;
   
   return (
@@ -41,6 +43,24 @@ export const MainSidebar: FC = () => {
         <li>
           <MenuLink href="/app/collections/new" current={current} iconName="folder_add" text="Add Collection" />
         </li>
+
+        {userFeeds.map((feed) => {
+          if(!feed.logo && !feed.icon) {
+            return(<li>
+              <MenuLink href={`/app/feeds/${feed.title.split(' ').join('-').toLowerCase()}`} iconName="logo" text={feed.title} iconColor="complement" />
+            </li>)
+          } else {
+            if(feed.logo !== null) {
+              return(<li>
+                <MenuLink href={`/app/feeds/${feed.title.split(' ').join('-').toLowerCase()}`} logoSrc={feed.logo.uri} text={feed.title} />
+              </li>)
+            } else if(feed.icon !== null) {
+              return(<li>
+                <MenuLink href={`/app/feeds/${feed.title.split(' ').join('-').toLowerCase()}`} logoSrc={feed.icon.uri} text={feed.title} />
+              </li>)
+            }
+          }
+        })}
       </ul>
       </nav>
     </aside>
@@ -48,10 +68,23 @@ export const MainSidebar: FC = () => {
 }
 
 const MenuLink: FC = (props) => {
-  const { href, current, iconName, text } = props;
-  return (
-    <a href={href} class={"icon-link" + (current === href ? " current" : "")}>
-      <Icon name={iconName} />{text}
-    </a>
-  );
+  const { href, current, iconName, text, logoSrc, iconColor } = props;
+  if(iconName) {
+    return (
+      <a href={href} class={"icon-link" + (current === href ? " current" : "")} style={iconColor ? `color: var(--${iconColor})` : ''}>
+          <Icon name={iconName} /><span style="color: var(--foreground);">{text}</span>
+      </a>
+    );
+  }
+
+  if(logoSrc) {
+    return (
+      <a href={href} class={"icon-link" + (current === href ? " current" : "")}>
+        <div class="image-icon">
+          <image src={logoSrc} alt="text" style="width: 1em; height: 1em; background-color: var(--foreground); border-radius: 50%; aspect-ratio: 1;" />
+        </div>
+        {text}
+      </a>
+    );
+  }
 }

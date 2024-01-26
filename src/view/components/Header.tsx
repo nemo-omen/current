@@ -22,7 +22,7 @@ const BaseHeader: FC = ({children}) => {
       <div class="header-inner">
         <a href="/" id="main-link">
           <span>
-            <Icon name="bolt" />
+            <Icon name="logo" />
           </span>
           Current
         </a>

@@ -46,7 +46,17 @@ export const Post = (c: Context) => {
         </h1>
         </a>
       <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
-      {(entry.authors && entry.authors.length > 0) ? <p>{entry.authors[0].name}</p> : null}
+      {
+        (entry.authors && entry.authors.length > 0) 
+          ? <span class="authors">
+              By {entry.authors.map(
+                (a) => (
+                  <address class="author">
+                    {a.uri ? (<a href={a.uri}>{a.name}</a>) : a.name}
+                  </address>
+                )
+              )}</span>
+          : null}
       {
         entry.content 
         ? <ItemContent content={entry.content.body} link={entry.links[0]}/>
