@@ -27,13 +27,13 @@ const BaseHeader: FC = ({children}) => {
           Current
         </a>
 
-        <nav aria-label="main">
-          {children}
-        </nav>
-      </div>
       <div class="header-inner flash">
         {error && <p class="flash error">{error}</p>}
         {message && <p class="flash message">{message}</p>}
+      </div>
+        <nav aria-label="main">
+          {children}
+        </nav>
       </div>
     </header>
   )

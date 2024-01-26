@@ -129,8 +129,10 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
   let image: {src: string, alt: string} | undefined = undefined;
 
   if(mediaContent) {
-    if(mediaContent.contentType.startsWith('image')) {
-      image = {src: mediaContent.url, alt: title}
+    if(mediaContent.contentType) {
+      if(mediaContent.contentType.startsWith('image')) {
+        image = {src: mediaContent.url, alt: title}
+      }
     }
   }
 
@@ -141,8 +143,8 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
       {
         image
           ? <img src={image.src} alt={image.alt} class="item-card-thumbnail" />
-          : feedLogo ? <div class="thumbnail-placeholder"><image src={feedLogo.uri} alt={feedTitle} /></div>
-            : feedIcon ? <div class="thumbnail-placeholder"><image src={feedIcon.uri} alt={feedTitle} /></div>
+          : feedLogo ? <div class="thumbnail-placeholder"><image src={feedLogo.uri} alt={feedTitle} class="thumbnail-logo" /></div>
+            : feedIcon ? <div class="thumbnail-placeholder"><image src={feedIcon.uri} alt={feedTitle} class="thumbnail-logo" /></div>
               : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>
       }
     </>

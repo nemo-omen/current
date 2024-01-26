@@ -1,5 +1,4 @@
 import { Context } from "hono";
-import { Header } from "../components/Header";
 import { MainSidebar } from "../components/MainSidebar";
 import { useRequestContext } from "hono/jsx-renderer";
 
