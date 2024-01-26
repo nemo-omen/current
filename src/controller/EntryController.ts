@@ -8,10 +8,18 @@ import { Post } from "../view/pages/posts/Post";
 import { CurrentEntry } from "../model/CurrentEntry";
 import { Subscription } from "../model/Subscription";
 import { EntryRepository } from "../repo/EntryRepository";
+import { FeedRepository } from "../repo/FeedRepository";
+import { CurrentFeed } from "../model/CurrentFeed";
 
 const app = new Hono();
 
+app.get('/test', (c: Context) => {
+  return c.text('Ya Mutha');
+});
+
 app.get('/all', async (c: Context) => {
+  // TODO: Move multi-step business logic into SubscriptionService
+  const feedRepo = new FeedRepository(db);
   const entryRepo = new EntryRepository(db);
   const subscriptionRepo = new SubscriptionRepository(db);
   const rssService = new RssService();
@@ -42,6 +50,32 @@ app.get('/all', async (c: Context) => {
   }
 
   for (const subscription of subscriptions) {
+    const storedFeedResult: Result<CurrentFeed | null> = feedRepo.findById(subscription.feedId);
+    if (!storedFeedResult) {
+      session.flash('There was an error retrieving your subscribed feeds.');
+      return PostList(c);
+    }
+
+    if (!storedFeedResult.ok) {
+      session.flash('There was an error retrieving your subscribed feeds.');
+      return PostList(c);
+    }
+
+    const remoteFeedResult: Result<CurrentFeed> = await rssService.getFeedByUrl(storedFeedResult.data?.feedLink!);
+
+    if (!remoteFeedResult.ok) {
+      session.flash(`There was an error updating ${storedFeedResult.data?.title}.`);
+      return PostList(c);
+    }
+
+    for (const entry of remoteFeedResult.data.entries) {
+      const insertEntryResult: Result<string> = entryRepo.create(entry);
+
+      if (!insertEntryResult.ok) {
+        console.error(`Failed to save entry ${entry.title}`);
+      }
+    }
+
     const entriesResult: Result<CurrentEntry[]> = entryRepo.findByFeedId(subscription.feedId);
 
     if (!entriesResult.ok) {
