@@ -22,7 +22,7 @@ export class CollectionRepository implements Repository<Collection> {
     VALUES (
       $title,
       $userId
-    ) returning *`);
+    ) RETURNING *`);
 
     let insertResult: PersistanceCollectionDTO | undefined = undefined;
 

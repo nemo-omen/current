@@ -1,5 +1,6 @@
 import { Context } from 'hono';
 import { db } from '../lib/infra/sqlite';
+import { Result } from '../lib/types/Result';
 
 interface UserCreateDTO {
   email: string;
@@ -24,7 +25,7 @@ export function getUserByEmail(email: string): StoredUser | null {
   return result;
 }
 
-export async function insertUser(user: UserCreateDTO) {
+export async function insertUser(user: UserCreateDTO): Promise<Result<{ id: number; }>> {
   const hashed = await Bun.password.hash(user.password);
   const query = db.query(`
     INSERT INTO users (
@@ -32,8 +33,18 @@ export async function insertUser(user: UserCreateDTO) {
     ) 
       VALUES($email, $password)
       RETURNING id;`);
-  const result = query.get({ $email: user.email, $password: hashed });
-  return result;
+
+  let result: { id: number; } | undefined = undefined;
+  try {
+    result = query.get({ $email: user.email, $password: hashed }) as { id: number; };
+  } catch (err) {
+    return { ok: false, error: `Error creating user: ${String(err)}` };
+  }
+
+  if (!result) {
+    return { ok: false, error: 'There was an error creating the user' };
+  }
+  return { ok: true, data: result };
 }
 
 export interface AuthResult {

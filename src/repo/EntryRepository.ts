@@ -76,16 +76,16 @@ export class EntryRepository implements Repository<CurrentEntry> {
     const query = this._db.query(
       `SELECT * FROM entries WHERE id=$id;`
     );
-    let unreadResult: PersistanceEntryDTO | undefined = undefined;
+    let selectResult: PersistanceEntryDTO | undefined = undefined;
 
     try {
-      unreadResult = query
+      selectResult = query
         .get({ $id: entryId }) as PersistanceEntryDTO;
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
-    if (!unreadResult) {
+    if (!selectResult) {
       return {
         ok: false,
         error: `There was a problem retrievingthe entry: ${entryId}`
@@ -94,7 +94,7 @@ export class EntryRepository implements Repository<CurrentEntry> {
 
     return {
       ok: true,
-      data: CurrentEntry.fromPersistance(unreadResult)
+      data: CurrentEntry.fromPersistance(selectResult)
     };
   }
 
@@ -102,17 +102,17 @@ export class EntryRepository implements Repository<CurrentEntry> {
     const query = this._db.query(
       `SELECT * FROM entries WHERE feedId=$feedId;`
     );
-    let entriesResult: PersistanceEntryDTO[] | undefined = undefined;
+    let selectResult: PersistanceEntryDTO[] | undefined = undefined;
 
     try {
-      entriesResult = query.all(
+      selectResult = query.all(
         { $feedId: feedId }
       ) as PersistanceEntryDTO[];
     } catch (err) {
       return { ok: false, error: String(err) };
     }
 
-    if (!entriesResult) {
+    if (!selectResult) {
       return {
         ok: false,
         error: `There was a problem retrieving entries for the feed ${feedId}.`
@@ -121,7 +121,7 @@ export class EntryRepository implements Repository<CurrentEntry> {
 
     return {
       ok: true,
-      data: entriesResult.map(
+      data: selectResult.map(
         (e) => CurrentEntry.fromPersistance(e)
       )
     };
@@ -153,32 +153,6 @@ export class EntryRepository implements Repository<CurrentEntry> {
       )
     };
   }
-
-  findByStatus(status: 'read' | 'unread'): Result<CurrentEntry[]> {
-    const query = this._db.query(
-      `SELECT * FROM entries WHERE read=$read;`
-    );
-    let statusResult: PersistanceEntryDTO[] | undefined = undefined;
-    try {
-      statusResult = query.all(
-        { $read: status === 'read' ? 1 : 0 }
-      ) as PersistanceEntryDTO[];
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-
-    if (!statusResult) {
-      return {
-        ok: false,
-        error: `There was a problem retrieving ${status} entries`
-      };
-    }
-
-    return {
-      ok: true,
-      data: statusResult.map((e) => CurrentEntry.fromPersistance(e))
-    };
-  }
 }
 
 const insertEntryQuery = `
@@ -197,8 +171,7 @@ const insertEntryQuery = `
           media,
           feedTitle,
           feedLogo,
-          feedIcon,
-          read
+          feedIcon
         )
         VALUES (
           $id,
@@ -215,8 +188,7 @@ const insertEntryQuery = `
           $media,
           $feedTitle,
           $feedLogo,
-          $feedIcon,
-          $read
+          $feedIcon
         )
         RETURNING *;
 `;
@@ -237,8 +209,7 @@ const updateEntryQuery = `
             media = $media,
             feedTitle = $feedTitle,
             feedLogo = $feedLogo,
-            feedIcon = $feedIcon,
-            read = $read
+            feedIcon = $feedIcon
           WHERE
             id = $id;
 `;
@@ -260,7 +231,6 @@ const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
     $media: entryDTO.media || null,
     $feedTitle: entryDTO.feedTitle || null,
     $feedLogo: entryDTO.feedLogo || null,
-    $feedIcon: entryDTO.feedIcon || null,
-    $read: entryDTO.read || false,
+    $feedIcon: entryDTO.feedIcon || null
   };
 };

@@ -4,6 +4,10 @@ import { z } from 'zod';
 import { Login } from '../view/pages/auth/Login';
 import { Signup } from '../view/pages/auth/Signup';
 import { insertUser, authenticateUser, userExists } from '../repo/UserRepository';
+import { db } from '../lib/infra/sqlite';
+import { CollectionRepository } from '../repo/CollectionRepository';
+import { Collection } from '../model/Collection';
+import { Result } from '../lib/types/Result';
 
 const app = new Hono();
 
@@ -86,7 +90,11 @@ app.post(
       const issuePaths = issues.map((issue) => issue.path[0]);
       const issueMessages = issues.map((issue) => issue.message);
       for (let i = 0; i < issuePaths.length; i++) {
+        // passwordError = password
+        // undefinedError = confirmation
         session.flash(`${issuePaths[i]}Error`, issueMessages[i]);
+        session.set('signupEmail', value.email);
+        return c.redirect('/auth/signup');
       }
     }
     return result.data;
@@ -97,7 +105,20 @@ app.post(
     const exists = userExists(data.email);
     const userdata = { email: data.email, password: data.password };
     if (!exists) {
-      const insertResult = await insertUser(userdata);
+      const collectionRepo = new CollectionRepository(db);
+      const insertResult: Result<{ id: number; }> = await insertUser(userdata);
+
+      if (!insertResult.ok) {
+        session.flash('error', 'There was a problem creating your account.');
+        return Signup(c);
+      }
+
+      console.log(insertResult);
+
+      const readCollectionResult: Result<Collection> = collectionRepo
+        .create(new Collection({ userId: insertResult.data.id, title: 'unread' }));
+      const unreadCollectionResult: Result<Collection> = collectionRepo
+        .create(new Collection({ userId: insertResult.data.id, title: 'read' }));
       // confirmation email???
       session.flash('message', 'Success! Log in to get started.');
       return c.redirect('/auth/login');

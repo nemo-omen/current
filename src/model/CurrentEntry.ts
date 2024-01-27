@@ -94,18 +94,6 @@ export class CurrentEntry {
     return this.props.feedIcon;
   }
 
-  get read(): boolean | undefined {
-    return this.props.read;
-  }
-
-  setRead() {
-    this.props.read = true;
-  }
-
-  setUnread() {
-    this.props.read = false;
-  }
-
   toPersistance(): PersistanceEntryDTO {
     return {
       ...this.props,
@@ -188,7 +176,6 @@ export class CurrentEntry {
       feedTitle,
       feedLogo,
       feedIcon,
-      read: false,
     };
     return new CurrentEntry(props);
   }
