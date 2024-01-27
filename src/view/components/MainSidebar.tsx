@@ -1,12 +1,10 @@
 import { FC } from 'hono/jsx';
 import { Icon } from './Icon';
 import { useRequestContext } from 'hono/jsx-renderer';
-import { Subscription } from "../../model/Subscription";
 
 export const MainSidebar: FC = () => {
   const c = useRequestContext();
   const userFeeds = c.get('userFeeds');
-  console.log(userFeeds[0]);
   const current = c.req.path;
   
   return (

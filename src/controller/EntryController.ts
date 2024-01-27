@@ -10,6 +10,7 @@ import { Subscription } from "../model/Subscription";
 import { EntryRepository } from "../repo/EntryRepository";
 import { FeedRepository } from "../repo/FeedRepository";
 import { CurrentFeed } from "../model/CurrentFeed";
+import { SubscriptionService } from "../service/SubscriptionService";
 
 const app = new Hono();
 
@@ -18,6 +19,7 @@ app.get('/test', (c: Context) => {
 });
 
 app.get('/all', async (c: Context) => {
+  // TODO: Move to '/collections/all/' -> CollectionController
   // TODO: Move multi-step business logic into SubscriptionService
   const feedRepo = new FeedRepository(db);
   const entryRepo = new EntryRepository(db);
@@ -34,7 +36,7 @@ app.get('/all', async (c: Context) => {
   // 4. Store new items
   // 5. Render new items
   // 6. Set an update interval and run steps 3-5
-  const subscriptionsResult: Result<Subscription[]> = subscriptionRepo.getSubscriptionByUserId(user.id);
+  const subscriptionsResult: Result<Subscription[]> = subscriptionRepo.getSubscriptionsByUserId(user.id);
 
   if (!subscriptionsResult.ok) {
     session.flash('error', 'There was a problem getting your subscriptions.');

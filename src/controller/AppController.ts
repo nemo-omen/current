@@ -21,7 +21,7 @@ app.use('*', async (c: Context, next: Next) => {
   } else {
     const subscriptionRepo = new SubscriptionRepository(db);
     const feedRepo = new FeedRepository(db);
-    const subscriptionResponse: Result<Subscription[]> = subscriptionRepo.getSubscriptionByUserId(sessionUser.id);
+    const subscriptionResponse: Result<Subscription[]> = subscriptionRepo.getSubscriptionsByUserId(sessionUser.id);
     const userFeeds: CurrentFeed[] = [];
 
     if (!subscriptionResponse.ok) {

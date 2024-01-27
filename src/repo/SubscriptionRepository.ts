@@ -40,7 +40,7 @@ export class SubscriptionRepository implements Repository<Subscription> {
     return { ok: true, data: sub };
   }
 
-  getSubscriptionByUserId(userId: number): Result<Subscription[]> {
+  getSubscriptionsByUserId(userId: number): Result<Subscription[]> {
     const query = this._db.query(`SELECT * FROM subscriptions WHERE userId=$userId`);
 
     let subResult: PersistanceSubscriptionDTO[];

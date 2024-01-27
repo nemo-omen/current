@@ -3,6 +3,12 @@ import { Hono } from "hono";
 import { Edit } from "../view/pages/collections/Edit";
 import { CollectionList } from "../view/pages/collections/CollectionList";
 import { NewCollection } from "../view/pages/collections/NewCollection";
+import { PostList } from "../view/pages/posts/PostList";
+import { CurrentEntry } from "../model/CurrentEntry";
+import { SubscriptionService } from "../service/SubscriptionService";
+import { Result } from "../lib/types/Result";
+import { db } from "../lib/infra/sqlite";
+
 
 const app = new Hono();
 
@@ -13,9 +19,22 @@ app.get('/', (c: Context) => {
 });
 
 app.get('/unread', (c: Context) => {
+  const session = c.get('session');
+  const user = session.get('user');
+  const subscriptionService = new SubscriptionService(db);
+  const unreadEntriesResult: Result<CurrentEntry[]> = subscriptionService.getUnreadSubscriptionEntries(user.id);
+
+  if (!unreadEntriesResult.ok) {
+    session.flash('error', 'There was an error getting your unread posts.');
+    return PostList(c);
+  }
+
+  const unreadEntries = unreadEntriesResult.data;
+
   c.set('pageTitle', 'Unread Posts');
-  c.set('collectionTitle', 'Unread Posts');
-  return CollectionList(c);
+  c.set('posts', unreadEntries);
+
+  return PostList(c);
 });
 
 app.get('/read-later', (c: Context) => {
