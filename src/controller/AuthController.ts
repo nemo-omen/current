@@ -57,6 +57,7 @@ app.post(
       for (let i = 0; i < issuePaths.length; i++) {
         session.flash(`${issuePaths[i]}Error`, issueMessages[i]);
       }
+      session.set('loginEmail', value.email);
       return c.redirect('/auth/login');
     }
     return result.data;
@@ -67,12 +68,14 @@ app.post(
     const exists = userExists(data.email);
     if (!exists) {
       session.flash('emailError', 'No account with that email exists.');
+      session.set('loginEmail', data.email);
       return c.redirect('/auth/login');
     }
 
     const { email, id, isAuthed } = await authenticateUser(data, c);
     if (!isAuthed) {
       session.flash('passwordError', 'That password is incorrect.');
+      session.set('loginEmail', data.email);
       return c.redirect('/auth/login');
     }
     session.set('user', { id: id, email: email });
