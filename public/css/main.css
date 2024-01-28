@@ -548,7 +548,7 @@ button:hover,
 
 .item-card-thumbnail,
 .thumbnail-placeholder {
-  width: 300px;
+  min-width: 300px;
   aspect-ratio: 16/9;
   border-radius: 1rem;
 }
@@ -567,7 +567,7 @@ button:hover,
 }
 
 .thumbnail-placeholder {
-  min-width: 300px;
+  /* min-width: 300px; */
   background-color: var(--background-1);
   display: flex;
   justify-content: center;
@@ -599,6 +599,8 @@ button:hover,
 }
 
 .item-card-content {
+  container-name: card-content;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -606,7 +608,19 @@ button:hover,
   & .item-card-text {
     flex-grow: 1;
   }
+
+  & h2 {
+    max-width: 100cqi;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
+
+/* .item-card-header {
+  max-width: 100cqi;
+  overflow: hidden;
+} */
 
 .item-card-footer {
   margin-top: auto;

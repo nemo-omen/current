@@ -43,7 +43,9 @@ export const EntryCard: FC = (props) => {
         />
       }
       <section class="item-card-content">
-        <h2 class="item-card-header">{entry.title}</h2>
+        <div class="item-card-header">
+          <h2>{entry.title}</h2>
+        </div>
         <p class="item-card-text">
           {summary}
         </p>
@@ -146,7 +148,7 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
           ? <img src={image.src} alt={image.alt} class="item-card-thumbnail" />
           : feedLogo ? <div class="thumbnail-placeholder"><image src={feedLogo.uri} alt={feedTitle} class="thumbnail-logo" /></div>
             : feedIcon ? <div class="thumbnail-placeholder"><image src={feedIcon.uri} alt={feedTitle} class="thumbnail-logo" /></div>
-              : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>
+              : <div class="thumbnail-placeholder"><Icon name="logo" /></div>
       }
     </div>
   );

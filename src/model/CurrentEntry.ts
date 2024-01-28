@@ -105,6 +105,9 @@ export class CurrentEntry {
   toPersistance(): PersistanceEntryDTO {
     return {
       ...this.props,
+      summary: this.props.summary!.length > 128
+        ? this.props.summary!.substring(0, 125) + '...'
+        : this.props.summary,
       published: this.props.published?.toISOString(),
       updated: this.props.updated?.toISOString(),
       authors: JSON.stringify(this.props.authors),
@@ -157,6 +160,12 @@ export class CurrentEntry {
         if (entry.content.body) {
           summary = makeSummaryFromContent(entry.content.body);
         }
+      }
+    }
+
+    if (summary) {
+      if (summary.length > 128) {
+        summary = summary.substring(0, 125) + '...';
       }
     }
 
