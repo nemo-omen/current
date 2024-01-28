@@ -116,12 +116,16 @@ app.post(
         return Signup(c);
       }
 
-      console.log(insertResult);
+      // console.log(insertResult);
 
       const readCollectionResult: Result<Collection> = collectionRepo
-        .create(new Collection({ userId: insertResult.data.id, title: 'unread' }));
+        .create(new Collection({ userId: insertResult.data.id, title: 'Unread' }));
       const unreadCollectionResult: Result<Collection> = collectionRepo
-        .create(new Collection({ userId: insertResult.data.id, title: 'read' }));
+        .create(new Collection({ userId: insertResult.data.id, title: 'Read' }));
+      const readLaterCollectionResult: Result<Collection> = collectionRepo
+        .create(new Collection({ userId: insertResult.data.id, title: 'Read Later' }));
+      const savedCollectionResult: Result<Collection> = collectionRepo
+        .create(new Collection({ userId: insertResult.data.id, title: 'Saved' }));
       // confirmation email???
       session.flash('message', 'Success! Log in to get started.');
       return c.redirect('/auth/login');

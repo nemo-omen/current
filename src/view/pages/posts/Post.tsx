@@ -7,7 +7,7 @@ import { css, cx, keyframes, Style } from 'hono/css'
 
 export const Post = (c: Context) => {
   const entry = c.get('entry');
-  console.log(entry.authors);
+  // console.log(entry.authors);
   let imageSrc: string | undefined, imgAlt: string | undefined;
   // TODO: This is NOT GREAT - find a way to make it better
   // Probably a Media component

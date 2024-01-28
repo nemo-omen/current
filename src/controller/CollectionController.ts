@@ -8,6 +8,9 @@ import { CurrentEntry } from "../model/CurrentEntry";
 import { SubscriptionService } from "../service/SubscriptionService";
 import { Result } from "../lib/types/Result";
 import { db } from "../lib/infra/sqlite";
+import { CollectionRepository } from "../repo/CollectionRepository";
+import { Collection } from "../model/Collection";
+import { EntryRepository } from "../repo/EntryRepository";
 
 
 const app = new Hono();
@@ -21,15 +24,42 @@ app.get('/', (c: Context) => {
 app.get('/unread', (c: Context) => {
   const session = c.get('session');
   const user = session.get('user');
-  const subscriptionService = new SubscriptionService(db);
-  const unreadEntriesResult: Result<CurrentEntry[]> = subscriptionService.getUnreadSubscriptionEntries(user.id);
+  const collectionRepo = new CollectionRepository(db);
+  const entryRepo = new EntryRepository(db);
 
-  if (!unreadEntriesResult.ok) {
-    session.flash('error', 'There was an error getting your unread posts.');
+  const unreadCollectionResult: Result<Collection> = collectionRepo.findUserCollectionByTitle(user.id, 'Unread');
+
+  if (!unreadCollectionResult.ok) {
+    session.flash('There was a problem getting unread posts.');
     return PostList(c);
   }
 
-  const unreadEntries = unreadEntriesResult.data;
+  if (!unreadCollectionResult.data) {
+    session.flash('There was a problem getting unread posts.');
+    return PostList(c);
+  }
+
+  const collectionEntryIdsResult = collectionRepo
+    .getCollectionEntryIdsByCollectionId(unreadCollectionResult.data.id!);
+  // console.log({ collectionEntryIdsResult });
+
+  if (!collectionEntryIdsResult.ok) {
+    session.flash('There was a problem getting unread posts.');
+    return PostList(c);
+  }
+
+  const unreadEntries: CurrentEntry[] = [];
+
+  for (const entryId of collectionEntryIdsResult.data) {
+    const entryResult: Result<CurrentEntry> = entryRepo.findById(entryId);
+
+    if (!entryResult.ok) {
+      //TODO: Better figure out some proper logging!
+      console.error(`Unable to retrieve entry with id ${entryId}`);
+    } else {
+      unreadEntries.push(entryResult.data);
+    }
+  }
 
   c.set('pageTitle', 'Unread Posts');
   c.set('posts', unreadEntries);

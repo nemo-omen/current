@@ -190,6 +190,7 @@ const insertEntryQuery = `
           $feedLogo,
           $feedIcon
         )
+        ON CONFLICT (rssId) DO NOTHING
         RETURNING *;
 `;
 

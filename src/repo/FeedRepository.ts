@@ -125,7 +125,7 @@ const insertFeedQuery = `
           $icon,
           $logo
         )
-        ON CONFLICT (rssId, feedLink) DO NOTHING
+        ON CONFLICT (feedLink) DO NOTHING
         RETURNING id;
 `;
 

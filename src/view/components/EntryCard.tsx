@@ -30,6 +30,7 @@ export const EntryCard: FC = (props) => {
 
   return(
     <li class="item-card">
+      <div class="badge unread-badge"></div>
       <a href={`/app/posts/${entry.id}`}>
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {
@@ -139,7 +140,7 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
   // TODO: Return different media representations
   //       depending on contentType
   return (
-    <>
+    <div class="post-thumbnail-container">
       {
         image
           ? <img src={image.src} alt={image.alt} class="item-card-thumbnail" />
@@ -147,6 +148,6 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
             : feedIcon ? <div class="thumbnail-placeholder"><image src={feedIcon.uri} alt={feedTitle} class="thumbnail-logo" /></div>
               : <div class="thumbnail-placeholder"><Icon name="bolt" /></div>
       }
-    </>
+    </div>
   );
 }

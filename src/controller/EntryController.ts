@@ -11,6 +11,7 @@ import { EntryRepository } from "../repo/EntryRepository";
 import { FeedRepository } from "../repo/FeedRepository";
 import { CurrentFeed } from "../model/CurrentFeed";
 import { SubscriptionService } from "../service/SubscriptionService";
+import { CollectionRepository } from "../repo/CollectionRepository";
 
 const app = new Hono();
 
@@ -24,6 +25,7 @@ app.get('/all', async (c: Context) => {
   const feedRepo = new FeedRepository(db);
   const entryRepo = new EntryRepository(db);
   const subscriptionRepo = new SubscriptionRepository(db);
+  const collectionRepo = new CollectionRepository(db);
   const rssService = new RssService();
   const session = c.get('session');
   const user = session.get('user');
@@ -86,6 +88,16 @@ app.get('/all', async (c: Context) => {
     }
 
     posts.push(...entriesResult.data);
+  }
+
+  for (const post of posts) {
+    const isUnread: boolean = collectionRepo.isEntryInCollection(post.id, user.id, 'Unread');
+
+    if (isUnread) {
+      post.read = false;
+    } else {
+      post.read = true;
+    }
   }
 
   const sorted = posts.sort((a, b) => {

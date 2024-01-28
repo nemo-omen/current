@@ -28,6 +28,7 @@ export class SubscriptionRepository implements Repository<Subscription> {
         $userId: subscription.userId
       });
     } catch (err) {
+      console.error(err);
       return { ok: false, error: String(err) };
     }
 

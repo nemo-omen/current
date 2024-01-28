@@ -533,6 +533,17 @@ button:hover,
 .item-card {
   display: flex;
   gap: 1rem;
+  position: relative;
+
+  & .badge {
+    position: absolute;
+    top: 0.225rem;
+    right: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background-color: var(--hover);
+  }
 }
 
 .item-card-thumbnail,
@@ -541,6 +552,8 @@ button:hover,
   aspect-ratio: 16/9;
   border-radius: 1rem;
 }
+
+
 
 .item-card-thumbnail {
   opacity: 0.9;

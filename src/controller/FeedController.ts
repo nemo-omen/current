@@ -11,6 +11,7 @@ import { Find } from "../view/pages/feeds/Find";
 import { RssSource } from "../lib/types/RssSource";
 import { CurrentFeed } from "../model/CurrentFeed";
 import { SubscriptionService } from "../service/SubscriptionService";
+import { CollectionRepository } from "../repo/CollectionRepository";
 
 const app = new Hono();
 

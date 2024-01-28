@@ -94,6 +94,14 @@ export class CurrentEntry {
     return this.props.feedIcon;
   }
 
+  get read(): boolean | undefined {
+    return this.props.read;
+  }
+
+  set read(read: boolean) {
+    this.props.read = read;
+  }
+
   toPersistance(): PersistanceEntryDTO {
     return {
       ...this.props,
