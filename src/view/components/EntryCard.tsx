@@ -30,8 +30,7 @@ export const EntryCard: FC = (props) => {
 
   return(
     <li class="item-card">
-      <div class="badge unread-badge"></div>
-      <a href={`/app/posts/${entry.id}`}>
+      <a href={`/app/posts/${entry.id}`} class="cover-link">
       {/* TODO: Replace bolt icon with site favicon, if possible */}
       {
         <CardThumbnail 
@@ -43,9 +42,9 @@ export const EntryCard: FC = (props) => {
         />
       }
       <section class="item-card-content">
-        <div class="item-card-header">
+        {/* <div class="item-card-header"> */}
           <h2>{entry.title}</h2>
-        </div>
+        {/* </div> */}
         <p class="item-card-text">
           {summary}
         </p>
@@ -98,6 +97,11 @@ export const EntryCard: FC = (props) => {
                 <a class="icon-link" href={`/items/collect/${entry.id}`}>
                   <Icon name="folder_add" />
                 </a>
+              </li>
+              <li>
+                <button class={(entry.read ? "faded " : "") + "icon-link-button"}>
+                  <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
+                </button>
               </li>
             </ul>
           </div>
