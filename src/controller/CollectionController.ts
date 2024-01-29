@@ -62,7 +62,11 @@ app.get('/unread', (c: Context) => {
   }
 
   c.set('pageTitle', 'Unread Posts');
-  c.set('posts', unreadEntries);
+  c.set('posts', unreadEntries.sort(
+    (a, b) => (
+      new Date(b.published).valueOf() - (new Date(a.published).valueOf()))
+  )
+  );
 
   return PostList(c);
 });

@@ -1,6 +1,7 @@
 import { FC } from "hono/jsx";
 import { Icon } from "./Icon";
 import { html } from "hono/html";
+import { differenceInDays } from "date-fns";
 
 export const EntryCard: FC = (props) => {
   const { entry } = props;
@@ -59,9 +60,9 @@ export const EntryCard: FC = (props) => {
                   ? cardDate.toLocaleDateString(
                       'en-US',
                       {
-                        month: 'long',
+                        month: 'numeric',
                         day: 'numeric',
-                        weekday: 'long',
+                        // weekday: 'long',
                         year: 'numeric'
                       }
                   ) 

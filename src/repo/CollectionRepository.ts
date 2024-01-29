@@ -64,21 +64,49 @@ export class CollectionRepository implements Repository<Collection> {
     return { ok: true, data: entryResult };
   }
 
+  addEntryToCollectionByTitle(entryId: string, collectionTitle: string): Result<{ entryId: string, collectionId: number; }> {
+    const collectionResult = this.findByTitle(collectionTitle);
+
+    if (!collectionResult.ok) {
+      return collectionResult;
+    }
+
+    if (!collectionResult.data) {
+      return { ok: false, error: `Colud not find collection titled ${collectionTitle}` };
+    }
+
+    return this.addEntry(entryId, collectionResult.data.id!);
+  }
+
   removeEntry(entryId: string, collectionId: number): Result<boolean> {
     const query = this._db.query(`DELETE FROM collection_entries
-      WHERE entryId=$entryId AND collectionId=$collectionId RETURNING id;`);
-    let entryResult: { id: number; } | undefined = undefined;
+      WHERE entryId=$entryId AND collectionId=$collectionId RETURNING entryId;`);
+    let entryResult: { entryId: number; } | undefined = undefined;
     try {
-      entryResult = query.get({ $entryId: entryId, $collectionId: collectionId }) as { id: number; };
+      entryResult = query.get({ $entryId: entryId, $collectionId: collectionId }) as { entryId: number; };
     } catch (err) {
       return { ok: false, error: `Collection Entry error: ${String(err)}` };
     }
 
     if (!entryResult) {
-      return { ok: false, error: `Error saving entry to collection with id ${collectionId}` };
+      return { ok: false, error: `Error removing entry from collection with id ${collectionId}` };
     }
 
     return { ok: true, data: true };
+  }
+
+  removeEntryByCollectionTitle(entryId: string, collectionTitle: string): Result<boolean> {
+    const collectionResult = this.findByTitle(collectionTitle);
+
+    if (!collectionResult.ok) {
+      return collectionResult;
+    }
+
+    if (!collectionResult.data) {
+      return { ok: false, error: `Could not find collection titled ${collectionTitle}` };
+    }
+
+    return this.removeEntry(entryId, collectionResult.data.id!);
   }
 
   delete(id: any): Result<boolean> {
@@ -143,6 +171,22 @@ export class CollectionRepository implements Repository<Collection> {
     }
 
     return { ok: true, data: Collection.fromPersistance(selectResult) };
+  }
+
+  findByTitle(title: string): Result<Collection> {
+    const query = this._db.query(`SELECT * FROM collections WHERE title=$title;`);
+    let queryResult: PersistanceCollectionDTO | undefined = undefined;
+    try {
+      queryResult = query.get({ $title: title }) as PersistanceCollectionDTO;
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+
+    if (!queryResult) {
+      return { ok: false, error: `Could not find collection titled ${title}` };
+    }
+
+    return { ok: true, data: Collection.fromPersistance(queryResult) };
   }
 
   findAll(): Result<Collection[]> {

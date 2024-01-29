@@ -115,15 +115,35 @@ app.get('/all', async (c: Context) => {
 app.get('/:id', async (c: Context) => {
   const session = c.get('session');
   const id = c.req.param('id');
+  const user = session.get('user');
   const entryRepo = new EntryRepository(db);
+  const collectionRepo = new CollectionRepository(db);
   const entryResult: Result<CurrentEntry> = entryRepo.findById(id);
 
+  let entry: CurrentEntry | undefined = undefined;
   if (!entryResult.ok) {
     session.flash('Could not find item');
   } else {
-    c.set('entry', entryResult.data);
+    entry = entryResult.data;
+    const isUnreadResult = collectionRepo.isEntryInCollection(entry.id, user.id, 'Unread');
+    entry.read = !isUnreadResult;
+
+    if (entry.read === false) {
+      entry.read = true;
+      const removeFromUnreadResult = collectionRepo.removeEntryByCollectionTitle(entry.id, 'Unread');
+      if (!removeFromUnreadResult.ok || removeFromUnreadResult.data === false) {
+        console.log(`Error removing entry from Unread collection: ${removeFromUnreadResult.error}`);
+      }
+
+      const addToReadResult = collectionRepo.addEntryToCollectionByTitle(entry.id, 'Read');
+
+      if (!addToReadResult.ok || !addToReadResult.data) {
+        console.error(`Error adding entry to Read collection`);
+      }
+    }
   }
 
+  c.set('entry', entry);
   return Post(c);
 });
 
