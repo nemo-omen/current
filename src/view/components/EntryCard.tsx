@@ -29,15 +29,16 @@ export const EntryCard: FC = (props) => {
 
   return(
     <li class={(entry.read ? "read " : "") + "item-card"}>
-      <a href={`/app/posts/${entry.id}`}>
-        <CardThumbnail 
-          media={entry.media}
-          logo={entry.feedLogo}
-          icon={entry.feedIcon}
-          title={entry.title}
-          feedTitle={entry.feedTitle}
-          />
-      </a>
+      <article class="item-container">
+        <a href={`/app/posts/${entry.id}`}>
+          <CardThumbnail 
+            media={entry.media}
+            logo={entry.feedLogo}
+            icon={entry.feedIcon}
+            title={entry.title}
+            feedTitle={entry.feedTitle}
+            />
+        </a>
         <section class="item-card-content">
           <a href={`/app/posts/${entry.id}`}>
             <h2>{entry.title}</h2>
@@ -47,6 +48,7 @@ export const EntryCard: FC = (props) => {
           </a>
           <CardFooter entry={entry} cardDate={cardDate} />
         </section>
+      </article>
     </li>
   );
 };

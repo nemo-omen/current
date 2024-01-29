@@ -554,11 +554,17 @@ button:hover,
 /* ITEM CARD STYLES */
 
 .item-card {
+  container-name: item-card;
+  container-type: inline-size;
+}
+
+.item-container {
+  width: 100%;
+  align-items: center;
   height: min-content;
   display: flex;
   gap: 2rem;
   transition: all var(--transition);
-  /* width: min-content; */
 }
 
 .read {
@@ -574,17 +580,13 @@ button:hover,
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
-
-  &>* {
-    flex: 1;
-    max-height: 100%;
-  }
+  background: tomato;
 }
 
 .item-card-thumbnail,
 .thumbnail-placeholder {
   width: 300px;
+  height: auto;
   aspect-ratio: 16/9;
   border: 1px solid transparent;
   border-radius: 0.5rem;
@@ -628,11 +630,11 @@ button:hover,
 
   & h2 {
     max-width: 100cqi;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     /* overflow: visible; */
-    overflow-y: visible;
-    overflow-x: hidden;
-    text-overflow: ellipsis;
+    /* overflow-y: visible; */
+    /* overflow-x: hidden; */
+    /* text-overflow: ellipsis; */
   }
 }
 
@@ -701,7 +703,6 @@ button:hover,
 
   & .item-card-thumbnail,
   .thumbnail-placeholder {
-    height: 100cqh;
     border-color: var(--accent-alt-3);
   }
 }
