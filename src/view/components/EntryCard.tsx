@@ -5,10 +5,10 @@ export const EntryCard: FC = (props) => {
   const { entry } = props;
 
   let cardDate: Date | undefined;
-  if(entry.updated) {
-    cardDate = entry.updated;
-  } else if(entry.published) {
+  if(entry.published) {
     cardDate = entry.published;
+  } else if(entry.updated) {
+    cardDate = entry.updated;
   } else {
     cardDate = undefined;
   }
