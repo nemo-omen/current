@@ -45,16 +45,16 @@ export const MainSidebar: FC = () => {
         {userFeeds.map((feed) => {
           if(!feed.logo && !feed.icon) {
             return(<li>
-              <MenuLink href={`/app/feeds/${feed.title.split(' ').join('-').toLowerCase()}`} iconName="logo" text={feed.title} iconColor="complement" />
+              <MenuLink href={`/app/feeds/s/${feed.slug}`} current={current} iconName="logo" text={feed.title} iconColor="complement" />
             </li>)
           } else {
             if(feed.logo !== null) {
               return(<li>
-                <MenuLink href={`/app/feeds/${feed.title.split(' ').join('-').toLowerCase()}`} logoSrc={feed.logo.uri} text={feed.title} />
+                <MenuLink href={`/app/feeds/s/${feed.slug}`} current={current} logoSrc={feed.logo.uri} text={feed.title} />
               </li>)
             } else if(feed.icon !== null) {
               return(<li>
-                <MenuLink href={`/app/feeds/${feed.title.split(' ').join('-').toLowerCase()}`} logoSrc={feed.icon.uri} text={feed.title} />
+                <MenuLink href={`/app/feeds/s/${feed.slug}`} current={current} logoSrc={feed.icon.uri} text={feed.title} />
               </li>)
             }
           }

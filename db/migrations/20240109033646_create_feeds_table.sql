@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS
         siteLink VARCHAR(255),
         categories JSON,
         icon JSON,
-        logo JSON
+        logo JSON,
+        slug VARCHAR(255) UNIQUE NOT NULL
     );
 
 -- migrate:down

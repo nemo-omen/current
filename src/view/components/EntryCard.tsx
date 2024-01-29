@@ -1,7 +1,5 @@
 import { FC } from "hono/jsx";
 import { Icon } from "./Icon";
-import { html } from "hono/html";
-import { differenceInDays } from "date-fns";
 
 export const EntryCard: FC = (props) => {
   const { entry } = props;
@@ -100,7 +98,7 @@ export const EntryCard: FC = (props) => {
                 </a>
               </li>
               <li>
-                <button class={(entry.read ? "faded " : "") + "icon-link-button"}>
+                <button class={(entry.read ? "faded-2 " : "badge ") + "icon-link-button"}>
                   <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
                 </button>
               </li>

@@ -110,7 +110,8 @@ const insertFeedQuery = `
           siteLink,
           categories,
           icon,
-          logo
+          logo,
+          slug
         )
         VALUES (
           $id,
@@ -123,7 +124,8 @@ const insertFeedQuery = `
           $siteLink,
           $categories,
           $icon,
-          $logo
+          $logo,
+          $slug
         )
         ON CONFLICT (feedLink) DO NOTHING
         RETURNING id;
@@ -141,6 +143,7 @@ const feedQueryValues = (feedDTO: PersistanceFeedDTO) => {
     $siteLink: feedDTO.siteLink || null,
     $categories: feedDTO.categories || null,
     $icon: feedDTO.icon || null,
-    $logo: feedDTO.logo || null
+    $logo: feedDTO.logo || null,
+    $slug: feedDTO.slug || null,
   };
 };

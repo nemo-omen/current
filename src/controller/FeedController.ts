@@ -12,6 +12,9 @@ import { RssSource } from "../lib/types/RssSource";
 import { CurrentFeed } from "../model/CurrentFeed";
 import { SubscriptionService } from "../service/SubscriptionService";
 import { CollectionRepository } from "../repo/CollectionRepository";
+import { PostList } from "../view/pages/posts/PostList";
+import { FeedPage } from "../view/pages/feeds/FeedPage";
+import { CurrentEntry } from "../model/CurrentEntry";
 
 const app = new Hono();
 
@@ -28,6 +31,13 @@ const subscribeFormSchema = z.object({
  */
 app.get('/find', (c: Context) => {
   return Find(c);
+});
+
+app.get('/s/:slug', (c: Context) => {
+  let entries: CurrentEntry[] = [];
+  c.set('posts', entries);
+  c.set('pageTitle', 'Feed Page');
+  return FeedPage(c);
 });
 
 /**

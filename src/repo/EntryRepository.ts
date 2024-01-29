@@ -3,7 +3,6 @@ import { Result } from "../lib/types/Result";
 import { Repository } from "./Repository";
 import { Database } from 'bun:sqlite';
 
-
 export class EntryRepository implements Repository<CurrentEntry> {
   private _db: Database;
 
@@ -171,7 +170,8 @@ const insertEntryQuery = `
           media,
           feedTitle,
           feedLogo,
-          feedIcon
+          feedIcon,
+          slug
         )
         VALUES (
           $id,
@@ -188,7 +188,8 @@ const insertEntryQuery = `
           $media,
           $feedTitle,
           $feedLogo,
-          $feedIcon
+          $feedIcon,
+          $slug
         )
         ON CONFLICT (rssId) DO NOTHING
         RETURNING *;
@@ -210,7 +211,8 @@ const updateEntryQuery = `
             media = $media,
             feedTitle = $feedTitle,
             feedLogo = $feedLogo,
-            feedIcon = $feedIcon
+            feedIcon = $feedIcon,
+            slug = $slug
           WHERE
             id = $id;
 `;
@@ -232,6 +234,7 @@ const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
     $media: entryDTO.media || null,
     $feedTitle: entryDTO.feedTitle || null,
     $feedLogo: entryDTO.feedLogo || null,
-    $feedIcon: entryDTO.feedIcon || null
+    $feedIcon: entryDTO.feedIcon || null,
+    $slug: entryDTO.slug || null,
   };
 };

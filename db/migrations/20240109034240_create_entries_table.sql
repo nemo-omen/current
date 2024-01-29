@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS
         feedLogo JSON,
         feedIcon JSON,
         feedTitle VARCHAR(255),
+        slug VARCHAR(255),
         FOREIGN KEY (feedId) REFERENCES feeds (id) ON DELETE CASCADE
     );
 

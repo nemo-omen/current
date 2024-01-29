@@ -567,28 +567,31 @@ button:hover,
     /* position: absolute; */
     /* top: 0.225rem; */
     /* right: 0; */
-    width: 0.75rem;
-    height: 0.75rem;
+    /* width: 1em;
+    height: 1em; */
+    transform: scale3d(0.5, 0.5, 1);
     border-radius: 50%;
     background-color: var(--hover);
+    transform-origin: center;
   }
 
   & .badge .icon {
     opacity: 0;
-    width: 1px;
-    height: 1px;
+    transform-origin: center;
+    transform: scale3d(0, 0, 1);
+    transition: all var(--transition);
   }
 
   & .badge:hover {
     width: 1em;
     height: 1em;
     background-color: transparent;
+    transform: scale3d(1, 1, 1);
   }
 
   & .badge:hover .icon {
     opacity: 1;
-    width: 1em;
-    height: 1em;
+    transform: scale3d(1, 1, 1);
     fill: var(--accent-alt);
   }
 }
@@ -812,8 +815,32 @@ button:hover,
   }
 }
 
-.faded {
+.faded-1,
+.faded-2,
+.faded-3 {
+  transition: var(--transition);
+}
+
+.faded-1 {
   opacity: 0.6;
+}
+
+.faded-2 {
+  opacity: 0.4;
+}
+
+.faded-3 {
+  opacity: 0.2;
+}
+
+.faded-1:hover,
+.faded-2:hover,
+.faded-3:hover {
+  opacity: 1;
+}
+
+.transparent {
+  opacity: 0;
 }
 
 /* 

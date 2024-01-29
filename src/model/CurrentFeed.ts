@@ -1,5 +1,6 @@
 import { Entry, Feed, FeedType, Image } from "@nooptoday/feed-rs";
 import { PersistanceEntryDTO, CurrentEntry, CurrentEntryDTO } from "./CurrentEntry";
+import kebabCase from 'just-kebab-case';
 
 export interface FeedProps {
   id: string,
@@ -14,6 +15,7 @@ export interface FeedProps {
   icon?: Image,
   logo?: Image,
   entries?: CurrentEntry[];
+  slug?: string;
 }
 
 export class CurrentFeed {
@@ -71,6 +73,10 @@ export class CurrentFeed {
     return this.props.feedType;
   }
 
+  get slug() {
+    return this.props.slug;
+  }
+
   addEntry(e: Entry): void {
 
   }
@@ -114,6 +120,7 @@ export class CurrentFeed {
       categories: feed.categories.map((c) => c.term),
       icon: feed.icon,
       logo: feed.logo,
+      slug: kebabCase(feed.title!.content) || '',
       entries: feed.entries.map((e) => CurrentEntry.fromRemote(
         e,
         id,
@@ -138,6 +145,7 @@ export interface PersistanceFeedDTO {
   categories?: string,
   icon?: string,
   logo?: string,
+  slug?: string,
   entries?: PersistanceEntryDTO[];
 }
 
@@ -153,5 +161,6 @@ export interface CurrentFeedDTO {
   categories?: string,
   icon?: string,
   logo?: string,
+  slug?: string,
   entries?: CurrentEntryDTO[];
 }

@@ -1,6 +1,7 @@
 import { Content, Entry, MediaObject, Person } from "@nooptoday/feed-rs";
 import { parse as parseHtml } from 'node-html-parser';
 import { Image } from '@nooptoday/feed-rs';
+import kebabCase from "just-kebab-case";
 export type CurrentEntryProps = {
   id: string,
   rssId?: string,
@@ -25,6 +26,7 @@ export type CurrentEntryProps = {
   feedLogo?: Image,
   feedIcon?: Image,
   read?: boolean;
+  slug?: string;
 };
 
 export class CurrentEntry {
@@ -96,6 +98,10 @@ export class CurrentEntry {
 
   get read(): boolean | undefined {
     return this.props.read;
+  }
+
+  get slug(): string | undefined {
+    return this.props.slug;
   }
 
   set read(read: boolean) {
@@ -193,6 +199,7 @@ export class CurrentEntry {
       feedTitle,
       feedLogo,
       feedIcon,
+      slug: kebabCase(entry.title!.content)
     };
     return new CurrentEntry(props);
   }
@@ -229,6 +236,7 @@ export interface PersistanceEntryDTO {
   feedTitle?: string,
   feedIcon?: string,
   read?: boolean;
+  slug?: string;
 };
 
 export interface CurrentEntryDTO {
@@ -248,4 +256,5 @@ export interface CurrentEntryDTO {
   feedTitle: string,
   feedIcon?: Image,
   read?: boolean;
+  slug?: string;
 };
