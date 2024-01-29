@@ -15,6 +15,7 @@ import { CollectionRepository } from "../repo/CollectionRepository";
 import { PostList } from "../view/pages/posts/PostList";
 import { FeedPage } from "../view/pages/feeds/FeedPage";
 import { CurrentEntry } from "../model/CurrentEntry";
+import { EntryRepository } from "../repo/EntryRepository";
 
 const app = new Hono();
 
@@ -34,8 +35,35 @@ app.get('/find', (c: Context) => {
 });
 
 app.get('/s/:slug', (c: Context) => {
-  let entries: CurrentEntry[] = [];
-  c.set('posts', entries);
+  const session = c.get('session');
+  const slug = c.req.param('slug');
+  const user = session.get('user');
+  const feedRepo = new FeedRepository(db);
+  const entryRepo = new EntryRepository(db);
+  const collectionRepo = new CollectionRepository(db);
+  const feedResponse = feedRepo.findBySlug(slug);
+
+  if (!feedResponse.ok) {
+    session.flash('There was an error getting the feed.');
+    return FeedPage(c);
+  }
+
+  const entriesResponse = entryRepo.findByFeedId(feedResponse.data.id);
+
+  if (!entriesResponse.ok) {
+    session.flash("There was an error getting the feed's entries.");
+    return FeedPage(c);
+  }
+
+  const entries: CurrentEntry[] = entriesResponse?.data.map((entry) => {
+    const isRead = collectionRepo.isEntryInCollection(entry.id, user.id, 'Read');
+    entry.read = isRead;
+    return entry;
+  });
+
+  feedResponse.data.entries = entries ?? [];
+
+  c.set('feed', feedResponse.data);
   c.set('pageTitle', 'Feed Page');
   return FeedPage(c);
 });

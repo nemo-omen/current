@@ -28,85 +28,25 @@ export const EntryCard: FC = (props) => {
   // }
 
   return(
-    <li class="item-card">
-      <a href={`/app/posts/${entry.id}`} class="cover-link">
-      {/* TODO: Replace bolt icon with site favicon, if possible */}
-      {
+    <li class={(entry.read ? "read " : "") + "item-card"}>
+      <a href={`/app/posts/${entry.id}`}>
         <CardThumbnail 
           media={entry.media}
           logo={entry.feedLogo}
           icon={entry.feedIcon}
           title={entry.title}
           feedTitle={entry.feedTitle}
-        />
-      }
-      <section class="item-card-content">
-        {/* <div class="item-card-header"> */}
-          <h2>{entry.title}</h2>
-        {/* </div> */}
-        <p class="item-card-text">
-          {summary}
-        </p>
-        <div class="item-card-footer">
-          <div class="item-card-footer-meta item-card-footer-row">
-            <div class="item-card-footer-title-container">
-              <h3 class="item-card-footer-title">{entry.feedTitle}</h3>
-            </div>
-            <time>
-              {
-                cardDate 
-                  ? cardDate.toLocaleDateString(
-                      'en-US',
-                      {
-                        month: 'numeric',
-                        day: 'numeric',
-                        // weekday: 'long',
-                        year: 'numeric'
-                      }
-                  ) 
-                  : ''
-              }
-            </time>
-          </div>
-          <div class="item-card-footer-actions item-card-footer-row">
-            {/* TODO: Make this a nav? */}
-            <ul class="item-card-menu">
-              <li>
-                <a class="icon-link" href={`/items/tags/${entry.id}`}>
-                  <Icon name="tag" />
-                </a>
-              </li>
-              <li>
-                <form action="/items/read-later/" method="post">
-                  <input type="hidden" name="readLaterId" />
-                  <button class="icon-link-button" type="submit">
-                    <Icon name="stopwatch" />
-                  </button>
-                </form>
-              </li>
-              <li>
-                <form action="/items/bookmark" method="post">
-                  <input type="hidden" name="bookmarkId" />
-                  <button class="icon-link-button" type="submit">
-                    <Icon name="bookmark" />
-                  </button>
-                </form>
-              </li>
-              <li>
-                <a class="icon-link" href={`/items/collect/${entry.id}`}>
-                  <Icon name="folder_add" />
-                </a>
-              </li>
-              <li>
-                <button class={(entry.read ? "faded-2 " : "badge ") + "icon-link-button"}>
-                  <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
+          />
       </a>
+        <section class="item-card-content">
+          <a href={`/app/posts/${entry.id}`}>
+            <h2>{entry.title}</h2>
+            <p class="item-card-text">
+              {summary}
+            </p>
+          </a>
+          <CardFooter entry={entry} cardDate={cardDate} />
+        </section>
     </li>
   );
 };
@@ -155,4 +95,72 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
       }
     </div>
   );
+}
+
+const CardFooter: FC = ({entry, cardDate}) => {
+  return (
+    <div class="item-card-footer">
+      <div class="item-card-footer-meta item-card-footer-row">
+        <div class="item-card-footer-title-container">
+          <h3 class="item-card-footer-title">{entry.feedTitle}</h3>
+        </div>
+        <time>
+          {
+            cardDate 
+              ? cardDate.toLocaleDateString(
+                  'en-US',
+                  {
+                    month: 'numeric',
+                    day: 'numeric',
+                    // weekday: 'long',
+                    year: 'numeric'
+                  }
+              ) 
+              : ''
+          }
+        </time>
+      </div>
+      <div class="item-card-footer-actions item-card-footer-row">
+        <CardMenu entry={entry} />
+      </div>
+    </div>
+  )
+}
+
+const CardMenu: FC = ({entry}) => {
+  return (
+    <ul class="item-card-menu">
+      <li>
+        <a class="icon-link" href={`/items/tags/${entry.id}`}>
+          <Icon name="tag" />
+        </a>
+      </li>
+      <li>
+        <form action="/items/read-later/" method="post">
+          <input type="hidden" name="readLaterId" />
+          <button class="icon-link-button" type="submit">
+            <Icon name="stopwatch" />
+          </button>
+        </form>
+      </li>
+      <li>
+        <form action="/items/bookmark" method="post">
+          <input type="hidden" name="bookmarkId" />
+          <button class="icon-link-button" type="submit">
+            <Icon name="bookmark" />
+          </button>
+        </form>
+      </li>
+      <li>
+        <a class="icon-link" href={`/items/collect/${entry.id}`}>
+          <Icon name="folder_add" />
+        </a>
+      </li>
+      <li>
+        <button class="icon-link-button">
+          <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
+        </button>
+      </li>
+    </ul>
+  )
 }

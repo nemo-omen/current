@@ -41,6 +41,10 @@ export class CurrentFeed {
     return this.props.entries || [];
   }
 
+  set entries(entries: CurrentEntry[]) {
+    this.props.entries = entries;
+  }
+
   get icon(): Image | undefined {
     return this.props.icon;
   }

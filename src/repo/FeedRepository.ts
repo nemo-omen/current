@@ -67,6 +67,22 @@ export class FeedRepository implements Repository<CurrentFeed> {
     return { ok: true, data: null };
   }
 
+  findBySlug(slug: string): Result<CurrentFeed> {
+    const query = this._db.query(`SELECT * FROM feeds WHERE slug=$slug`);
+    let queryResult: PersistanceFeedDTO | undefined = undefined;
+    try {
+      queryResult = query.get({ $slug: slug }) as PersistanceFeedDTO;
+    } catch (err) {
+      return { ok: false, error: `Error getting feed: ${String(err)}` };
+    }
+
+    if (!queryResult) {
+      return { ok: false, error: `Could not find feed with slug ${slug}` };
+    }
+
+    return { ok: true, data: CurrentFeed.fromPersistance(queryResult) };
+  }
+
   findAll(): Result<CurrentFeed[]> {
     return { ok: false, error: 'Not implemented' };
   }
