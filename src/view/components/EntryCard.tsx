@@ -12,6 +12,12 @@ export const EntryCard: FC = (props) => {
   } else {
     cardDate = undefined;
   }
+  const dateString = cardDate 
+    ? cardDate.toLocaleDateString(
+      'en-US',
+      {month: 'numeric',day: 'numeric',year: 'numeric'}
+    ) 
+    : '';
 
   let summary: string = '';
   if(entry.summary) {
@@ -21,11 +27,6 @@ export const EntryCard: FC = (props) => {
       summary = entry.summary;
     }
   }
-  // if(enclosure) {
-  //   if(enclosure.type.startsWith('image')) {
-  //     image = enclosure.url
-  //   }
-  // }
 
   return(
     <li class={(entry.read ? "read " : "") + "item-card"}>
@@ -42,6 +43,10 @@ export const EntryCard: FC = (props) => {
         <section class="item-card-content">
           <a href={`/app/posts/${entry.id}`}>
             <h2>{entry.title}</h2>
+            <div class="item-card-row">
+              <time>{dateString}</time>
+              <h3 class="item-card-feed-title">{entry.feedTitle}</h3>
+            </div>
             <p class="item-card-text">
               {summary}
             </p>
@@ -102,29 +107,7 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
 const CardFooter: FC = ({entry, cardDate}) => {
   return (
     <div class="item-card-footer">
-      <div class="item-card-footer-meta item-card-footer-row">
-        <div class="item-card-footer-title-container">
-          <h3 class="item-card-footer-title">{entry.feedTitle}</h3>
-        </div>
-        <time>
-          {
-            cardDate 
-              ? cardDate.toLocaleDateString(
-                  'en-US',
-                  {
-                    month: 'numeric',
-                    day: 'numeric',
-                    // weekday: 'long',
-                    year: 'numeric'
-                  }
-              ) 
-              : ''
-          }
-        </time>
-      </div>
-      <div class="item-card-footer-actions item-card-footer-row">
-        <CardMenu entry={entry} />
-      </div>
+      <CardMenu entry={entry} />
     </div>
   )
 }

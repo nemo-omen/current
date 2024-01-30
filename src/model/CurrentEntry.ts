@@ -169,11 +169,11 @@ export class CurrentEntry {
       }
     }
 
-    if (summary) {
-      if (summary.length > 128) {
-        summary = summary.substring(0, 125) + '...';
-      }
-    }
+    // if (summary) {
+    //   if (summary.length > 256) {
+    //     summary = summary.substring(0, 253) + '...';
+    //   }
+    // }
 
     if (entry.published) {
       pubDate = entry.published;
