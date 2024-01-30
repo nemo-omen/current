@@ -43,14 +43,16 @@ export const EntryCard: FC = (props) => {
         <section class="item-card-content">
           <a href={`/app/posts/${entry.id}`}>
             <h2>{entry.title}</h2>
+          </a>
             <div class="item-card-row">
               <time>{dateString}</time>
               <h3 class="item-card-feed-title">{entry.feedTitle}</h3>
             </div>
-            <p class="item-card-text">
-              {summary}
-            </p>
-          </a>
+            <a href={`/app/posts/${entry.id}`} class="item-card-text">
+              {/* <p> */}
+                {summary}
+              {/* </p> */}
+            </a>
           <CardFooter entry={entry} cardDate={cardDate} />
         </section>
       </article>
@@ -124,18 +126,19 @@ const CardMenu: FC = ({entry}) => {
         <form action="/items/read-later/" method="post">
           <input type="hidden" name="readLaterId" />
           <button class="icon-link-button" type="submit">
-            <Icon name="stopwatch" />
+            <Icon name="bookmark" />
+            {/* <Icon name="stopwatch" /> */}
           </button>
         </form>
       </li>
-      <li>
+      {/* <li>
         <form action="/items/bookmark" method="post">
           <input type="hidden" name="bookmarkId" />
           <button class="icon-link-button" type="submit">
             <Icon name="bookmark" />
           </button>
         </form>
-      </li>
+      </li> */}
       <li>
         <a class="icon-link" href={`/items/collect/${entry.id}`}>
           <Icon name="folder_add" />

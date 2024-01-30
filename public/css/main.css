@@ -566,7 +566,7 @@ button:hover,
 
 .item-card {
   width: min(var(--content-width), 100cqi);
-  height: 200px;
+  height: 256px;
   container-name: item-card;
   container-type: size;
   /* border: 1px solid var(--accent-alt-1); */
@@ -595,7 +595,7 @@ button:hover,
 
 .post-thumbnail-container {
   overflow: hidden;
-  aspect-ratio: 16/9;
+  aspect-ratio: 5/4;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -607,9 +607,9 @@ button:hover,
 }
 
 .item-card-thumbnail {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
-  width: 100%;
+  max-height: 100%;
 }
 
 .thumbnail-placeholder {
@@ -631,20 +631,25 @@ button:hover,
 .item-card-content {
   container-name: card-content;
   container-type: inline-size;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  /* padding: 1rem; */
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  width: 100cqi;
+  max-height: 100cqh;
+  gap: 0.5rem;
 
   & .item-card-text {
-    flex-grow: 1;
+    overflow-y: hidden;
+    text-overflow: ellipsis;
+    width: 100cqi;
+
+    /* & p {
+    } */
   }
 
   & h2 {
+    max-width: unset;
     max-width: 100cqi;
-    white-space: nowrap;
     line-height: 1.3;
-    overflow-x: hidden;
     text-overflow: ellipsis;
     font-size: 1.3rem;
     margin-bottom: 0.25rem;
@@ -655,6 +660,7 @@ button:hover,
   margin-top: auto;
   display: flex;
   justify-content: flex-end;
+  width: 100cqi;
 }
 
 .item-card-row {
@@ -829,6 +835,20 @@ button:hover,
     width: 100cqi;
     height: auto;
   }
+
+  .item-card-thumbnail {
+    object-fit: cover;
+    object-position: top;
+    max-height: unset;
+    width: 100%;
+    /* max-height: 100%; */
+  }
+}
+
+@container item-card (max-width: 850px) {
+  .post-thumbnail-container {
+    aspect-ratio: 5 / 4;
+  }
 }
 
 @container item-card (max-width: 736px) {
@@ -839,6 +859,7 @@ button:hover,
 
     .post-thumbnail-container {
       height: 150px;
+      aspect-ratio: unset;
     }
   }
 

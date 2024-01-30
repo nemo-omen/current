@@ -111,9 +111,7 @@ export class CurrentEntry {
   toPersistance(): PersistanceEntryDTO {
     return {
       ...this.props,
-      summary: this.props.summary!.length > 128
-        ? this.props.summary!.substring(0, 125) + '...'
-        : this.props.summary,
+      summary: this.props.summary,
       published: this.props.published?.toISOString(),
       updated: this.props.updated?.toISOString(),
       authors: JSON.stringify(this.props.authors),
