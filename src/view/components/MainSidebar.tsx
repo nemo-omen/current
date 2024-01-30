@@ -25,7 +25,8 @@ export const MainSidebar: FC = () => {
           <MenuLink href="/app/collections/unread" current={current} iconName="inbox" text="Unread" />
         </li>
         <li>
-          <MenuLink href="/app/collections/read-later" current={current} iconName="stopwatch" text="Read Later" />
+          <MenuLink href="/app/collections/read-later" current={current} iconName="bookmark" text="Read Later" />
+          {/* <MenuLink href="/app/collections/read-later" current={current} iconName="stopwatch" text="Read Later" /> */}
         </li>
         {/* <li>
           <MenuLink href="/app/collections/saved" current={current} iconName="bookmark" text="Saved" />
