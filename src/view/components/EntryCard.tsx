@@ -32,7 +32,8 @@ export const EntryCard: FC = (props) => {
     <li class={(entry.read ? "read " : "") + "item-card"}>
       <article class="item-container">
         <a href={`/app/posts/${entry.id}`}>
-          <CardThumbnail 
+          <CardThumbnail
+            featuredImage={entry.featuredImage}
             media={entry.media}
             logo={entry.feedLogo}
             icon={entry.feedIcon}
@@ -60,7 +61,7 @@ export const EntryCard: FC = (props) => {
   );
 };
 
-const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
+const CardThumbnail: FC = ({featuredImage, media, logo, icon, title, feedTitle}) => {
   let mediaContent, feedLogo, feedIcon = undefined;
   if(media) {
     if(media.length > 0) {
@@ -77,19 +78,20 @@ const CardThumbnail: FC = ({media, logo, icon, title, feedTitle}) => {
     feedIcon = icon;
   }
 
-  // console.log({mediaContent});
-  // console.log({feedLogo});
-  // console.log({feedIcon});
-
   let image: {src: string, alt: string} | undefined = undefined;
 
-  if(mediaContent) {
-    if(mediaContent.contentType) {
-      if(mediaContent.contentType.startsWith('image')) {
-        image = {src: mediaContent.url, alt: title}
+  if(featuredImage) {
+    image = {src: featuredImage, alt: title};
+  } else {
+    if(mediaContent) {
+      if(mediaContent.contentType) {
+        if(mediaContent.contentType.startsWith('image')) {
+          image = {src: mediaContent.url, alt: title}
+        }
       }
     }
   }
+
 
   // TODO: Return different media representations
   //       depending on contentType

@@ -146,6 +146,13 @@
   box-sizing: border-box;
 }
 
+*:focus {
+  outline: 1px solid var(--accent-alt);
+  outline-offset: 2px;
+  border-radius: 0;
+  /* outline-offset: 0px; */
+}
+
 html,
 body {
   background-color: var(--background);
@@ -312,7 +319,7 @@ a,
   font-size: 1rem;
   text-decoration: none;
   cursor: pointer;
-  transition: all var(--transition);
+  transition: color var(--transition);
   font-weight: normal;
   padding: 0;
   margin: 0;
@@ -403,7 +410,10 @@ input {
   outline-color: var(--accent-alt-2);
   font-size: 1rem;
   padding: 0.5em;
-  transition: all var(--transition);
+  transition:
+    background-color var(--transition),
+    outline-color var(--transition),
+    border-color var(--transition);
   color: var(--foreground);
 }
 
@@ -445,7 +455,9 @@ button,
   border: none;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition);
+  transition:
+    background-color var(--transition),
+    color var(--transition);
   border-radius: 0.5em;
 }
 
@@ -572,6 +584,7 @@ button:hover,
   /* border: 1px solid var(--accent-alt-1); */
   border-radius: 1rem;
   padding: 1rem;
+  overflow: hidden;
   /* background-color: var(--background-1); */
   transition: opacity var(--transition), background-color var(--transition);
   /* transition: opacity var(--transition), border-color var(--transition); */
@@ -581,7 +594,6 @@ button:hover,
   width: 100%;
   display: flex;
   gap: 1rem;
-  overflow: hidden;
 }
 
 .read {
@@ -601,9 +613,10 @@ button:hover,
   align-items: flex-start;
   border-radius: 0.5rem;
   height: 100cqh;
-  /* width: 33.33cqw; */
-  transition: opacity var(--transition);
+  border: 1px solid transparent;
+  transition: opacity var(--transition), border-color var(--transition);
   opacity: 0.9;
+  background-color: var(--background-1);
 }
 
 .item-card-thumbnail {
@@ -686,7 +699,7 @@ button:hover,
   padding: 0;
   opacity: 0;
   transform: translateX(2rem);
-  transition: all var(--transition);
+  transition: transform var(--transition);
 }
 
 .item-card-menu li {
@@ -699,7 +712,7 @@ button:hover,
 
 /* ITEM CARD HOVER STYLES */
 
-.item-card:has(a:hover, button:hover) {
+.item-card:has(a:hover, button:hover, *:focus) {
   color: var(--foreground);
   background-color: var(--background-1);
 
@@ -716,11 +729,13 @@ button:hover,
   opacity: 1.0;
 }
 
-.item-card:hover {
+.item-card:hover,
+.item-card:focus-within {
   border-color: var(--accent-alt-3);
 
   & .post-thumbnail-container {
     opacity: 1.0;
+    border-color: var(--accent-alt-3);
   }
 
   & .thumbnail-placeholder,

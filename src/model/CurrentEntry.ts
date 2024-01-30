@@ -205,7 +205,6 @@ export class CurrentEntry {
       featuredImage: featuredImgSrc
     };
 
-    console.log(props);
     return new CurrentEntry(props);
   }
 }
