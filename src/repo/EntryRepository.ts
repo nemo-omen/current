@@ -171,7 +171,8 @@ const insertEntryQuery = `
           feedTitle,
           feedLogo,
           feedIcon,
-          slug
+          slug,
+          featuredImage
         )
         VALUES (
           $id,
@@ -189,7 +190,8 @@ const insertEntryQuery = `
           $feedTitle,
           $feedLogo,
           $feedIcon,
-          $slug
+          $slug,
+          $featuredImage
         )
         ON CONFLICT (rssId) DO NOTHING
         RETURNING *;
@@ -212,7 +214,8 @@ const updateEntryQuery = `
             feedTitle = $feedTitle,
             feedLogo = $feedLogo,
             feedIcon = $feedIcon,
-            slug = $slug
+            slug = $slug,
+            featuredImage = $featuredImage
           WHERE
             id = $id;
 `;
@@ -236,5 +239,6 @@ const entryQueryValues = (entryDTO: PersistanceEntryDTO) => {
     $feedLogo: entryDTO.feedLogo || null,
     $feedIcon: entryDTO.feedIcon || null,
     $slug: entryDTO.slug || null,
+    $featuredImage: entryDTO.featuredImage || null
   };
 };

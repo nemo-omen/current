@@ -27,6 +27,7 @@ export type CurrentEntryProps = {
   feedIcon?: Image,
   read?: boolean;
   slug?: string;
+  featuredImage?: string;
 };
 
 export class CurrentEntry {
@@ -104,6 +105,10 @@ export class CurrentEntry {
     return this.props.slug;
   }
 
+  get featuredImage(): string | undefined {
+    return this.props.featuredImage;
+  }
+
   set read(read: boolean) {
     this.props.read = read;
   }
@@ -152,6 +157,7 @@ export class CurrentEntry {
     const id = idHash.digest("hex");
     let summary: string | undefined = undefined;
     let pubDate: Date | undefined = undefined;
+    let featuredImgSrc: string | undefined = undefined;
 
     if (entry.summary) {
       if (entry.summary.contentType === 'text/html') {
@@ -167,11 +173,9 @@ export class CurrentEntry {
       }
     }
 
-    // if (summary) {
-    //   if (summary.length > 256) {
-    //     summary = summary.substring(0, 253) + '...';
-    //   }
-    // }
+    if (entry.content) {
+      featuredImgSrc = getFeaturedImgFromContent(entry.content);
+    }
 
     if (entry.published) {
       pubDate = entry.published;
@@ -197,8 +201,11 @@ export class CurrentEntry {
       feedTitle,
       feedLogo,
       feedIcon,
-      slug: kebabCase(entry.title!.content)
+      slug: kebabCase(entry.title!.content),
+      featuredImage: featuredImgSrc
     };
+
+    console.log(props);
     return new CurrentEntry(props);
   }
 }
@@ -215,6 +222,32 @@ function makeSummaryFromContent(html: string): string {
     return p.innerText;
   }
   return '';
+}
+
+function getFeaturedImgFromContent(content?: Content): string | undefined {
+  if (!content) {
+    return undefined;
+  }
+
+  const { body, contentType } = content;
+  if (!contentType || contentType !== 'text/html') {
+    return undefined;
+  }
+
+  const document = parseHtml(body);
+  // will stop at the first image, 
+  // which is really all we need.
+  const img = document.querySelector('img');
+  if (!img) {
+    return undefined;
+  }
+
+  const src = img.getAttribute('src');
+  if (!src) {
+    return undefined;
+  }
+
+  return src;
 }
 
 export interface PersistanceEntryDTO {
@@ -235,6 +268,7 @@ export interface PersistanceEntryDTO {
   feedIcon?: string,
   read?: boolean;
   slug?: string;
+  featuredImage?: string;
 };
 
 export interface CurrentEntryDTO {
@@ -255,4 +289,5 @@ export interface CurrentEntryDTO {
   feedIcon?: Image,
   read?: boolean;
   slug?: string;
+  featuredImage?: string;
 };
