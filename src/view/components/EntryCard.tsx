@@ -147,9 +147,9 @@ const CardMenu: FC = ({entry}) => {
         </form>
       </li>
       <li class="tooltip-container">
-        <form action={entry.read ? "/app/collections/remove-entry" : "/app/collections/add-entry"} method="post">
+        <form action="/app/collections/add-entry" method="post">
           <input type="hidden" name="entryId" value={entry.id} />
-          <input type="hidden" name="collectionName" value="Read" />
+          <input type="hidden" name="collectionName" value={entry.read ? "Unread" : "Read"} />
           <button class="icon-link-button" aria-label={entry.read ? "Mark Unread" : "Mark Read"}>
             <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
           </button>

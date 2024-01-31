@@ -142,16 +142,46 @@ app.get('/user/:slug', (c: Context) => {
 });
 
 app.post('/add-entry', async (c: Context) => {
+  const session = c.get('session');
+  const user = session.get('user');
   const formData = await c.req.formData();
+  let redirectTarget = c.req.header('referer') as string;
+  const collectionRepo = new CollectionRepository(db);
+
+  const entryId: string | null = formData.get('entryId') as string;
+  const collectionName: string | null = formData.get('collectionName') as string;
   // validation -- need entryId, collectionName
-  console.log({ formData });
-  // probably need to redirect to collection
-  // page => /user/:slug
-  c.set('posts', []);
-  c.set('pageTitle', 'Your personal collection');
-  c.set('collectionTitle', 'Your personal collection');
-  // return CollectionList(c);
-  return c.redirect('/app');
+
+  if (!entryId) {
+    session.flash('error', 'No entry id provided.');
+    return c.redirect(redirectTarget);
+  }
+
+  if (!collectionName) {
+    session.flash('error', 'No collection name provided.');
+    return c.redirect(redirectTarget);
+  }
+
+  const addEntryResponse = collectionRepo.addEntryToCollectionByTitle(entryId, collectionName);
+
+  if (!addEntryResponse.ok) {
+    session.flash('error', `There was an error adding the post to ${collectionName}`);
+  }
+
+  if (collectionName === 'Read') {
+    // remove entry from 'Unread'
+    // TODO: Might want to wrap these in a transaction and add them to their own route
+    const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, 'Unread');
+  }
+
+  if (collectionName === 'Unread') {
+    // Remove collection from 'Read'
+    const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, 'Read');
+  }
+
+  console.log({ redirectTarget });
+
+  return c.redirect(redirectTarget ? redirectTarget : '/app');
 });
 
 app.post('/remove-entry', async (c: Context) => {
