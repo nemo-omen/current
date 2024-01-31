@@ -125,31 +125,32 @@ const CardMenu: FC = ({entry}) => {
         </a>
       </li>
       <li>
-        <form action="/items/read-later/" method="post">
-          <input type="hidden" name="readLaterId" />
+        <form action="/app/collections/add-entry" method="post">
+          <input type="hidden" name="entryId" value={entry.id} />
+          <input type="hidden" name="collectionName" value="Read Later" />
           <button class="icon-link-button" type="submit">
             <Icon name="bookmark" />
             {/* <Icon name="stopwatch" /> */}
           </button>
         </form>
       </li>
-      {/* <li>
-        <form action="/items/bookmark" method="post">
-          <input type="hidden" name="bookmarkId" />
-          <button class="icon-link-button" type="submit">
-            <Icon name="bookmark" />
-          </button>
-        </form>
-      </li> */}
       <li>
-        <a class="icon-link" href={`/items/collect/${entry.id}`}>
+        <form action="/app/collections/add-entry" method="post">
+        <input type="hidden" name="entryId" value={entry.id} />
+        <input type="hidden" name="collectionName" value="Some New Collection" />
+        <button class="icon-link-button" type="submit">
           <Icon name="folder_add" />
-        </a>
+        </button>
+        </form>
       </li>
       <li>
-        <button class="icon-link-button">
-          <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
-        </button>
+        <form action={entry.read ? "/app/collections/remove-entry" : "/app/collections/add-entry"} method="post">
+          <input type="hidden" name="entryId" value={entry.id} />
+          <input type="hidden" name="collectionName" value="Read" />
+          <button class="icon-link-button">
+            <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
+          </button>
+        </form>
       </li>
     </ul>
   )

@@ -137,24 +137,30 @@ app.get('/new', (c: Context) => {
 app.get('/user/:slug', (c: Context) => {
   c.set('pageTitle', 'Your personal collection');
   c.set('collectionTitle', 'Your personal collection');
-  return CollectionList(c);
+  // return CollectionList(c);
+  return c.redirect('/app');
 });
 
-app.post('/add-entry', (c: Context) => {
+app.post('/add-entry', async (c: Context) => {
+  const formData = await c.req.formData();
   // validation -- need entryId, collectionName
-  console.log(c.req.formData());
+  console.log({ formData });
   // probably need to redirect to collection
   // page => /user/:slug
+  c.set('posts', []);
   c.set('pageTitle', 'Your personal collection');
   c.set('collectionTitle', 'Your personal collection');
-  return CollectionList(c);
+  // return CollectionList(c);
+  return c.redirect('/app');
 });
 
-app.post('/remove-entry', (c: Context) => {
+app.post('/remove-entry', async (c: Context) => {
+  const formData = await c.req.formData();
   // validation -- need entryId, collectionName
-  console.log(c.req.formData());
+  console.log({ formData });
   // probably need to redirect to collection
   // page => /user/:slug
+  c.set('posts', []);
   c.set('pageTitle', 'Your personal collection');
   c.set('collectionTitle', 'Your personal collection');
   return CollectionList(c);
