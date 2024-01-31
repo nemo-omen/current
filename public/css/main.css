@@ -201,6 +201,27 @@ header {
   display: flex;
   justify-content: space-between;
 
+  & .flash {
+    flex: 1;
+  }
+
+  & .header-container {
+    width: var(--content-width);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* justify-content: space-between; */
+    margin-inline: auto;
+    background: tomato;
+  }
+
+  & .header-control {
+    font-size: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    justify-self: end;
+  }
+
   & nav ul {
     display: flex;
     gap: 1rem;

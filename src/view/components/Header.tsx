@@ -27,15 +27,31 @@ const BaseHeader: FC = ({children}) => {
           Current
         </a>
 
-      <div class="header-inner flash">
-        {error && <p class="flash error">{error}</p>}
-        {message && <p class="flash message">{message}</p>}
-      </div>
+        <div class="header-container">
+          <HeaderControl />
+
+          <div class="flash">
+            {error && <p class="flash error">{error}</p>}
+            {message && <p class="flash message">{message}</p>}
+          </div>
+        </div>
+
         <nav aria-label="main">
           {children}
         </nav>
       </div>
     </header>
+  )
+}
+
+const HeaderControl: FC = (props) => {
+  const c = useRequestContext();
+  return (
+    <div class="header-control">
+      <button class="icon-link-button">
+        <Icon name="checkbox_circle_outline" />
+      </button>
+    </div>
   )
 }
 
