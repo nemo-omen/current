@@ -119,37 +119,41 @@ const CardFooter: FC = ({entry, cardDate}) => {
 const CardMenu: FC = ({entry}) => {
   return (
     <ul class="item-card-menu">
-      <li>
-        <a class="icon-link" href={`/items/tags/${entry.id}`}>
+      <li class="tooltip-container">
+        <a class="icon-link" href={`/items/tags/${entry.id}`} aria-label="Add Tags">
           <Icon name="tag" />
         </a>
+        <span role="status" class="tooltip">Add Tags</span>
       </li>
-      <li>
+      <li class="tooltip-container">
         <form action="/app/collections/add-entry" method="post">
           <input type="hidden" name="entryId" value={entry.id} />
           <input type="hidden" name="collectionName" value="Read Later" />
-          <button class="icon-link-button" type="submit">
+          <button class="icon-link-button" type="submit" aria-label="Bookmark Post">
             <Icon name="bookmark" />
             {/* <Icon name="stopwatch" /> */}
           </button>
+        <span role="status" class="tooltip">Bookmark Post</span>
         </form>
       </li>
-      <li>
+      <li class="tooltip-container">
         <form action="/app/collections/add-entry" method="post">
         <input type="hidden" name="entryId" value={entry.id} />
         <input type="hidden" name="collectionName" value="Some New Collection" />
-        <button class="icon-link-button" type="submit">
+        <button class="icon-link-button" type="submit" aria-label="Add to Collection">
           <Icon name="folder_add" />
         </button>
+        <span role="status" class="tooltip">Add to Collection</span>
         </form>
       </li>
-      <li>
+      <li class="tooltip-container">
         <form action={entry.read ? "/app/collections/remove-entry" : "/app/collections/add-entry"} method="post">
           <input type="hidden" name="entryId" value={entry.id} />
           <input type="hidden" name="collectionName" value="Read" />
-          <button class="icon-link-button">
+          <button class="icon-link-button" aria-label={entry.read ? "Mark Unread" : "Mark Read"}>
             <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
           </button>
+          <span role="status" class="tooltip">{entry.read ? "Mark Unread" : "Mark Read"}</span>
         </form>
       </li>
     </ul>

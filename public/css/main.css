@@ -32,6 +32,7 @@
   --dark-10: hsl(var(--dark-h), var(--dark-s), var(--l-10));
 
   --light: hsl(253, 100%, 95%);
+  --light-alpha: 253 100% 95%;
   --light-h: 253;
   --light-s: 100%;
   --light-l: 95%;
@@ -146,7 +147,7 @@
   box-sizing: border-box;
 }
 
-*:focus {
+*:focus-visible {
   outline: 1px solid var(--accent-alt);
   outline-offset: 2px;
   border-radius: 0;
@@ -584,7 +585,7 @@ button:hover,
   /* border: 1px solid var(--accent-alt-1); */
   border-radius: 1rem;
   padding: 1rem;
-  overflow: hidden;
+  /* overflow: hidden; */
   /* background-color: var(--background-1); */
   transition: opacity var(--transition), background-color var(--transition);
   /* transition: opacity var(--transition), border-color var(--transition); */
@@ -674,6 +675,7 @@ button:hover,
   display: flex;
   justify-content: flex-end;
   width: 100cqi;
+  position: relative;
 }
 
 .item-card-row {
@@ -700,13 +702,49 @@ button:hover,
   opacity: 0;
   transform: translateX(2rem);
   transition: transform var(--transition);
+  /* position: relative; */
+  /* overflow: hidden; */
 }
 
 .item-card-menu li {
+  /* overflow: hidden; */
+  position: relative;
 
   & a,
   button {
     font-size: 1.25rem;
+  }
+}
+
+.tooltip-container {
+  /* background: tomato; */
+  /* position: relative; */
+
+  & .tooltip {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+    background-color: var(--background--1);
+    padding: 0.5rem;
+    border-radius: 0.25em;
+    position: absolute;
+    white-space: nowrap;
+    top: calc(-100% - 1.75rem);
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity var(--transition);
+    transition-delay: 0.3s;
+    box-shadow: 0 0 10px hsl(var(--light-alpha) / 20%);
+  }
+}
+
+.tooltip-container:hover {
+  & .tooltip {
+    opacity: 1;
+    width: unset;
+    height: unset;
+    visibility: visible;
   }
 }
 
