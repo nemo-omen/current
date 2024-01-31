@@ -739,7 +739,8 @@ button:hover,
   }
 }
 
-.tooltip-container:hover {
+.tooltip-container:hover,
+.tooltip-container:focus-within {
   & .tooltip {
     opacity: 1;
     width: unset;
