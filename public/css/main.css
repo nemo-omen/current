@@ -133,7 +133,7 @@
   --transition: 0.2s ease-in-out;
   --long-transition: 0.5s ease-in-out;
 
-  --content-width: min(60rem, 90vw);
+  --content-width: min(50rem, 90vw);
   --reading-width: min(70ch, 90vw);
 
   --sb-track-color: #0b0916;
@@ -193,7 +193,7 @@ body {
 }
 
 header {
-  padding: 1rem 2rem 0 2rem;
+  padding: 1rem 2rem;
   grid-area: header;
   background-color: transparent;
   /* background-color: var(--background-1); */
@@ -210,9 +210,9 @@ header {
     flex: 1;
     /* width: 100%; */
     display: flex;
-    background-color: var(--background-1);
-    padding: 0.5rem;
-    border-radius: 1rem;
+    /* background-color: var(--background-1); */
+    /* padding: 0.5rem; */
+    /* border-radius: 1rem; */
     justify-content: center;
     font-size: 1.25rem;
   }
@@ -225,7 +225,10 @@ header {
     width: var(--content-width);
     margin-inline: auto;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--accent-alt-3);
+
     /* display: grid;
     grid-template-columns: repeat(2, 1fr); */
     /* border: 1px solid var(--background-4); */
@@ -239,6 +242,7 @@ header {
 
     &>* {
       font-size: 1.5rem;
+      color: var(--accent-alt-3);
     }
   }
 
@@ -259,6 +263,10 @@ h4 {
   line-height: 1;
   max-width: 50ch;
   text-wrap: balance;
+}
+
+p {
+  line-height: calc(1ex / 0.32);
 }
 
 main {
@@ -400,7 +408,7 @@ a:hover,
   }
 
   & label {
-    font-size: 2rem;
+    /* font-size: 2rem; */
     font-weight: 600;
     line-height: 1;
   }
@@ -846,8 +854,8 @@ button:hover,
   /* width: min(70ch, 90vw); */
   width: var(--reading-width);
   margin: 0 auto;
-  border: 1px solid var(--background-3);
-  padding: 1rem;
+  /* border: 1px solid var(--background-3);
+  padding: 1rem; */
   margin-bottom: 2rem;
 
   & h1 {

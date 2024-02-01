@@ -13,7 +13,7 @@ export const Find = (c: Context) => {
       </Page>
     </>,
     {
-      title: 'Find Feeds'
+      title: c.get('pageTitle')
     }
   )
 };

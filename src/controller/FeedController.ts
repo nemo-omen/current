@@ -31,6 +31,7 @@ const subscribeFormSchema = z.object({
  * Find feed page
  */
 app.get('/find', (c: Context) => {
+  c.set('pageTitle', 'Add Feed');
   return Find(c);
 });
 
@@ -62,9 +63,25 @@ app.get('/s/:slug', (c: Context) => {
   });
 
   feedResponse.data.entries = entries ?? [];
+  feedResponse.data.entries = feedResponse.data.entries.sort(
+    (a, b) => {
+      return (new Date(b.published).valueOf()) - (new Date(a.published).valueOf());
+    }
+  );
 
   c.set('feed', feedResponse.data);
   c.set('pageTitle', 'Feed Page');
+  return FeedPage(c);
+});
+
+// update current view route
+app.get('/s/:slug/:view', (c: Context) => {
+  const session = c.get('session');
+  const slug = c.req.param('slug');
+  const user = session.get('user');
+  const feedRepo = new FeedRepository(db);
+  const entryRepo = new EntryRepository(db);
+  const collectionRepo = new CollectionRepository(db);
   return FeedPage(c);
 });
 
@@ -88,6 +105,7 @@ app.post(
     }
     let data: ValidatedSearch | null = c.req.valid('form');
     let feedurl: string;
+    c.set('pageTitle', 'Add Feed');
 
     if (!data) {
       // If no valid data in form, get formData directly
@@ -135,7 +153,7 @@ app.post(
       if (!feedResult.ok) {
         session.flash('error', 'Could not find a feed at that address.');
       } else {
-        c.set('feed', feedResult.data);
+        c.set('feedResult', feedResult.data);
       }
       // set context value to repopulate form
       // input on new page load

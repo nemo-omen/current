@@ -18,6 +18,15 @@ const BaseHeader: FC = ({children}) => {
   const user = session.get('user');
   const error = session.get('error') || '';
   const message = session.get('message') || '';
+  const feed = c.get('feed');
+  
+  let title: string | undefined = c.get('pageTitle');
+  
+  if(feed) {
+    title = feed.title;
+    console.log({title});
+  }
+
   return(
     <header>
       <div class="header-inner">
@@ -27,18 +36,14 @@ const BaseHeader: FC = ({children}) => {
           </span>
           Current
         </a>
-        {error || message ?
-          <div class="header-container">
-            <div class="flash">
-              {error && <p class="error">{error}</p>}
-              {message && <p class="message">{message}</p>}
-            </div>
-            {/* {user && <HeaderControl />} */}
+        <div class="header-container">
+          {title && <h1>{title}</h1>}
+          <div class="flash">
+            {error && <p class="error">{error}</p>}
+            {message && <p class="message">{message}</p>}
           </div>
-        : <div class="header-container">
-            {/* <div class="flash">
-            </div> */}
-          </div>}
+          {user && feed && <HeaderControl />}
+        </div>
 
         <nav aria-label="main">
           {children}

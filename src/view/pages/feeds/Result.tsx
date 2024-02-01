@@ -6,12 +6,12 @@ import { useRequestContext } from 'hono/jsx-renderer';
 import { FC } from 'hono/jsx';
 
 export const ResultPage = (c: Context) => {
-  const feed = c.get('feed');
+  const feedResult = c.get('feedResult');
   return c.render(
     <Page>
       <section class="feed-search">
         <Search />
-        {feed ? <SearchResultList /> : <Flash />}
+        {feedResult ? <SearchResultList /> : <Flash />}
       </section>
     </Page>,
     {

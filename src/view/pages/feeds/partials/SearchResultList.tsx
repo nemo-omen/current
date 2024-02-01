@@ -3,27 +3,27 @@ import { useRequestContext } from "hono/jsx-renderer";
 import { CurrentEntry } from "../../../../model/CurrentEntry";
 import { Feed, Entry, Image, Text } from '@nooptoday/feed-rs';
 import { html } from "hono/html";
-import { HtmlEscapedString } from "hono/utils/html";
+import { CurrentFeed } from "../../../../model/CurrentFeed";
 
 export const SearchResultList: FC = () => {
   const c = useRequestContext();
-  const feed: StringerFeed = c.get('feed');
+  const feedResult: CurrentFeed = c.get('feedResult');
   
   return (
     <section class="search-results">
       <div class="results-header">
         <div class="results-header-info">
-          {(feed.logo ? FeedImg(feed.logo) : null) }
-          <h2>{feed.title?.content}</h2>
+          {(feedResult.logo ? FeedImg(feedResult.logo) : null) }
+          <h2>{feedResult.title?.content}</h2>
         </div>
         <form action="/app/feeds/subscribe" method="POST">
-          <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feed.feedLink} />
+          <input type="url" name="subscriptionUrl" id="subscriptionUrl" hidden value={feedResult.feedLink} />
           <button type="submit">Subscribe</button>
         </form>
       </div>
       <div class="results-list">
       {/* <pre><code>{JSON.stringify(entry, null, 4)}</code></pre> */}
-        {feed.entries.map((entry) => FeedItemCard(entry))}
+        {feedResult.entries.map((entry) => FeedItemCard(entry))}
       </div>
     </section>
   )
