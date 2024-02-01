@@ -173,8 +173,23 @@ export class CurrentEntry {
       }
     }
 
+    let linkOrigin: string | undefined = undefined;
+
+    if (entry.links) {
+      let entryLinkUrl: URL | undefined = undefined;
+      try {
+        entryLinkUrl = new URL(entry.links[0].href);
+      } catch (err) {
+        // TODO: Handle this gracefully
+        console.error(`Error converting feed link to URL: ${String(err)}`);
+      }
+      if (entryLinkUrl) {
+        linkOrigin = entryLinkUrl.origin;
+      }
+    }
+
     if (entry.content) {
-      featuredImgSrc = getFeaturedImgFromContent(entry.content);
+      featuredImgSrc = getFeaturedImgFromContent(entry.content, linkOrigin ? linkOrigin : '');
     }
 
     if (entry.published) {
@@ -223,7 +238,7 @@ function makeSummaryFromContent(html: string): string {
   return '';
 }
 
-function getFeaturedImgFromContent(content?: Content): string | undefined {
+function getFeaturedImgFromContent(content?: Content, origin: string): string | undefined {
   if (!content) {
     return undefined;
   }
@@ -244,6 +259,17 @@ function getFeaturedImgFromContent(content?: Content): string | undefined {
   const src = img.getAttribute('src');
   if (!src) {
     return undefined;
+  }
+
+  let srcUrl: URL | undefined = undefined;
+  try {
+    srcUrl = new URL(src, origin);
+  } catch (err) {
+    console.error(`Error adding origin to img src: ${String(err)}`);
+  }
+
+  if (srcUrl) {
+    return srcUrl.href;
   }
 
   return src;

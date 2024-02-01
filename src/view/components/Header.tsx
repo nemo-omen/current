@@ -15,6 +15,7 @@ export const Header: FC = () => {
 const BaseHeader: FC = ({children}) => {
   const c = useRequestContext();
   const session = c.get('session');
+  const user = session.get('user');
   const error = session.get('error') || '';
   const message = session.get('message') || '';
   return(
@@ -26,15 +27,18 @@ const BaseHeader: FC = ({children}) => {
           </span>
           Current
         </a>
-
-        <div class="header-container">
-          <HeaderControl />
-
-          <div class="flash">
-            {error && <p class="flash error">{error}</p>}
-            {message && <p class="flash message">{message}</p>}
+        {error || message ?
+          <div class="header-container">
+            <div class="flash">
+              {error && <p class="error">{error}</p>}
+              {message && <p class="message">{message}</p>}
+            </div>
+            {/* {user && <HeaderControl />} */}
           </div>
-        </div>
+        : <div class="header-container">
+            {/* <div class="flash">
+            </div> */}
+          </div>}
 
         <nav aria-label="main">
           {children}
