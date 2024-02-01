@@ -144,7 +144,7 @@ app.get('/:id', async (c: Context) => {
   }
 
   c.set('entry', entry);
-  c.set('pageTitle', entry.feedTitle);
+  c.set('pageTitle', `${entry.feedTitle}`);
   return Post(c);
 });
 

@@ -4,6 +4,7 @@ import { SidebarPage } from "../../layout/SidebarPage";
 import { addImgSrcOrigins } from "../../../lib/util/addImgSrcOrigins";
 import { highlight } from "../../../lib/util/highlight";
 import { css, cx, keyframes, Style } from 'hono/css'
+import { shiftContentHeadings } from "../../../lib/util/shiftContentHeadings";
 
 export const Post = (c: Context) => {
   const entry = c.get('entry');
@@ -41,9 +42,9 @@ export const Post = (c: Context) => {
     <article class="story-article flow post">
       {imageSrc ? <img src={imageSrc} alt={imgAlt} /> : null}
         <a href={entry.links[0]}>
-        <h1>
+        <h2>
           {entry.title}
-        </h1>
+        </h2>
         </a>
       <time>{new Date(entry.published).toLocaleDateString('en-US', {month: 'long', weekday: 'long', day: 'numeric', year: 'numeric'})}</time>
       {
@@ -73,11 +74,12 @@ export const Post = (c: Context) => {
 const ItemContent = async (props) => {
   const doc = await addImgSrcOrigins(props.link, props.content);
   const highlighted = await highlight(doc);
+  const shiftedHeadings = await shiftContentHeadings(doc);
   // console.log(props);
 
   return(html`
     <div class="content">
-      ${raw(highlighted)}
+      ${raw(shiftedHeadings)}
     </div>
   `)
 };

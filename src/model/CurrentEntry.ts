@@ -2,6 +2,7 @@ import { Content, Entry, MediaObject, Person } from "@nooptoday/feed-rs";
 import { parse as parseHtml } from 'node-html-parser';
 import { Image } from '@nooptoday/feed-rs';
 import kebabCase from "just-kebab-case";
+
 export type CurrentEntryProps = {
   id: string,
   rssId?: string,
@@ -222,6 +223,10 @@ export class CurrentEntry {
 
     return new CurrentEntry(props);
   }
+}
+
+function shiftHeadings(html: string): string {
+
 }
 
 function getInnerText(html: string): string {
