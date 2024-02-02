@@ -49,11 +49,13 @@ export const EntryCard: FC = (props) => {
               <time>{dateString}</time>
               <h3 class="item-card-feed-title">{entry.feedTitle}</h3>
             </div>
-            <a href={`/app/posts/${entry.id}`} class="item-card-text">
-              {/* <p> */}
-                {summary}
-              {/* </p> */}
-            </a>
+            <div class="item-card-body">
+              <a href={`/app/posts/${entry.id}`} class="item-card-text">
+                {/* <p> */}
+                  {summary}
+                {/* </p> */}
+              </a>
+            </div>
           <CardFooter entry={entry} cardDate={cardDate} />
         </section>
       </article>
