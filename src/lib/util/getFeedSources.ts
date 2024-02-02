@@ -4,6 +4,15 @@ import { FEEDTYPES } from "../constants/FEEDTYPES";
 import { COMMON_FEED_EXTENSIONS } from "../constants/COMMON_FEED_EXTENSIONS";
 import { parse } from 'node-html-parser';
 
+/**
+ * Attempts to find a valid RSS URL at the given site URL
+ * by first attempting to find links in the <head> tag. If
+ * none are found, it tries guessing a valid RSS link. Each guess
+ * is used to try sending a `HEAD` request which is then checked
+ * for common RSS`content-type` headers.
+ * @param url A valid URL to attempt finding RSS feed URLs at
+ * @returns Result<RssSource[]> - An array of RssSources
+ */
 export async function getFeedSources(url: string): Promise<Result<RssSource[]>> {
   let rssSources: RssSource[] = [];
   const htmlBodyResult = await getHtmlBody(url);

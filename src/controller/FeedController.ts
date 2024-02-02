@@ -16,6 +16,7 @@ import { PostList } from "../view/pages/posts/PostList";
 import { FeedPage } from "../view/pages/feeds/FeedPage";
 import { CurrentEntry } from "../model/CurrentEntry";
 import { EntryRepository } from "../repo/EntryRepository";
+import { getFeedSources } from "../lib/util/getFeedSources";
 
 const app = new Hono();
 
@@ -138,18 +139,28 @@ app.post(
     }
 
     if (!rssUrl) {
-      const rssUrlResult: Result<RssSource> = await rssService.findDocumentRssLink(feedurl);
+      const rssUrlResult = await getFeedSources(feedurl);
+      // console.log(rssUrlResult.data);
+      // const rssUrlResult: Result<RssSource> = await rssService.findDocumentRssLink(feedurl);
       if (!rssUrlResult.ok) {
         session.flash('error', 'Could not find RSS feed at that address.');
         return ResultPage(c);
       }
 
-      rssUrl = rssUrlResult.data.url;
+      if (rssUrlResult.data.length < 1) {
+        session.flash('error', 'Could not find any RSS feeds at that address');
+        return ResultPage(c);
+      }
+
+      // for now just return the first result
+      // but in the future we need to display
+      // multiple feeds if multiple URLs are found
+      rssUrl = rssUrlResult.data[0].url;
     }
 
     if (rssUrl) {
       const feedResult: Result<CurrentFeed> = await rssService.getFeedByUrl(rssUrl);
-
+      console.log({ feedResult });
       if (!feedResult.ok) {
         session.flash('error', 'Could not find a feed at that address.');
       } else {

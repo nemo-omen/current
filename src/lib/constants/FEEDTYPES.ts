@@ -10,5 +10,6 @@ export const FEEDTYPES = [
   'text/rdf+xml',
   'text/rss',
   'text/atom',
-  'text/rdf'
+  'text/rdf',
+  'text/xml'
 ];

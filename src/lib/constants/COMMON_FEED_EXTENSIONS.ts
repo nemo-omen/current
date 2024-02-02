@@ -5,6 +5,7 @@ export const COMMON_FEED_EXTENSIONS = [
   '/feed.xml',
   '.rss',
   '.xml',
+  'rss.xml',
   '/feed/',
   '/rss/',
   '/rss.xml/',
