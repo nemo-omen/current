@@ -10,7 +10,6 @@ export const CollectionList = (c: Context) => {
     <>
     <Page>
       <div>
-        <h1>{collectionTitle}</h1>
         <EntryList entries={entries} />
       </div>
     </Page>

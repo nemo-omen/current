@@ -6,7 +6,7 @@ export const NewCollection = (c: Context) => {
     <>
     <Page>
       <div>
-        <h1>Create a New Collection</h1>
+        {/*  */}
       </div>
     </Page>
     </>,

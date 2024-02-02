@@ -8,7 +8,7 @@ export const NoteList = (c: Context) => {
   
   return c.render(
     <SidebarPage>
-      <h1>Your Notes</h1>
+      <></>
     </SidebarPage>,
     {title: pageTitle}
   )

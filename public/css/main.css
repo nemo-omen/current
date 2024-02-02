@@ -15,9 +15,10 @@
   --l-10: calc(var(--l-9) + var(--light-step));
 
   --dark: hsl(253, 44%, 6%);
+  --dark-alpha: 253 44% 6%;
   --dark-h: 253;
   --dark-s: 44%;
-  --dark-l: 6;
+  --dark-l: 6%;
   --dark--1: hsl(var(--dark-h), var(--dark-s), var(--l--1));
   --dark-0: hsl(var(--dark-h), var(--dark-s), var(--l-0));
   --dark-1: hsl(var(--dark-h), var(--dark-s), var(--l-1));
@@ -252,6 +253,10 @@ header {
     list-style-type: none;
     margin: 0;
   }
+
+  & h1 {
+    font-size: 1.5rem;
+  }
 }
 
 h1,
@@ -287,6 +292,7 @@ main>* {
   width: min(16rem, 90vw);
   /* background-color: var(--background-1); */
   padding: 2rem;
+  overflow-y: auto;
 }
 
 .sidebar-secondary {
@@ -357,7 +363,7 @@ main>* {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2rem;
+    /* font-size: 2rem; */
   }
 }
 
@@ -704,9 +710,12 @@ button:hover,
     overflow-y: hidden;
     text-overflow: ellipsis;
     width: 100cqi;
-
-    /* & p {
-    } */
+    line-height: 1.7;
+    height: 5.1rem;
+    display: block;
+    -webkit-mask-image: linear-gradient(to bottom right, var(--foreground), transparent 99%);
+    mask-image: linear-gradient(to bottom right, var(--foreground), transparent 99%);
+    /* transition: all var(--transition); */
   }
 
   & h2 {
@@ -739,6 +748,8 @@ button:hover,
   font-size: 1rem;
   overflow-x: hidden;
   text-overflow: ellipsis;
+  /* hard limit*/
+  max-width: 30ch;
 }
 
 .item-card-menu {
@@ -800,7 +811,7 @@ button:hover,
 
 /* ITEM CARD HOVER STYLES */
 
-.item-card:has(a:hover, button:hover, *:focus) {
+/* .item-card:has(a:hover, button:hover, *:focus) {
   color: var(--foreground);
   background-color: var(--background-1);
 
@@ -811,7 +822,11 @@ button:hover,
   & .item-card-menu {
     opacity: 1;
   }
-}
+
+  & .item-card-text::after {
+    background: linear-gradient(to right, transparent, var(--background-1) 50%);
+  }
+} */
 
 .item-card-thumbnail:hover {
   opacity: 1.0;
@@ -820,6 +835,7 @@ button:hover,
 .item-card:hover,
 .item-card:focus-within {
   border-color: var(--accent-alt-3);
+  background-color: var(--background-1);
 
   & .post-thumbnail-container {
     opacity: 1.0;
@@ -835,6 +851,14 @@ button:hover,
   & .item-card-menu {
     opacity: 1;
     transform: translateX(0);
+  }
+
+  & .item-card-text::after {
+    opacity: 0;
+  }
+
+  & .item-card-text::before {
+    opacity: 1;
   }
 }
 

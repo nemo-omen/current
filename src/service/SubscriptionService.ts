@@ -86,4 +86,8 @@ export class SubscriptionService {
 
     return { ok: true, data: feed };
   }
+
+  unsubscribe() {
+
+  }
 }
