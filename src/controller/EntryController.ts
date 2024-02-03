@@ -130,12 +130,12 @@ app.get('/:id', async (c: Context) => {
 
     if (entry.read === false) {
       entry.read = true;
-      const removeFromUnreadResult = collectionRepo.removeEntryByCollectionTitle(entry.id, entry.feedId, 'Unread');
+      const removeFromUnreadResult = collectionRepo.removeEntryByCollectionTitle(entry.id, user.id, 'Unread');
       if (!removeFromUnreadResult.ok || removeFromUnreadResult.data === false) {
         console.log(`Error removing entry from Unread collection: ${removeFromUnreadResult.error}`);
       }
 
-      const addToReadResult = collectionRepo.addEntryToCollectionByTitle(entry.id, entry.feedId, 'Read');
+      const addToReadResult = collectionRepo.addEntryToCollectionByTitle(entry.id, user.id, entry.feedId, 'Read');
 
       if (!addToReadResult.ok || !addToReadResult.data) {
         console.error(`Error adding entry to Read collection`);

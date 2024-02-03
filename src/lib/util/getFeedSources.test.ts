@@ -32,7 +32,6 @@ test("getFeedSources", async () => {
 
   for (const rootUrl of rootUrls) {
     const rssSources = await getFeedSources(rootUrl);
-    console.log(rssSources);
     expect(rssSources.ok).toBeTrue();
     expect(rssSources.error).toBeNil();
     expect(rssSources.data).toBeArray();

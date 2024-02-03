@@ -62,11 +62,12 @@ export class CollectionRepository implements Repository<Collection> {
       return { ok: false, error: `Error saving entry to collection with id ${collectionId}` };
     }
 
+
     return { ok: true, data: entryResult };
   }
 
-  addEntryToCollectionByTitle(entryId: string, feedId: string, collectionTitle: string): Result<{ entryId: string, collectionId: number; }> {
-    const collectionResult = this.findByTitle(collectionTitle);
+  addEntryToCollectionByTitle(entryId: string, userId: string, feedId: string, collectionTitle: string): Result<{ entryId: string, collectionId: number; }> {
+    const collectionResult = this.findByTitle(collectionTitle, userId);
 
     if (!collectionResult.ok) {
       return collectionResult;
@@ -96,8 +97,8 @@ export class CollectionRepository implements Repository<Collection> {
     return { ok: true, data: true };
   }
 
-  removeEntryByCollectionTitle(entryId: string, collectionTitle: string): Result<boolean> {
-    const collectionResult = this.findByTitle(collectionTitle);
+  removeEntryByCollectionTitle(entryId: string, userId: string, collectionTitle: string): Result<boolean> {
+    const collectionResult = this.findByTitle(collectionTitle, userId);
 
     if (!collectionResult.ok) {
       return collectionResult;
@@ -178,11 +179,11 @@ export class CollectionRepository implements Repository<Collection> {
     return { ok: true, data: Collection.fromPersistance(selectResult) };
   }
 
-  findByTitle(title: string): Result<Collection> {
-    const query = this._db.query(`SELECT * FROM collections WHERE title=$title;`);
+  findByTitle(title: string, userId: string): Result<Collection> {
+    const query = this._db.query(`SELECT * FROM collections WHERE title=$title AND userId=$userId;`);
     let queryResult: PersistanceCollectionDTO | undefined = undefined;
     try {
-      queryResult = query.get({ $title: title }) as PersistanceCollectionDTO;
+      queryResult = query.get({ $title: title, $userId: userId }) as PersistanceCollectionDTO;
     } catch (err) {
       return { ok: false, error: String(err) };
     }

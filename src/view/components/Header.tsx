@@ -24,7 +24,7 @@ const BaseHeader: FC = ({children}) => {
   
   if(feed) {
     title = feed.title;
-    console.log({title});
+    // console.log({title});
   }
 
   return(
@@ -56,7 +56,7 @@ const BaseHeader: FC = ({children}) => {
 const HeaderControl: FC = (props) => {
   const c = useRequestContext();
   const feed = c.get('feed');
-  console.log({feed});
+  // console.log({feed});
   return (
     <div class="header-control">
       <button class="icon-link-button">

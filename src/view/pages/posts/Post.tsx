@@ -53,7 +53,7 @@ export const Post = (c: Context) => {
               By {entry.authors.map(
                 (a) => (
                   <address class="author">
-                    {a.uri ? (<a href={a.uri}>{a.name}</a>) : a.name}
+                    {a.uri ? (<a href={a.uri} target="_blank">{a.name}</a>) : a.name}
                   </address>
                 )
               )}</span>
@@ -63,7 +63,7 @@ export const Post = (c: Context) => {
         ? <ItemContent content={entry.content.body} link={entry.links[0]}/>
         : <ItemContent content={entry.summary} link={entry.links[0]}/>
       }
-      <a href={entry.links[0]}>View Original</a>
+      <a href={entry.links[0]} target="_blank">View Original</a>
     </article>
     </SidebarPage>,
     {title: entry.title}

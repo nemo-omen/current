@@ -160,7 +160,7 @@ app.post(
 
     if (rssUrl) {
       const feedResult: Result<CurrentFeed> = await rssService.getFeedByUrl(rssUrl);
-      console.log({ feedResult });
+      // console.log({ feedResult });
       if (!feedResult.ok) {
         session.flash('error', 'Could not find a feed at that address.');
       } else {
@@ -195,31 +195,19 @@ app.post(
     const feedRepo = new FeedRepository(db);
     const subscriptionService = new SubscriptionService(db);
 
-    const rssFeedResult: Result<CurrentFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
-
-    if (!rssFeedResult.ok) {
-      c.set('searchUrl', data.subscriptionUrl);
-      session.flash('error', `These was an error subscribing to the feed at ${data.subscriptionUrl}`);
-      return ResultPage(c);
-    }
-
-    // 1.  Check if feed exists in db
-    //     -- can search by id, since id
-    //        is a field of feed-rs feeds
-    //     -- probably better to stick to url
-    //        since that's what we're using to
-    //        get the full remote feed
-    // 2a. Does not exist?
-    //     - save feed to db
-    // 2b. Exists? (should exist after 2a)
-    //     - add record to `subscriptions` table
-    // 3.  Show success message 
-    //     (redirect to /app/feeds/find and show related?)
-    //     (redirect to /app/posts/all?)
-
+    // 1. Get feed from db
     let storedFeedResult: Result<CurrentFeed | null> = feedRepo.findByUrl(data.subscriptionUrl);
 
+    // Does not exist or not ok result?
     if (!storedFeedResult.ok) {
+      const rssFeedResult: Result<CurrentFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
+
+      if (!rssFeedResult.ok) {
+        c.set('searchUrl', data.subscriptionUrl);
+        session.flash('error', `These was an error subscribing to the feed at ${data.subscriptionUrl}`);
+        return ResultPage(c);
+      }
+
       c.set('searchUrl', data.subscriptionUrl);
       c.set('feed', rssFeedResult.data);
       session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
@@ -227,13 +215,21 @@ app.post(
     }
 
     if (storedFeedResult.data === null) {
+      const rssFeedResult: Result<CurrentFeed> = await feedService.getFeedByUrl(data.subscriptionUrl);
+
+      if (!rssFeedResult.ok) {
+        c.set('searchUrl', data.subscriptionUrl);
+        session.flash('error', `These was an error subscribing to the feed at ${data.subscriptionUrl}`);
+        return ResultPage(c);
+      }
+
       const feed: CurrentFeed = rssFeedResult.data;
 
       try {
         subscriptionService.saveSubscriptionFeedEntries(feed, user.id);
       } catch (err) {
         // LOG
-        console.log({ err });
+        console.error(err);
         c.set('searchUrl', data.subscriptionUrl);
         c.set('feed', rssFeedResult.data);
         session.flash('error', `There was an error subscribing to the feed at ${data.subscriptionUrl}`);
@@ -241,6 +237,7 @@ app.post(
       }
       storedFeedResult = { ok: true, data: feed };
     } else {
+      // 3. Stored feed exists, subscribe to it
       const subscribeResult = subscriptionService.saveStoredFeedSubscription(storedFeedResult.data.id, user.id);
       if (!subscribeResult.ok) {
         session.flash('error', `There was an error subscribing to ${storedFeedResult.data.title}`);

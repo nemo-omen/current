@@ -163,7 +163,7 @@ app.post('/add-entry', async (c: Context) => {
     return c.redirect(redirectTarget);
   }
 
-  const addEntryResponse = collectionRepo.addEntryToCollectionByTitle(entryId, feedId, collectionName);
+  const addEntryResponse = collectionRepo.addEntryToCollectionByTitle(entryId, user.id, feedId, collectionName);
 
   if (!addEntryResponse.ok) {
     session.flash('error', `There was an error adding the post to ${collectionName}`);
@@ -172,15 +172,15 @@ app.post('/add-entry', async (c: Context) => {
   if (collectionName === 'Read') {
     // remove entry from 'Unread'
     // TODO: Might want to wrap these in a transaction and add them to their own route
-    const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, 'Unread');
+    const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, user.id, 'Unread');
   }
 
   if (collectionName === 'Unread') {
     // Remove collection from 'Read'
-    const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, 'Read');
+    const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, user.id, 'Read');
   }
 
-  console.log({ redirectTarget });
+  // console.log({ redirectTarget });
 
   return c.redirect(redirectTarget ? redirectTarget : '/app');
 });
@@ -188,7 +188,7 @@ app.post('/add-entry', async (c: Context) => {
 app.post('/remove-entry', async (c: Context) => {
   const formData = await c.req.formData();
   // validation -- need entryId, collectionName
-  console.log({ formData });
+  // console.log({ formData });
   // probably need to redirect to collection
   // page => /user/:slug
   c.set('posts', []);

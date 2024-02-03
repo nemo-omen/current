@@ -63,7 +63,7 @@ export class SubscriptionService {
           // console.log(`Saving entry ${entry.id} from feed ${tsFeedId} to collection ${unreadCollectionResult.data.id}`);
           const savedUnreadResult = this.collectionRepo.addEntry(entry.id, tsFeedId, unreadCollectionResult.data.id!);
           if (!savedUnreadResult.ok) {
-            console.log({ savedUnreadResult });
+            // console.log({ savedUnreadResult });
             // not sure what to do here
           }
         }
@@ -93,7 +93,7 @@ export class SubscriptionService {
         const entryResult: Result<string> = this.entryRepo.create(entry);
 
         if (!entryResult.ok) {
-          console.log(`Error saving entry: ${entryResult.error}`);
+          console.error(`Error saving entry: ${entryResult.error}`);
           return entryResult;
         }
 
@@ -102,13 +102,13 @@ export class SubscriptionService {
 
       const subscriptionResult = this.subscriptionRepo.create(new Subscription({ feedId: feedResult.data.id, userId }));
       if (!subscriptionResult.ok) {
-        console.log(`Failed saving subscription: ${subscriptionResult.error}`);
+        console.error(`Failed saving subscription: ${subscriptionResult.error}`);
         return subscriptionResult;
       }
 
       const unreadCollectionResult = this.collectionRepo.findUserCollectionByTitle(userId, 'Unread');
       if (!unreadCollectionResult.ok) {
-        console.log(`Unread collection result error: ${unreadCollectionResult.error}`);
+        console.error(`Unread collection result error: ${unreadCollectionResult.error}`);
         return unreadCollectionResult;
       }
 

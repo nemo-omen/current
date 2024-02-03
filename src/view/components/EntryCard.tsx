@@ -141,6 +141,7 @@ const CardMenu: FC = ({entry}) => {
       <li class="tooltip-container">
         <form action="/app/collections/add-entry" method="post">
         <input type="hidden" name="entryId" value={entry.id} />
+        <input type="hidden" name="feedId" value={entry.feedId} />
         <input type="hidden" name="collectionName" value="Some New Collection" />
         <button class="icon-link-button" type="submit" aria-label="Add to Collection">
           <Icon name="folder_add" />
@@ -151,6 +152,7 @@ const CardMenu: FC = ({entry}) => {
       <li class="tooltip-container">
         <form action="/app/collections/add-entry" method="post">
           <input type="hidden" name="entryId" value={entry.id} />
+          <input type="hidden" name="feedId" value={entry.feedId} />
           <input type="hidden" name="collectionName" value={entry.read ? "Unread" : "Read"} />
           <button class="icon-link-button" aria-label={entry.read ? "Mark Unread" : "Mark Read"}>
             <Icon name={entry.read ? "checkbox_circle_outline" : "checkbox_circle_fill"} />
