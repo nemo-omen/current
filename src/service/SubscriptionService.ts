@@ -25,21 +25,64 @@ export class SubscriptionService {
     this.collectionRepo = new CollectionRepository(this._db);
   }
 
-  getUnreadSubscriptionEntries(userId: number): Result<CurrentEntry[]> {
-    const subscriptionsResult = this.subscriptionRepo.getSubscriptionsByUserId(userId);
-    if (!subscriptionsResult.ok) {
-      return subscriptionsResult;
+  saveStoredFeedSubscription(feedId: string, userId: number): Result<boolean> {
+    // console.log(`Attempting to save subscription for feed ${feedId} and user ${userId}`);
+    const transact = this._db.transaction((tsFeedId: string, tsUserId: number) => {
+      const storedFeedResult = this.feedRepo.findById(feedId);
+      if (!storedFeedResult.ok) {
+        return storedFeedResult;
+      }
+
+      if (storedFeedResult.data) {
+        console.log(`Found stored feed ${storedFeedResult.data.id}. Storing subscription`);
+        const subscriptionResult = this.subscriptionRepo.create(new Subscription({ feedId: tsFeedId, userId: tsUserId }));
+        if (!subscriptionResult.ok) {
+          // console.log(`Failed saving subscription: ${subscriptionResult.error}`);
+          return subscriptionResult;
+        }
+
+        // console.log(`Subscription stored. Finding 'Unread' collection`);
+
+        const unreadCollectionResult = this.collectionRepo.findUserCollectionByTitle(userId, 'Unread');
+        if (!unreadCollectionResult.ok) {
+          // console.log(`Unread collection result error: ${unreadCollectionResult.error}`);
+          return unreadCollectionResult;
+        }
+
+        // console.log(`Selecting stored feed entries.`);
+        const storedFeedEntriesResult = this.entryRepo.findByFeedId(tsFeedId);
+
+        if (!storedFeedEntriesResult.ok) {
+          console.log(`No entries to save.`);
+          return { ok: false, error: 'Could not find entries to add to unread collection of new subscription.' };
+        }
+
+        // console.log(`Found 'Unread' collection with id ${unreadCollectionResult.data.id}. Adding ${storedFeedEntriesResult.data.length} entries.`);
+
+        for (const entry of storedFeedEntriesResult.data) {
+          // console.log(`Saving entry ${entry.id} from feed ${tsFeedId} to collection ${unreadCollectionResult.data.id}`);
+          const savedUnreadResult = this.collectionRepo.addEntry(entry.id, tsFeedId, unreadCollectionResult.data.id!);
+          if (!savedUnreadResult.ok) {
+            console.log({ savedUnreadResult });
+            // not sure what to do here
+          }
+        }
+      }
+    });
+
+    try {
+      transact(feedId, userId);
+    } catch (err) {
+      console.error(err);
+      return { ok: false, error: String(err) };
     }
 
-    for (const subscription of subscriptionsResult.data) {
-      // const feedsResult = this.feedRepo.
-    }
-    return { ok: true, data: [] };
+    return { ok: true, data: true };
   }
 
   saveSubscriptionFeedEntries(feed: CurrentFeed, userId: number): Result<CurrentFeed> {
     const insertAll = this._db.transaction((transactionFeed: CurrentFeed) => {
-      const feedResult: Result<CurrentFeed> = this.feedRepo.create(feed);
+      const feedResult: Result<CurrentFeed> = this.feedRepo.create(transactionFeed);
       const savedEntryIds: string[] = [];
 
       if (!feedResult.ok) {
@@ -70,7 +113,7 @@ export class SubscriptionService {
       }
 
       for (const entryId of savedEntryIds) {
-        const savedUnreadResult = this.collectionRepo.addEntry(entryId, unreadCollectionResult.data.id!);
+        const savedUnreadResult = this.collectionRepo.addEntry(entryId, feed.id, unreadCollectionResult.data.id!);
         if (!savedUnreadResult.ok) {
           // not sure what to do here
         }
@@ -85,6 +128,18 @@ export class SubscriptionService {
     }
 
     return { ok: true, data: feed };
+  }
+
+  getUnreadSubscriptionEntries(userId: number): Result<CurrentEntry[]> {
+    const subscriptionsResult = this.subscriptionRepo.getSubscriptionsByUserId(userId);
+    if (!subscriptionsResult.ok) {
+      return subscriptionsResult;
+    }
+
+    for (const subscription of subscriptionsResult.data) {
+      // const feedsResult = this.feedRepo.
+    }
+    return { ok: true, data: [] };
   }
 
   unsubscribe() {

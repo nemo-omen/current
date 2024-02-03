@@ -44,16 +44,17 @@ export class CollectionRepository implements Repository<Collection> {
     return { ok: true, data: Collection.fromPersistance(insertResult) };
   }
 
-  addEntry(entryId: string, collectionId: number): Result<{ entryId: string, collectionId: number; }> {
+  addEntry(entryId: string, feedId: string, collectionId: number): Result<{ entryId: string, collectionId: number; }> {
     const query = this._db.query(`INSERT OR IGNORE INTO collection_entries
-      (entryId, collectionId)
-      VALUES ($entryId, $collectionId)
+      (entryId, feedId, collectionId)
+      VALUES ($entryId, $feedId, $collectionId)
       RETURNING *;`
     );
-    let entryResult: { entryId: string, collectionId: number; } | undefined = undefined;
+    let entryResult: { entryId: string, feedId: string, collectionId: number; } | undefined = undefined;
     try {
-      entryResult = query.get({ $entryId: entryId, $collectionId: collectionId }) as { entryId: string, collectionId: number; };
+      entryResult = query.get({ $entryId: entryId, $feedId: feedId, $collectionId: collectionId }) as { entryId: string, feedId: string, collectionId: number; };
     } catch (err) {
+      console.error(err);
       return { ok: false, error: `Collection Entry error: ${String(err)}` };
     }
 
@@ -64,7 +65,7 @@ export class CollectionRepository implements Repository<Collection> {
     return { ok: true, data: entryResult };
   }
 
-  addEntryToCollectionByTitle(entryId: string, collectionTitle: string): Result<{ entryId: string, collectionId: number; }> {
+  addEntryToCollectionByTitle(entryId: string, feedId: string, collectionTitle: string): Result<{ entryId: string, collectionId: number; }> {
     const collectionResult = this.findByTitle(collectionTitle);
 
     if (!collectionResult.ok) {
@@ -72,10 +73,10 @@ export class CollectionRepository implements Repository<Collection> {
     }
 
     if (!collectionResult.data) {
-      return { ok: false, error: `Colud not find collection titled ${collectionTitle}` };
+      return { ok: false, error: `Could not find collection titled ${collectionTitle}` };
     }
 
-    return this.addEntry(entryId, collectionResult.data.id!);
+    return this.addEntry(entryId, feedId, collectionResult.data.id!);
   }
 
   removeEntry(entryId: string, collectionId: number): Result<boolean> {
@@ -107,6 +108,10 @@ export class CollectionRepository implements Repository<Collection> {
     }
 
     return this.removeEntry(entryId, collectionResult.data.id!);
+  }
+
+  removeEntriesByFeedId(feedId: string) {
+    // TODO
   }
 
   delete(id: any): Result<boolean> {

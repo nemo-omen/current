@@ -149,6 +149,7 @@ app.post('/add-entry', async (c: Context) => {
   const collectionRepo = new CollectionRepository(db);
 
   const entryId: string | null = formData.get('entryId') as string;
+  const feedId: string | null = formData.get('feedId') as string;
   const collectionName: string | null = formData.get('collectionName') as string;
   // validation -- need entryId, collectionName
 
@@ -162,7 +163,7 @@ app.post('/add-entry', async (c: Context) => {
     return c.redirect(redirectTarget);
   }
 
-  const addEntryResponse = collectionRepo.addEntryToCollectionByTitle(entryId, collectionName);
+  const addEntryResponse = collectionRepo.addEntryToCollectionByTitle(entryId, feedId, collectionName);
 
   if (!addEntryResponse.ok) {
     session.flash('error', `There was an error adding the post to ${collectionName}`);

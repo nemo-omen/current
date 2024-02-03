@@ -232,6 +232,21 @@ header {
       font-size: 1.5rem;
       color: var(--accent-alt-3);
     }
+
+    & form {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    & form button {
+      font-size: 1.5rem;
+      /* color: var(--accent-3); */
+    }
+
+    & form button:hover {
+      color: var(--accent) !important;
+    }
   }
 
   & nav ul {
@@ -761,6 +776,7 @@ button:hover,
 }
 
 .tooltip-container {
+  z-index: 200;
 
   & .tooltip {
     opacity: 0;
@@ -869,13 +885,13 @@ button:hover,
   }
 
   & p {
-    font-size: 1.2em;
+    font-size: 1.3rem;
     line-height: calc(1ex / 0.32);
     margin: calc(1ex / 0.32) 0;
   }
 
   & a {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 
   & a:not(a:has(h1, h2)) {

@@ -240,7 +240,14 @@ app.post(
         return ResultPage(c);
       }
       storedFeedResult = { ok: true, data: feed };
+    } else {
+      const subscribeResult = subscriptionService.saveStoredFeedSubscription(storedFeedResult.data.id, user.id);
+      if (!subscribeResult.ok) {
+        session.flash('error', `There was an error subscribing to ${storedFeedResult.data.title}`);
+        return ResultPage(c);
+      }
     }
+
     const feed: CurrentFeed = storedFeedResult.data!;
 
     session.flash('message', `You have successfully subscribed to ${feed.title}`);
