@@ -62,7 +62,7 @@ const HeaderControl: FC = (props) => {
       <button class="icon-link-button">
         <Icon name="checkbox_circle_outline" />
       </button>
-      <form action="/app/feeds/unsubscribe" class="icon-form" style="font-size: inherit;">
+      <form action="/app/feeds/unsubscribe" method="POST" class="icon-form" style="font-size: inherit;">
         <input type="hidden" name="feedId" value={feed.id} />
         <button class="icon-link-button" type="submit">
           <Icon name="trash" />

@@ -80,7 +80,21 @@ export class CollectionRepository implements Repository<Collection> {
     return this.addEntry(entryId, feedId, collectionResult.data.id!);
   }
 
-  removeEntry(entryId: string, collectionId: number): Result<boolean> {
+  removeEntry(entryId: string): Result<boolean> {
+    const query = this._db.query(`DELETE FROM collection_entries
+      WHERE entryId=$entryId returning entryId;`);
+    let deleteResult: { entryId: number; } | undefined = undefined;
+
+    try {
+      deleteResult = query.get({ $entryId: entryId }) as { entryId: number; };
+    } catch (err) {
+      console.error(err);
+      return { ok: false, error: String(err) };
+    }
+    return { ok: true, data: true };
+  }
+
+  removeEntryByCollectionId(entryId: string, collectionId: number): Result<boolean> {
     const query = this._db.query(`DELETE FROM collection_entries
       WHERE entryId=$entryId AND collectionId=$collectionId RETURNING entryId;`);
     let entryResult: { entryId: number; } | undefined = undefined;
@@ -108,11 +122,26 @@ export class CollectionRepository implements Repository<Collection> {
       return { ok: false, error: `Could not find collection titled ${collectionTitle}` };
     }
 
-    return this.removeEntry(entryId, collectionResult.data.id!);
+    return this.removeEntryByCollectionId(entryId, collectionResult.data.id!);
   }
 
-  removeEntriesByFeedId(feedId: string) {
-    // TODO
+  removeEntriesByFeedId(userId: number, feedId: string): Result<boolean> {
+    const collectionResult = this.findCollectionsByUserId(userId);
+
+    if (!collectionResult.ok) {
+      return collectionResult;
+    }
+
+    for (const collection of collectionResult.data) {
+      const collectionEntriesQuery = this._db.query(`DELETE FROM collection_entries WHERE collectionId=$collectionId AND feedId=$feedId RETURNING *;`);
+      try {
+        collectionEntriesQuery.all({ $collectionId: collection.id!, $feedId: feedId }) as { collectionId: number, entryId: string; }[];
+      } catch (err) {
+        console.error(err);
+        return { ok: false, error: String(err) };
+      }
+    }
+    return { ok: true, data: true };
   }
 
   delete(id: any): Result<boolean> {

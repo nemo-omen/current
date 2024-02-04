@@ -11,6 +11,10 @@ export class SubscriptionRepository implements Repository<Subscription> {
     this._db = db;
   }
 
+  get db(): Database {
+    return this._db;
+  }
+
   create(subscription: Subscription): Result<Subscription> {
     const query = this._db.query(`
       INSERT INTO subscriptions (
@@ -63,25 +67,38 @@ export class SubscriptionRepository implements Repository<Subscription> {
     };
   }
 
-  getSubscriptionByFeedId(feedId: string): Result<Subscription[]> {
+  getSubscriptionByFeedId(feedId: string): Result<Subscription | null> {
     const query = this._db.query(`SELECT * FROM subscriptions WHERE feedId=$feedId`);
 
-    let subResult: PersistanceSubscriptionDTO[] | null;
+    let subResult: PersistanceSubscriptionDTO | null;
     try {
-      subResult = query.all({ $feedId: feedId }) as PersistanceSubscriptionDTO[];
+      subResult = query.get({ $feedId: feedId }) as PersistanceSubscriptionDTO;
     } catch (err) {
+      console.error(err);
       return { ok: false, error: `There was an error retrieving subscriptions for the feed ${feedId}` };
-    }
-
-    if (subResult === null || subResult.length === 0) {
-      return { ok: true, data: [] };
     }
 
     return {
       ok: true,
-      data: subResult.map(
-        (sub) => Subscription.fromPersistance(sub)
-      )
+      data: Subscription.fromPersistance(subResult)
     };
+  }
+
+  delete(userId: number, feedId: string): Result<boolean> {
+    type SubDelete = { userId: number, feedId: string; };
+    const query = this._db.query(`DELETE FROM subscriptions WHERE userId=$userId AND feedId=$feedId RETURNING *;`);
+    let deleteResult: SubDelete | undefined = undefined;
+    try {
+      deleteResult = query.get({ $userId: userId, $feedId: feedId }) as SubDelete;
+    } catch (err) {
+      console.error(`Error deleting subscription: ${err}`);
+      return { ok: false, error: String(err) };
+    }
+
+    if (!deleteResult) {
+      return { ok: false, error: `Something went wrong while deleting the subscription.` };
+    }
+
+    return { ok: true, data: true };
   }
 }

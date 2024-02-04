@@ -252,6 +252,17 @@ app.post(
     return c.redirect('/app');
   });
 
+app.post('/unsubscribe', async (c: Context) => {
+  const session = c.get('session');
+  const user = session.get('user');
+  const subscriptionService = new SubscriptionService(db);
+  // console.log(c.req);
+  const formData = await c.req.formData();
+  const feedId = formData.get('feedId');
+  const unsubResult = subscriptionService.unsubscribe(feedId, user.id);
+  return c.redirect('/app');
+});
+
 /**
  * Parses form input with zod schema
  * @param c Context

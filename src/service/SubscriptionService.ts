@@ -142,7 +142,21 @@ export class SubscriptionService {
     return { ok: true, data: [] };
   }
 
-  unsubscribe() {
+  unsubscribe(feedId: string, userId: number): Result<boolean> {
+    // Okay, time to delete the subscription and
+    // remove all entries with matching feedId
+    const unsubTransaction = this._db.transaction((tsFeedId: string) => {
+      const unsubResult = this.subscriptionRepo.delete(userId, feedId);
+      const deleteEntriesResult = this.collectionRepo.removeEntriesByFeedId(userId, feedId);
+    });
 
+    try {
+      unsubTransaction(feedId);
+    } catch (err) {
+      console.error(err);
+      return { ok: false, error: String(err) };
+    }
+
+    return { ok: true, data: true };
   }
 }
