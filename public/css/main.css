@@ -738,6 +738,7 @@ button:hover,
   justify-content: flex-end;
   width: 100cqi;
   position: relative;
+  z-index: 200;
 }
 
 .item-card-row {
