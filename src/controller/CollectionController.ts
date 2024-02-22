@@ -180,6 +180,11 @@ app.post('/add-entry', async (c: Context) => {
     const removeEntryResponse = collectionRepo.removeEntryByCollectionTitle(entryId, user.id, 'Read');
   }
 
+  if (collectionName === 'Read Later') {
+    const removeFromUnreadResponse = collectionRepo.removeEntryByCollectionTitle(entryId, user.id, 'Unread');
+    const removeFromReadResponse = collectionRepo.removeEntryByCollectionTitle(entryId, user.id, 'Read');
+  }
+
   // console.log({ redirectTarget });
 
   return c.redirect(redirectTarget ? redirectTarget : '/app');

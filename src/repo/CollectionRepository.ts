@@ -51,6 +51,7 @@ export class CollectionRepository implements Repository<Collection> {
       RETURNING *;`
     );
     let entryResult: { entryId: string, feedId: string, collectionId: number; } | undefined = undefined;
+
     try {
       entryResult = query.get({ $entryId: entryId, $feedId: feedId, $collectionId: collectionId }) as { entryId: string, feedId: string, collectionId: number; };
     } catch (err) {

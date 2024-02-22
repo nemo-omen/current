@@ -5,6 +5,7 @@ export const FEEDTYPES = [
   'application/rss',
   'application/atom',
   'application/rdf',
+  'application/json',
   'text/rss+xml',
   'text/atom+xml',
   'text/rdf+xml',

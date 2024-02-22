@@ -130,6 +130,7 @@ const CardMenu: FC = ({entry}) => {
       <li class="tooltip-container">
         <form action="/app/collections/add-entry" method="post">
           <input type="hidden" name="entryId" value={entry.id} />
+          <input type="hidden" name="feedId" value={entry.feedId} />
           <input type="hidden" name="collectionName" value="Read Later" />
           <button class="icon-link-button" type="submit" aria-label="Bookmark Post">
             <Icon name="bookmark" />
